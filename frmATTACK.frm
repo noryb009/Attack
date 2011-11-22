@@ -11,6 +11,20 @@ Begin VB.Form frmATTACK
    ScaleMode       =   3  'Pixel
    ScaleWidth      =   336
    StartUpPosition =   3  'Windows Default
+   Begin VB.PictureBox picMONSTER 
+      AutoRedraw      =   -1  'True
+      AutoSize        =   -1  'True
+      Height          =   390
+      Left            =   3360
+      Picture         =   "frmATTACK.frx":0000
+      ScaleHeight     =   22
+      ScaleMode       =   3  'Pixel
+      ScaleWidth      =   23
+      TabIndex        =   1
+      Top             =   1200
+      Visible         =   0   'False
+      Width           =   405
+   End
    Begin VB.Timer timerMAIN 
       Interval        =   10
       Left            =   1920
@@ -21,7 +35,7 @@ Begin VB.Form frmATTACK
       AutoSize        =   -1  'True
       Height          =   18060
       Left            =   3240
-      Picture         =   "frmATTACK.frx":0000
+      Picture         =   "frmATTACK.frx":0672
       ScaleHeight     =   1200
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   1200
@@ -51,6 +65,8 @@ Dim bISPRESSED_RIGHT As Boolean
 
 Dim intBGLEFT As Integer
 Dim intBGTOP As Integer
+
+Dim arrMONSTERS(0 To 99) As New clsMONSTER
 
 Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
 Select Case KeyCode
@@ -93,8 +109,8 @@ If bISPRESSED_UP = True And bISPRESSED_DOWN = False Then
         intBGTOP = intBGTOP - moveSPEED
     End If
 ElseIf bISPRESSED_DOWN = True And bISPRESSED_UP = False Then
-    If frmATTACK.ScaleHeight + intBGTOP + moveSPEED > picBACKGROUND.Height Then
-        If intBGTOP <> picBACKGROUND.Height - frmATTACK.ScaleHeight Then intBGTOP = picBACKGROUND.Height - frmATTACK.ScaleHeight
+    If frmATTACK.ScaleHeight + intBGTOP + moveSPEED > picBACKGROUND.ScaleHeight Then
+        If intBGTOP <> picBACKGROUND.ScaleHeight - frmATTACK.ScaleHeight Then intBGTOP = picBACKGROUND.ScaleHeight - frmATTACK.ScaleHeight
     Else
         intBGTOP = intBGTOP + moveSPEED
     End If
@@ -106,12 +122,36 @@ If bISPRESSED_LEFT = True And bISPRESSED_RIGHT = False Then
         intBGLEFT = intBGLEFT - moveSPEED
     End If
 ElseIf bISPRESSED_RIGHT = True And bISPRESSED_LEFT = False Then
-    If frmATTACK.ScaleWidth + intBGLEFT + moveSPEED > picBACKGROUND.Width Then
-        If intBGLEFT <> picBACKGROUND.Width - frmATTACK.ScaleWidth Then intBGLEFT = picBACKGROUND.Width - frmATTACK.ScaleWidth
+    If frmATTACK.ScaleWidth + intBGLEFT + moveSPEED > picBACKGROUND.ScaleWidth Then
+        If intBGLEFT <> picBACKGROUND.ScaleWidth - frmATTACK.ScaleWidth Then intBGLEFT = picBACKGROUND.ScaleWidth - frmATTACK.ScaleWidth
     Else
         intBGLEFT = intBGLEFT + moveSPEED
     End If
 End If
+
+Dim nC As Integer
+
+' spawn monsters
+If Int(Rnd() * 50) = 0 Then
+       nC = 0
+    Do While nC <= UBound(arrMONSTERS)
+        If arrMONSTERS(nC).bACTIVE = False Then
+            arrMONSTERS(nC).bACTIVE = True
+            arrMONSTERS(nC).intX = Int(Rnd() * 1000)
+            arrMONSTERS(nC).intY = Int(Rnd() * 1000)
+            Exit Do
+        End If
+        nC = nC + 1
+    Loop
+End If
+
+nC = 0
+Do While nC <= UBound(arrMONSTERS)
+    If arrMONSTERS(nC).bACTIVE = True Then
+        BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTER.ScaleWidth, picMONSTER.ScaleHeight, picBACKGROUND.hDC, 0, 0, vbSrcCopy
+    End If
+    nC = nC + 1
+Loop
 
 frmATTACK.Refresh
 End Sub
