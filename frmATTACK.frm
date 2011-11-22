@@ -34,8 +34,8 @@ Begin VB.Form frmATTACK
       BackColor       =   &H80000001&
       BackStyle       =   1  'Opaque
       Height          =   375
-      Left            =   1320
-      Top             =   1200
+      Left            =   2160
+      Top             =   1800
       Width           =   375
    End
 End
@@ -87,45 +87,29 @@ frmATTACK.Cls
 BitBlt frmATTACK.hDC, 0, 0, frmATTACK.Width, frmATTACK.Height, picBACKGROUND.hDC, intBGLEFT, intBGTOP, vbSrcCopy
 
 If bISPRESSED_UP = True And bISPRESSED_DOWN = False Then
-    If shapeYOU.Top < distMOVEBACK Then
-        If intBGTOP + moveSPEED > 0 Then
-            If intBGTOP <> 0 Then intBGTOP = 0
-        Else
-            intBGTOP = intBGTOP - moveSPEED
-        End If
+    If intBGTOP - moveSPEED < 0 Then
+        If intBGTOP <> 0 Then intBGTOP = 0
     Else
-        shapeYOU.Top = shapeYOU.Top - moveSPEED
+        intBGTOP = intBGTOP - moveSPEED
     End If
 ElseIf bISPRESSED_DOWN = True And bISPRESSED_UP = False Then
-    If shapeYOU.Top + shapeYOU.Height > frmATTACK.ScaleHeight - distMOVEBACK Then
-        If intBGTOP + picBACKGROUND.Height - moveSPEED < frmATTACK.ScaleHeight Then
-            If intBGTOP + picBACKGROUND.Height <> frmATTACK.ScaleHeight Then intBGTOP = frmATTACK.ScaleHeight - picBACKGROUND.Height
-        Else
-            intBGTOP = intBGTOP + moveSPEED
-        End If
+    If frmATTACK.ScaleHeight + intBGTOP + moveSPEED > picBACKGROUND.Height Then
+        If intBGTOP <> picBACKGROUND.Height - frmATTACK.ScaleHeight Then intBGTOP = picBACKGROUND.Height - frmATTACK.ScaleHeight
     Else
-        shapeYOU.Top = shapeYOU.Top + moveSPEED
+        intBGTOP = intBGTOP + moveSPEED
     End If
 End If
 If bISPRESSED_LEFT = True And bISPRESSED_RIGHT = False Then
-    If shapeYOU.Left < distMOVEBACK Then
-        If intBGLEFT + moveSPEED > 0 Then
-            If intBGLEFT <> 0 Then intBGLEFT = 0
-        Else
-            intBGLEFT = intBGLEFT - moveSPEED
-        End If
+    If intBGLEFT - moveSPEED < 0 Then
+        If intBGLEFT <> 0 Then intBGLEFT = 0
     Else
-        shapeYOU.Left = shapeYOU.Left - moveSPEED
+        intBGLEFT = intBGLEFT - moveSPEED
     End If
 ElseIf bISPRESSED_RIGHT = True And bISPRESSED_LEFT = False Then
-    If shapeYOU.Left + shapeYOU.Width > frmATTACK.ScaleWidth - distMOVEBACK Then
-        If intBGLEFT + picBACKGROUND.Width - moveSPEED < frmATTACK.ScaleWidth Then
-            If intBGLEFT + picBACKGROUND.Width <> frmATTACK.ScaleWidth Then intBGLEFT = frmATTACK.ScaleWidth - picBACKGROUND.Width
-        Else
-            intBGLEFT = intBGLEFT + moveSPEED
-        End If
+    If frmATTACK.ScaleWidth + intBGLEFT + moveSPEED > picBACKGROUND.Width Then
+        If intBGLEFT <> picBACKGROUND.Width - frmATTACK.ScaleWidth Then intBGLEFT = picBACKGROUND.Width - frmATTACK.ScaleWidth
     Else
-        shapeYOU.Left = shapeYOU.Left + moveSPEED
+        intBGLEFT = intBGLEFT + moveSPEED
     End If
 End If
 
