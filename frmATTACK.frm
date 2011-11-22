@@ -11,19 +11,33 @@ Begin VB.Form frmATTACK
    ScaleMode       =   3  'Pixel
    ScaleWidth      =   336
    StartUpPosition =   3  'Windows Default
+   Begin VB.PictureBox picMONSTERBACK 
+      AutoRedraw      =   -1  'True
+      AutoSize        =   -1  'True
+      Height          =   435
+      Left            =   3840
+      Picture         =   "frmATTACK.frx":0000
+      ScaleHeight     =   25
+      ScaleMode       =   3  'Pixel
+      ScaleWidth      =   21
+      TabIndex        =   2
+      Top             =   1200
+      Visible         =   0   'False
+      Width           =   375
+   End
    Begin VB.PictureBox picMONSTER 
       AutoRedraw      =   -1  'True
       AutoSize        =   -1  'True
-      Height          =   390
+      Height          =   435
       Left            =   3360
-      Picture         =   "frmATTACK.frx":0000
-      ScaleHeight     =   22
+      Picture         =   "frmATTACK.frx":00A5
+      ScaleHeight     =   25
       ScaleMode       =   3  'Pixel
-      ScaleWidth      =   23
+      ScaleWidth      =   21
       TabIndex        =   1
       Top             =   1200
       Visible         =   0   'False
-      Width           =   405
+      Width           =   375
    End
    Begin VB.Timer timerMAIN 
       Interval        =   10
@@ -35,7 +49,7 @@ Begin VB.Form frmATTACK
       AutoSize        =   -1  'True
       Height          =   18060
       Left            =   3240
-      Picture         =   "frmATTACK.frx":0672
+      Picture         =   "frmATTACK.frx":014A
       ScaleHeight     =   1200
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   1200
@@ -148,7 +162,8 @@ End If
 nC = 0
 Do While nC <= UBound(arrMONSTERS)
     If arrMONSTERS(nC).bACTIVE = True Then
-        BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTER.ScaleWidth, picMONSTER.ScaleHeight, picBACKGROUND.hDC, 0, 0, vbSrcCopy
+        BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTERBACK.ScaleWidth, picMONSTERBACK.ScaleHeight, picMONSTERBACK.hDC, 0, 0, vbSrcAnd
+        BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTER.ScaleWidth, picMONSTER.ScaleHeight, picMONSTER.hDC, 0, 0, vbSrcPaint
     End If
     nC = nC + 1
 Loop
