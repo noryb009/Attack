@@ -10,3 +10,18 @@ ByVal nwidth As Long, ByVal nheight As Long, _
 ByVal hSrcDC As Long, ByVal xSrc As Long, ByVal ySrc As Long, _
 ByVal dwRop As Long) As Long
 
+Public Function max(intNUM1 As Integer, intNUM2 As Integer) As Integer
+    If intNUM1 < intNUM2 Then
+        max = intNUM2
+    Else
+        max = intNUM1
+    End If
+End Function
+
+Public Function min(intNUM1 As Integer, intNUM2 As Integer) As Integer
+    If intNUM1 > intNUM2 Then
+        max = intNUM2
+    Else
+        max = intNUM1
+    End If
+End Function

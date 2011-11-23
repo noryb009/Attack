@@ -6,7 +6,7 @@ BEGIN
   DataSourceBehavior  = 0  'vbNone
   MTSTransactionMode  = 0  'NotAnMTSObject
 END
-Attribute VB_Name = "clsMONSTER"
+Attribute VB_Name = "clsARROW"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
@@ -15,7 +15,9 @@ Public bACTIVE As Boolean
 Public intX As Integer
 Public intY As Integer
 Public bMOVINGH As Integer
+Public bMOVINGV As Integer
 
 Private Sub Class_Initialize()
     bACTIVE = False
 End Sub
+
