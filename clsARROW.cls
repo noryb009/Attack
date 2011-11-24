@@ -12,10 +12,10 @@ Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Public bACTIVE As Boolean
-Public intX As Integer
-Public intY As Integer
-Public sMOVINGH As Single
-Public sMOVINGV As Single
+Public sngX As Single
+Public sngY As Single
+Public sngMOVINGH As Single
+Public sngMOVINGV As Single
 
 Private Sub Class_Initialize()
     bACTIVE = False
