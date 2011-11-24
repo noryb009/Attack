@@ -14,7 +14,7 @@ Attribute VB_Exposed = False
 Public bACTIVE As Boolean
 Public intX As Integer
 Public intY As Integer
-Public bMOVINGH As Integer
+Public sMOVINGH As Single
 
 Private Sub Class_Initialize()
     bACTIVE = False

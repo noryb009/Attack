@@ -160,7 +160,6 @@ If Button = 1 Then
         Exit Sub
     End If
     
-    
     Dim nC As Integer
     nC = 0
     Do While nC < UBound(arrARROWS)
@@ -168,8 +167,8 @@ If Button = 1 Then
             arrARROWS(nC).bACTIVE = True
             arrARROWS(nC).intX = keepX
             arrARROWS(nC).intY = keepY
-            arrARROWS(nC).bMOVINGV = (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED
-            arrARROWS(nC).bMOVINGH = (lineAIM.X1 - lineAIM.X2) \ divideSPEED
+            arrARROWS(nC).sMOVINGV = (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED
+            arrARROWS(nC).sMOVINGH = (lineAIM.X1 - lineAIM.X2) \ divideSPEED
             Exit Do
         End If
         nC = nC + 1
@@ -203,10 +202,10 @@ If Int(Rnd() * (intPLAYERS * 5 + 100)) < (intPLAYERS * 2) Then
             arrMONSTERS(nC).intX = Int(Rnd() * 2)
             If arrMONSTERS(nC).intX = 0 Then
                 arrMONSTERS(nC).intX = 0 - picMONSTER.ScaleWidth
-                arrMONSTERS(nC).bMOVINGH = 1 ' go left
+                arrMONSTERS(nC).sMOVINGH = 1 ' go left
             Else
                 arrMONSTERS(nC).intX = frmATTACK.ScaleWidth + picMONSTER.ScaleWidth
-                arrMONSTERS(nC).bMOVINGH = -1 ' go right
+                arrMONSTERS(nC).sMOVINGH = -1 ' go right
             End If
             Exit Do
         End If
@@ -218,9 +217,13 @@ End If
 nC = 0
 Do While nC <= UBound(arrMONSTERS)
     If arrMONSTERS(nC).bACTIVE = True Then
-        arrMONSTERS(nC).intX = arrMONSTERS(nC).intX + moveSPEED * arrMONSTERS(nC).bMOVINGH
-        BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTERBACK.ScaleWidth, picMONSTERBACK.ScaleHeight, picMONSTERBACK.hDC, 0, 0, vbSrcAnd
-        BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTER.ScaleWidth, picMONSTER.ScaleHeight, picMONSTER.hDC, 0, 0, vbSrcPaint
+        arrMONSTERS(nC).intX = arrMONSTERS(nC).intX + moveSPEED * arrMONSTERS(nC).sMOVINGH
+        If (arrMONSTERS(nC).sMOVINGH < 0 And arrMONSTERS(nC).intX + picMONSTER.ScaleWidth < 0) Or (arrMONSTERS(nC).sMOVINGH > 0 And arrMONSTERS(nC).intX > frmATTACK.ScaleWidth) Then
+            arrMONSTERS(nC).bACTIVE = False
+        Else
+            BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTERBACK.ScaleWidth, picMONSTERBACK.ScaleHeight, picMONSTERBACK.hDC, 0, 0, vbSrcAnd
+            BitBlt frmATTACK.hDC, arrMONSTERS(nC).intX, arrMONSTERS(nC).intY, picMONSTER.ScaleWidth, picMONSTER.ScaleHeight, picMONSTER.hDC, 0, 0, vbSrcPaint
+        End If
     End If
     nC = nC + 1
 Loop
@@ -229,9 +232,16 @@ Loop
 nC = 0
 Do While nC <= UBound(arrARROWS)
     If arrARROWS(nC).bACTIVE = True Then
-        arrARROWS(nC).intX = arrARROWS(nC).intX + arrARROWS(nC).bMOVINGH
-        arrARROWS(nC).intY = arrARROWS(nC).intY + arrARROWS(nC).bMOVINGV
-        If arrARROWS(nC).intX < 0 Or arrARROWS(nC).intX > frmATTACK.ScaleWidth Or arrARROWS(nC).intY < 0 Or arrARROWS(nC).intY > frmATTACK.ScaleHeight Then
+        arrARROWS(nC).intX = arrARROWS(nC).intX + arrARROWS(nC).sMOVINGH + 1
+        arrARROWS(nC).intY = arrARROWS(nC).intY + arrARROWS(nC).sMOVINGV + 1
+        arrARROWS(nC).sMOVINGV = arrARROWS(nC).sMOVINGV + 1
+        If arrARROWS(nC).sMOVINGH < 0 Then
+            arrARROWS(nC).sMOVINGH = arrARROWS(nC).sMOVINGH + 0.1
+        Else
+            arrARROWS(nC).sMOVINGH = arrARROWS(nC).sMOVINGH - 0.1
+        End If
+        
+        If arrARROWS(nC).intX + picARROW.ScaleWidth < 0 Or arrARROWS(nC).intX > frmATTACK.ScaleWidth Or arrARROWS(nC).intY < -1000 Or arrARROWS(nC).intY > frmATTACK.ScaleHeight Then
             arrARROWS(nC).bACTIVE = False
         Else
             BitBlt frmATTACK.hDC, arrARROWS(nC).intX, arrARROWS(nC).intY, picARROWBACK.ScaleWidth, picARROWBACK.ScaleHeight, picARROWBACK.hDC, 0, 0, vbSrcAnd
