@@ -232,14 +232,45 @@ Loop
 nC = 0
 Do While nC <= UBound(arrARROWS)
     If arrARROWS(nC).bACTIVE = True Then
-        arrARROWS(nC).intX = arrARROWS(nC).intX + arrARROWS(nC).sMOVINGH + 1
-        arrARROWS(nC).intY = arrARROWS(nC).intY + arrARROWS(nC).sMOVINGV + 1
-        arrARROWS(nC).sMOVINGV = arrARROWS(nC).sMOVINGV + 1
+        Dim intNEWX As Integer
+        Dim intNEWY As Integer
+        Dim intDELETEMONSTER As Integer
+        intDELETEMONSTER = -1 ' don't delete a monster
+        intNEWX = arrARROWS(nC).intX + arrARROWS(nC).sMOVINGH
+        intNEWY = arrARROWS(nC).intY + arrARROWS(nC).sMOVINGV
+        
+        arrARROWS(nC).sMOVINGV = arrARROWS(nC).sMOVINGV + 0.5
         If arrARROWS(nC).sMOVINGH < 0 Then
             arrARROWS(nC).sMOVINGH = arrARROWS(nC).sMOVINGH + 0.1
         Else
             arrARROWS(nC).sMOVINGH = arrARROWS(nC).sMOVINGH - 0.1
         End If
+        
+        'check if hitting monster
+        Dim nCMONSTERS As Integer
+        nCMONSTERS = 0
+        Do While nCMONSTERS <= UBound(arrMONSTERS)
+            If arrMONSTERS(nCMONSTERS).bACTIVE = True Then
+                If (arrARROWS(nC).intY < arrMONSTERS(nCMONSTERS).intY + picMONSTER.Height And intNEWY + picARROW.Height > arrMONSTERS(nCMONSTERS).intY) Or _
+                (intNEWY < arrMONSTERS(nCMONSTERS).intY + picMONSTER.Height And arrARROWS(nC).intY + picARROW.Height > arrMONSTERS(nCMONSTERS).intY) Then
+                    'If arrARROWS(nC).intX + picARROW.Width < arrMONSTERS(nCMONSTERS).intX And intNEWX + picARROW.Width > arrMONSTERS(nCMONSTERS).intX Then
+                    If (arrARROWS(nC).intX < arrMONSTERS(nCMONSTERS).intX + picMONSTER.Width And intNEWX + picARROW.Width > arrMONSTERS(nCMONSTERS).intX) Or _
+                    (intNEWX < arrMONSTERS(nCMONSTERS).intX + picMONSTER.Width And arrARROWS(nC).intX + picARROW.Width > arrMONSTERS(nCMONSTERS).intX) Then
+                        intDELETEMONSTER = nCMONSTERS
+                    End If
+                End If
+            End If
+            nCMONSTERS = nCMONSTERS + 1
+        Loop
+        
+        If intDELETEMONSTER <> -1 Then ' delete a monster
+            arrMONSTERS(intDELETEMONSTER).bACTIVE = False
+            arrARROWS(nC).bACTIVE = False
+        End If
+        
+        arrARROWS(nC).intX = intNEWX
+        arrARROWS(nC).intY = intNEWY
+        
         
         If arrARROWS(nC).intX + picARROW.ScaleWidth < 0 Or arrARROWS(nC).intX > frmATTACK.ScaleWidth Or arrARROWS(nC).intY < -1000 Or arrARROWS(nC).intY > frmATTACK.ScaleHeight Then
             arrARROWS(nC).bACTIVE = False
