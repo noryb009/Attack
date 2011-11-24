@@ -20,8 +20,8 @@ End Function
 
 Public Function min(intNUM1 As Integer, intNUM2 As Integer) As Integer
     If intNUM1 > intNUM2 Then
-        max = intNUM2
+        min = intNUM2
     Else
-        max = intNUM1
+        min = intNUM1
     End If
 End Function
