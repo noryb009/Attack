@@ -17,7 +17,7 @@ Begin VB.Form frmATTACK
       AutoSize        =   -1  'True
       Height          =   435
       Left            =   3960
-      Picture         =   "frmATTACK.frx":08F5
+      Picture         =   "frmATTACK.frx":B272
       ScaleHeight     =   25
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   21
@@ -31,7 +31,7 @@ Begin VB.Form frmATTACK
       AutoSize        =   -1  'True
       Height          =   435
       Left            =   3480
-      Picture         =   "frmATTACK.frx":099A
+      Picture         =   "frmATTACK.frx":B317
       ScaleHeight     =   25
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   21
@@ -45,7 +45,7 @@ Begin VB.Form frmATTACK
       AutoSize        =   -1  'True
       Height          =   435
       Left            =   3840
-      Picture         =   "frmATTACK.frx":0A3F
+      Picture         =   "frmATTACK.frx":B3BC
       ScaleHeight     =   25
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   21
@@ -59,7 +59,7 @@ Begin VB.Form frmATTACK
       AutoSize        =   -1  'True
       Height          =   435
       Left            =   3360
-      Picture         =   "frmATTACK.frx":0AE4
+      Picture         =   "frmATTACK.frx":B461
       ScaleHeight     =   25
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   21
