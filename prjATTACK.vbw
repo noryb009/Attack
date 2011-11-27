@@ -1,4 +1,4 @@
-frmATTACK = 14, 24, 822, 512, Z, 22, 23, 417, 401, C
-modGLOBAL = 77, 59, 504, 342, 
-clsMONSTER = 154, 161, 529, 499, 
-clsARROW = 44, 46, 530, 343, 
+frmATTACK = 0, 0, 0, 0, C, 0, 0, 0, 0, C
+modGLOBAL = 0, 0, 0, 0, C
+clsMONSTER = 0, 0, 0, 0, C
+clsFLAIL = 0, 0, 0, 0, C

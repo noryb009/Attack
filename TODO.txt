@@ -1,9 +1,7 @@
 - attack castle
-- arrow images
 - points system
 - shop
-- different arrows
-- monsters look at castle
-- monster animation
-- rename Monster1 to monster1
+- arrow upgrades (fire, go through)
+- redraw some monsters - look at castle
 - rearrange monster order - 0 on lvl1, 0-1 on lvl2, 0-2 on lvl3
+- monster animation

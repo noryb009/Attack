@@ -4,6 +4,9 @@ Attribute VB_Name = "modGLOBAL"
 'hSrcDC - source object, xSrc - start at xSrc on X axis, ySrc - start at ySrc on Y axis,
 'dwRop - way to copy
 
+'upgrades
+Public intFLAILPOWER As Integer
+
 Public Declare Function BitBlt Lib "gdi32" _
 (ByVal hDestDC As Long, ByVal X As Long, ByVal Y As Long, _
 ByVal nwidth As Long, ByVal nheight As Long, _
