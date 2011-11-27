@@ -405,23 +405,23 @@ Begin VB.Form frmATTACK
    Begin VB.PictureBox picFLAILBACK 
       AutoRedraw      =   -1  'True
       AutoSize        =   -1  'True
-      Height          =   300
+      Height          =   270
       Left            =   720
       Picture         =   "frmATTACK.frx":EC30
-      ScaleHeight     =   16
+      ScaleHeight     =   14
       ScaleMode       =   3  'Pixel
-      ScaleWidth      =   15
+      ScaleWidth      =   14
       TabIndex        =   3
       Top             =   3000
       Visible         =   0   'False
-      Width           =   285
+      Width           =   270
    End
    Begin VB.PictureBox picFLAIL 
       AutoRedraw      =   -1  'True
       AutoSize        =   -1  'True
       Height          =   270
       Left            =   360
-      Picture         =   "frmATTACK.frx":EFA0
+      Picture         =   "frmATTACK.frx":EC89
       ScaleHeight     =   14
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   14
@@ -436,7 +436,7 @@ Begin VB.Form frmATTACK
       Height          =   435
       Index           =   0
       Left            =   3840
-      Picture         =   "frmATTACK.frx":EFF9
+      Picture         =   "frmATTACK.frx":ECE2
       ScaleHeight     =   25
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   21
@@ -451,7 +451,7 @@ Begin VB.Form frmATTACK
       Height          =   435
       Index           =   0
       Left            =   3240
-      Picture         =   "frmATTACK.frx":F09E
+      Picture         =   "frmATTACK.frx":ED87
       ScaleHeight     =   25
       ScaleMode       =   3  'Pixel
       ScaleWidth      =   21
