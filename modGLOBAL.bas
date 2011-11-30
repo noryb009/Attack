@@ -4,8 +4,15 @@ Attribute VB_Name = "modGLOBAL"
 'hSrcDC - source object, xSrc - start at xSrc on X axis, ySrc - start at ySrc on Y axis,
 'dwRop - way to copy
 
+Public intMONEY As Integer
+Public intSCORE As Integer
+
 'upgrades
 Public intFLAILPOWER As Integer
+
+Public Const numberOfMonsters = 7
+
+Public intMONSTERSONLEVEL(0 To numberOfMonsters - 1) As Integer
 
 Public Declare Function BitBlt Lib "gdi32" _
 (ByVal hDestDC As Long, ByVal X As Long, ByVal Y As Long, _
