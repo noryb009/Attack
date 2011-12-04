@@ -496,13 +496,13 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-Dim bISPRESSED_UP As Boolean
-Dim bISPRESSED_DOWN As Boolean
-Dim bISPRESSED_LEFT As Boolean
-Dim bISPRESSED_RIGHT As Boolean
+'Dim bISPRESSED_UP As Boolean
+'Dim bISPRESSED_DOWN As Boolean
+'Dim bISPRESSED_LEFT As Boolean
+'Dim bISPRESSED_RIGHT As Boolean
 
-Dim intBGLEFT As Integer
-Dim intBGTOP As Integer
+'Dim intBGLEFT As Integer
+'Dim intBGTOP As Integer
 
 Dim intPLAYERS As Integer
 
@@ -517,31 +517,8 @@ Const landHEIGHT = 336
 Const keepX = 338
 Const keepY = 190
 
-Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
-Select Case KeyCode
-    Case vbKeyUp
-        bISPRESSED_UP = True
-    Case vbKeyDown
-        bISPRESSED_DOWN = True
-    Case vbKeyLeft
-        bISPRESSED_LEFT = True
-    Case vbKeyRight
-        bISPRESSED_RIGHT = True
-End Select
-End Sub
-
-Private Sub Form_KeyUp(KeyCode As Integer, Shift As Integer)
-Select Case KeyCode
-    Case vbKeyUp
-        bISPRESSED_UP = False
-    Case vbKeyDown
-        bISPRESSED_DOWN = False
-    Case vbKeyLeft
-        bISPRESSED_LEFT = False
-    Case vbKeyRight
-        bISPRESSED_RIGHT = False
-End Select
-End Sub
+Const vWindowX = 700
+Const vWindowY = 500
 
 Private Sub Form_Load()
 Randomize
@@ -621,8 +598,14 @@ End If
 End Sub
 
 Private Sub Form_Resize()
-frmATTACK.Width = 700 + (frmATTACK.Width - frmATTACK.ScaleWidth)
-frmATTACK.Height = 500 + (frmATTACK.Height - frmATTACK.ScaleHeight)
+
+    frmATTACK.Width = 700 + (frmATTACK.Width - frmATTACK.ScaleWidth)
+    frmATTACK.Height = 500 + (frmATTACK.Height - frmATTACK.ScaleHeight)
+    Exit Sub
+ResizeErr:
+    If Err.Number = 384 Then
+        Exit Sub ' no error on minimize
+    End If
 End Sub
 
 Private Sub timerMAIN_Timer()
@@ -658,7 +641,7 @@ If Int(Rnd() * (intPLAYERS * 5 + 100)) < intPLAYERS Or intMONSTERSKILLED = intCU
                     arrMONSTERS(nC).sngX = 0 - picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
                     arrMONSTERS(nC).sngMOVINGH = 1 ' go left
                 Else
-                    arrMONSTERS(nC).sngX = frmATTACK.ScaleWidth + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
+                    arrMONSTERS(nC).sngX = vWindowX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
                     arrMONSTERS(nC).sngMOVINGH = -1 ' go right
                 End If
                 
@@ -689,20 +672,25 @@ If Int(Rnd() * (intPLAYERS * 5 + 100)) < intPLAYERS Or intMONSTERSKILLED = intCU
 End If
 
 ' draw monsters
+
+'Dim spMONSTER As New StdPicture
 nC = 0
 Do While nC <= UBound(arrMONSTERS)
     If arrMONSTERS(nC).bACTIVE = True Then
         arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + moveSPEED * arrMONSTERS(nC).sngMOVINGH
-        If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > frmATTACK.ScaleWidth) Then
+        If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > vWindowX) Then
             arrMONSTERS(nC).bACTIVE = False
         Else
             If arrMONSTERS(nC).sngMOVINGH >= 0 Then
+                'Set spMONSTER = picMONSTER(arrMONSTERS(nC).intTYPE).Picture
                 BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERBACK(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERBACK(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERBACK(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcAnd
                 BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTER(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcPaint
             Else
+                'Set spMONSTER = picMONSTERL(arrMONSTERS(nC).intTYPE).Picture
                 BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcAnd
                 BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcPaint
             End If
+            'PaintPicture spMONSTER, arrMONSTERS(nC).sngX * (frmATTACK.ScaleWidth / vWindowX), arrMONSTERS(nC).sngY * (frmATTACK.ScaleHeight / vWindowY), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth * (frmATTACK.ScaleWidth / vWindowX), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight * (frmATTACK.ScaleHeight / vWindowY)
         End If
     End If
     nC = nC + 1
@@ -710,6 +698,8 @@ Loop
 
 ' draw arrows
 nC = 0
+'Dim spFLAIL As New StdPicture
+'Set spFLAIL = picFLAIL.Picture
 Do While nC <= UBound(arrFLAILS)
     If arrFLAILS(nC).bACTIVE = True Then
         Dim intNEWX As Integer
@@ -759,11 +749,12 @@ Do While nC <= UBound(arrFLAILS)
         arrFLAILS(nC).sngY = intNEWY
         
         
-        If arrFLAILS(nC).sngX + picFLAIL.ScaleWidth < 0 Or arrFLAILS(nC).sngX > frmATTACK.ScaleWidth Or arrFLAILS(nC).sngY < -1000 Or arrFLAILS(nC).sngY > frmATTACK.ScaleHeight Then
+        If arrFLAILS(nC).sngX + picFLAIL.ScaleWidth < 0 Or arrFLAILS(nC).sngX > vWindowX Or arrFLAILS(nC).sngY < -1000 Or arrFLAILS(nC).sngY > vWindowY Then
             arrFLAILS(nC).bACTIVE = False
         Else
             BitBlt frmATTACK.hDC, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAILBACK.ScaleWidth, picFLAILBACK.ScaleHeight, picFLAILBACK.hDC, 0, 0, vbSrcAnd
             BitBlt frmATTACK.hDC, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAIL.ScaleWidth, picFLAIL.ScaleHeight, picFLAIL.hDC, 0, 0, vbSrcPaint
+            'PaintPicture spFLAIL, arrFLAILS(nC).sngX * (frmATTACK.ScaleWidth / vWindowX), arrFLAILS(nC).sngY * (frmATTACK.ScaleHeight / vWindowY), picFLAIL.ScaleWidth * (frmATTACK.ScaleWidth / vWindowX), picFLAIL.ScaleHeight * (frmATTACK.ScaleHeight / vWindowY)
         End If
     End If
     nC = nC + 1
@@ -773,3 +764,29 @@ frmATTACK.Refresh
 
 lblSCORE.Caption = "Score: " & intSCORE
 End Sub
+
+'Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
+'Select Case KeyCode
+'    Case vbKeyUp
+'        bISPRESSED_UP = True
+'    Case vbKeyDown
+'        bISPRESSED_DOWN = True
+'    Case vbKeyLeft
+'        bISPRESSED_LEFT = True
+''    Case vbKeyRight
+'        bISPRESSED_RIGHT = True
+'End Select
+'End Sub
+
+'Private Sub Form_KeyUp(KeyCode As Integer, Shift As Integer)
+'Select Case KeyCode
+'    Case vbKeyUp
+'        bISPRESSED_UP = False
+'    Case vbKeyDown
+'        bISPRESSED_DOWN = False
+'    Case vbKeyLeft
+'        bISPRESSED_LEFT = False
+'    Case vbKeyRight
+'        bISPRESSED_RIGHT = False
+'End Select
+'End Sub
