@@ -59,6 +59,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
 Const NUMBEROFLEVELS = 2
 
 Private Sub cmdLEVEL_Click(Index As Integer)

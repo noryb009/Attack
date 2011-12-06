@@ -11,13 +11,33 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
 Public bACTIVE As Boolean
 Public sngX As Single
 Public sngY As Single
 Public sngMOVINGH As Single
 Public intTYPE As Integer
 Public intHEALTH As Integer
+Public lCURRENTANIFRAME As Long
+
+Public Property Let fromTYPE(ByVal intNEWTYPE As Integer)
+    bACTIVE = True
+    intTYPE = intNEWTYPE
+    
+End Property
 
 Private Sub Class_Initialize()
     bACTIVE = False
+End Sub
+
+Public Sub nextFRAME()
+    
+End Sub
+
+Public Sub previousFRAME()
+    
 End Sub

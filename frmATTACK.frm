@@ -461,6 +461,7 @@ Begin VB.Form frmATTACK
       Width           =   375
    End
    Begin VB.Timer timerMAIN 
+      Enabled         =   0   'False
       Interval        =   10
       Left            =   1920
       Top             =   2040
@@ -496,6 +497,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
 'Dim bISPRESSED_UP As Boolean
 'Dim bISPRESSED_DOWN As Boolean
 'Dim bISPRESSED_LEFT As Boolean
@@ -506,22 +512,34 @@ Attribute VB_Exposed = False
 
 Dim intPLAYERS As Integer
 
+Dim cbitBACKGROUND As clsBITMAP
 Dim arrMONSTERS(0 To 99) As New clsMONSTER
 Dim arrFLAILS(0 To 99) As New clsFLAIL
+Dim cbitBUFFER As clsBITMAP
 
 Dim arrTOBEMONSTERS() As Integer
 Dim intCURRENTMONSTER As Integer
 Dim intMONSTERSKILLED As Integer
 
-Const landHEIGHT = 336
 Const keepX = 338
 Const keepY = 190
 
-Const vWindowX = 700
-Const vWindowY = 500
+Const windowX = 700
+Const windowY = 500
 
 Private Sub Form_Load()
 Randomize
+
+' load images
+Set cbitBACKGROUND = New clsBITMAP
+If cbitBACKGROUND.loadFILE(App.Path & "\images\background.bmp") = False Then
+    MsgBox "Error: cannot load image!"
+    End
+End If
+
+Set cbitBUFFER = New clsBITMAP
+cbitBUFFER.createNewImage windowX, windowY
+
 intPLAYERS = 1
 intCURRENTMONSTER = 0
 intMONSTERSKILLED = 0
@@ -553,26 +571,27 @@ Do While nC < intTOTALMONSTERS - 1 ' -1 is to keep last monster at last spot
     arrTOBEMONSTERS(intTEMPSPOT) = intTEMP
     nC = nC + 1
 Loop
+timerMAIN.Enabled = True
 End Sub
 
-Private Sub Form_MouseDown(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
 If Button = 1 Then
     lineAIM.Visible = True
-    lineAIM.X1 = X
-    lineAIM.Y1 = Y
-    lineAIM.X2 = X
-    lineAIM.Y2 = Y
+    lineAIM.X1 = x
+    lineAIM.Y1 = y
+    lineAIM.X2 = x
+    lineAIM.Y2 = y
 End If
 End Sub
 
-Private Sub Form_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
 If Button = 1 Or Button = 3 Or Button = 5 Or Button = 7 Then
-    lineAIM.X2 = X
-    lineAIM.Y2 = Y
+    lineAIM.X2 = x
+    lineAIM.Y2 = y
 End If
 End Sub
 
-Private Sub Form_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
+Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
 Const divideSPEED = 10
 
 If Button = 1 Then
@@ -590,6 +609,7 @@ If Button = 1 Then
             arrFLAILS(nC).sngY = keepY
             arrFLAILS(nC).sngMOVINGV = (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED
             arrFLAILS(nC).sngMOVINGH = (lineAIM.X1 - lineAIM.X2) \ divideSPEED
+            arrFLAILS(nC).lCURRENTANIFRAME = 0
             Exit Do
         End If
         nC = nC + 1
@@ -598,25 +618,25 @@ End If
 End Sub
 
 Private Sub Form_Resize()
-
-    frmATTACK.Width = 700 + (frmATTACK.Width - frmATTACK.ScaleWidth)
-    frmATTACK.Height = 500 + (frmATTACK.Height - frmATTACK.ScaleHeight)
-    Exit Sub
-ResizeErr:
-    If Err.Number = 384 Then
-        Exit Sub ' no error on minimize
-    End If
+'If frmATTACK.WindowState <> vbMinimized Then ' if minimized, don't worry
+'    If frmATTACK.WindowState = vbMaximized Then ' if maximized
+'        frmATTACK.WindowState = vbNormal ' return to window mode
+'    End If
+'    frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
+'    frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
+'End If
 End Sub
 
 Private Sub timerMAIN_Timer()
 Const moveSPEED = 1
 Const distMOVEBACK = 50
 
-frmATTACK.Cls
 ' draw background
 'BitBlt frmATTACK.hDC, 0, 0, frmATTACK.Width, frmATTACK.Height, picBACKGROUND.hDC, intBGLEFT, intBGTOP, vbSrcCopy
+BitBlt cbitBUFFER.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBACKGROUND.hdc, 0, 0, vbSrcCopy
 
 If intMONSTERSKILLED = UBound(arrTOBEMONSTERS) + 1 Then
+    BitBlt frmATTACK.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBACKGROUND.hdc, 0, 0, vbSrcCopy
     MsgBox "You beat this level!"
     frmLEVELSELECT.Show
     Unload frmATTACK
@@ -634,6 +654,7 @@ If Int(Rnd() * (intPLAYERS * 5 + 100)) < intPLAYERS Or intMONSTERSKILLED = intCU
             If arrMONSTERS(nC).bACTIVE = False Then
                 arrMONSTERS(nC).bACTIVE = True
                 arrMONSTERS(nC).intTYPE = arrTOBEMONSTERS(intCURRENTMONSTER) 'Int(Rnd() * numberOfMonsters)
+                arrMONSTERS(nC).lCURRENTANIFRAME = 0
                 
                 ' set default variables
                 arrMONSTERS(nC).sngX = Int(Rnd() * 2)
@@ -641,7 +662,7 @@ If Int(Rnd() * (intPLAYERS * 5 + 100)) < intPLAYERS Or intMONSTERSKILLED = intCU
                     arrMONSTERS(nC).sngX = 0 - picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
                     arrMONSTERS(nC).sngMOVINGH = 1 ' go left
                 Else
-                    arrMONSTERS(nC).sngX = vWindowX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
+                    arrMONSTERS(nC).sngX = windowX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
                     arrMONSTERS(nC).sngMOVINGH = -1 ' go right
                 End If
                 
@@ -654,14 +675,14 @@ If Int(Rnd() * (intPLAYERS * 5 + 100)) < intPLAYERS Or intMONSTERSKILLED = intCU
                     Case 1
                         arrMONSTERS(nC).intHEALTH = 2
                     Case 2
-                        arrMONSTERS(nC).sngY = landHEIGHT - 200 - picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight
+                        arrMONSTERS(nC).sngY = 150
                         arrMONSTERS(nC).sngMOVINGH = arrMONSTERS(nC).sngMOVINGH * 2
                     Case 3
                         arrMONSTERS(nC).intHEALTH = 4
                         arrMONSTERS(nC).sngMOVINGH = arrMONSTERS(nC).sngMOVINGH / 5
                     Case 4
                         arrMONSTERS(nC).intHEALTH = 2
-                        arrMONSTERS(nC).sngY = landHEIGHT - 300 - picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight
+                        arrMONSTERS(nC).sngY = 20
                 End Select
                 Exit Do
             End If
@@ -678,19 +699,21 @@ nC = 0
 Do While nC <= UBound(arrMONSTERS)
     If arrMONSTERS(nC).bACTIVE = True Then
         arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + moveSPEED * arrMONSTERS(nC).sngMOVINGH
-        If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > vWindowX) Then
+        If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > windowX) Then
             arrMONSTERS(nC).bACTIVE = False
         Else
             If arrMONSTERS(nC).sngMOVINGH >= 0 Then
                 'Set spMONSTER = picMONSTER(arrMONSTERS(nC).intTYPE).Picture
-                BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERBACK(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERBACK(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERBACK(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcAnd
-                BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTER(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcPaint
+                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
+                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).framehDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
             Else
                 'Set spMONSTER = picMONSTERL(arrMONSTERS(nC).intTYPE).Picture
-                BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcAnd
-                BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcPaint
+                'BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcAnd
+                'BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcPaint
+                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
+                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).framehDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
             End If
-            'PaintPicture spMONSTER, arrMONSTERS(nC).sngX * (frmATTACK.ScaleWidth / vWindowX), arrMONSTERS(nC).sngY * (frmATTACK.ScaleHeight / vWindowY), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth * (frmATTACK.ScaleWidth / vWindowX), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight * (frmATTACK.ScaleHeight / vWindowY)
+            'PaintPicture spMONSTER, arrMONSTERS(nC).sngX * (frmATTACK.ScaleWidth / windowX), arrMONSTERS(nC).sngY * (frmATTACK.ScaleHeight / windowY), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth * (frmATTACK.ScaleWidth / windowX), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight * (frmATTACK.ScaleHeight / windowY)
         End If
     End If
     nC = nC + 1
@@ -721,11 +744,11 @@ Do While nC <= UBound(arrFLAILS)
         nCMONSTERS = 0
         Do While nCMONSTERS <= UBound(arrMONSTERS)
             If arrMONSTERS(nCMONSTERS).bACTIVE = True Then
-                If (arrFLAILS(nC).sngY < arrMONSTERS(nCMONSTERS).sngY + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).Height And intNEWY + picFLAIL.Height > arrMONSTERS(nCMONSTERS).sngY) Or _
-                (intNEWY < arrMONSTERS(nCMONSTERS).sngY + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).Height And arrFLAILS(nC).sngY + picFLAIL.Height > arrMONSTERS(nCMONSTERS).sngY) Then
+                If (arrFLAILS(nC).sngY < arrMONSTERS(nCMONSTERS).sngY + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).height And intNEWY + picFLAIL.height > arrMONSTERS(nCMONSTERS).sngY) Or _
+                (intNEWY < arrMONSTERS(nCMONSTERS).sngY + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).height And arrFLAILS(nC).sngY + picFLAIL.height > arrMONSTERS(nCMONSTERS).sngY) Then
                     'If arrFLAILS(nC).sngx + picFLAIL.Width < arrMONSTERS(nCMONSTERS).sngx And intNEWX + picFLAIL.Width > arrMONSTERS(nCMONSTERS).sngx Then
-                    If (arrFLAILS(nC).sngX < arrMONSTERS(nCMONSTERS).sngX + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).Width And intNEWX + picFLAIL.Width > arrMONSTERS(nCMONSTERS).sngX) Or _
-                    (intNEWX < arrMONSTERS(nCMONSTERS).sngX + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).Width And arrFLAILS(nC).sngX + picFLAIL.Width > arrMONSTERS(nCMONSTERS).sngX) Then
+                    If (arrFLAILS(nC).sngX < arrMONSTERS(nCMONSTERS).sngX + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).width And intNEWX + picFLAIL.width > arrMONSTERS(nCMONSTERS).sngX) Or _
+                    (intNEWX < arrMONSTERS(nCMONSTERS).sngX + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).width And arrFLAILS(nC).sngX + picFLAIL.width > arrMONSTERS(nCMONSTERS).sngX) Then
                         intDELETEMONSTER = nCMONSTERS
                     End If
                 End If
@@ -749,16 +772,21 @@ Do While nC <= UBound(arrFLAILS)
         arrFLAILS(nC).sngY = intNEWY
         
         
-        If arrFLAILS(nC).sngX + picFLAIL.ScaleWidth < 0 Or arrFLAILS(nC).sngX > vWindowX Or arrFLAILS(nC).sngY < -1000 Or arrFLAILS(nC).sngY > vWindowY Then
+        If arrFLAILS(nC).sngX + picFLAIL.ScaleWidth < 0 Or arrFLAILS(nC).sngX > windowX Or arrFLAILS(nC).sngY < -1000 Or arrFLAILS(nC).sngY > windowY Then
             arrFLAILS(nC).bACTIVE = False
         Else
-            BitBlt frmATTACK.hDC, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAILBACK.ScaleWidth, picFLAILBACK.ScaleHeight, picFLAILBACK.hDC, 0, 0, vbSrcAnd
-            BitBlt frmATTACK.hDC, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAIL.ScaleWidth, picFLAIL.ScaleHeight, picFLAIL.hDC, 0, 0, vbSrcPaint
-            'PaintPicture spFLAIL, arrFLAILS(nC).sngX * (frmATTACK.ScaleWidth / vWindowX), arrFLAILS(nC).sngY * (frmATTACK.ScaleHeight / vWindowY), picFLAIL.ScaleWidth * (frmATTACK.ScaleWidth / vWindowX), picFLAIL.ScaleHeight * (frmATTACK.ScaleHeight / vWindowY)
+            'PaintPicture spFLAIL, arrFLAILS(nC).sngX * (frmATTACK.ScaleWidth / windowX), arrFLAILS(nC).sngY * (frmATTACK.ScaleHeight / windowY), picFLAIL.ScaleWidth * (frmATTACK.ScaleWidth / windowX), picFLAIL.ScaleHeight * (frmATTACK.ScaleHeight / windowY)
+            'BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAILBACK.ScaleWidth, picFLAILBACK.ScaleHeight, picFLAILBACK.hdc, 0, 0, vbSrcAnd
+            'BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAIL.ScaleWidth, picFLAIL.ScaleHeight, picFLAIL.hdc, 0, 0, vbSrcPaint
+            BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
+            BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
         End If
     End If
     nC = nC + 1
 Loop
+
+'BitBlt frmATTACK.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, cbitBUFFER.hdc, 0, 0, vbSrcCopy
+StretchBlt frmATTACK.hdc, 0, 0, frmATTACK.ScaleWidth, frmATTACK.ScaleHeight, cbitBUFFER.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, vbSrcCopy
 
 frmATTACK.Refresh
 
