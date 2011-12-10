@@ -2,469 +2,20 @@ VERSION 5.00
 Begin VB.Form frmATTACK 
    AutoRedraw      =   -1  'True
    Caption         =   "Attack"
-   ClientHeight    =   4590
+   ClientHeight    =   1380
    ClientLeft      =   60
    ClientTop       =   360
-   ClientWidth     =   6315
+   ClientWidth     =   4170
    LinkTopic       =   "Form1"
-   Picture         =   "frmATTACK.frx":0000
-   ScaleHeight     =   306
+   ScaleHeight     =   92
    ScaleMode       =   3  'Pixel
-   ScaleWidth      =   421
+   ScaleWidth      =   278
    StartUpPosition =   3  'Windows Default
-   Begin VB.PictureBox picMONSTERL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   165
-      Index           =   6
-      Left            =   4680
-      Picture         =   "frmATTACK.frx":B272
-      ScaleHeight     =   7
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   13
-      TabIndex        =   29
-      Top             =   3720
-      Visible         =   0   'False
-      Width           =   255
-   End
-   Begin VB.PictureBox picMONSTERBACKL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   165
-      Index           =   6
-      Left            =   5160
-      Picture         =   "frmATTACK.frx":B2BC
-      ScaleHeight     =   7
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   13
-      TabIndex        =   28
-      Top             =   3720
-      Visible         =   0   'False
-      Width           =   255
-   End
-   Begin VB.PictureBox picMONSTERBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   165
-      Index           =   6
-      Left            =   3720
-      Picture         =   "frmATTACK.frx":B306
-      ScaleHeight     =   7
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   13
-      TabIndex        =   27
-      Top             =   3720
-      Visible         =   0   'False
-      Width           =   255
-   End
-   Begin VB.PictureBox picMONSTER 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   165
-      Index           =   6
-      Left            =   3240
-      Picture         =   "frmATTACK.frx":B351
-      ScaleHeight     =   7
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   13
-      TabIndex        =   26
-      Top             =   3720
-      Visible         =   0   'False
-      Width           =   255
-   End
-   Begin VB.PictureBox picMONSTER 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   540
-      Index           =   5
-      Left            =   3240
-      Picture         =   "frmATTACK.frx":B39C
-      ScaleHeight     =   32
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   17
-      TabIndex        =   25
-      Top             =   3120
-      Visible         =   0   'False
-      Width           =   315
-   End
-   Begin VB.PictureBox picMONSTERBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   540
-      Index           =   5
-      Left            =   3720
-      Picture         =   "frmATTACK.frx":B44D
-      ScaleHeight     =   32
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   17
-      TabIndex        =   24
-      Top             =   3120
-      Visible         =   0   'False
-      Width           =   315
-   End
-   Begin VB.PictureBox picMONSTERBACKL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   540
-      Index           =   5
-      Left            =   5160
-      Picture         =   "frmATTACK.frx":B4FE
-      ScaleHeight     =   32
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   17
-      TabIndex        =   23
-      Top             =   3120
-      Visible         =   0   'False
-      Width           =   315
-   End
-   Begin VB.PictureBox picMONSTERL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   540
-      Index           =   5
-      Left            =   4680
-      Picture         =   "frmATTACK.frx":B5AE
-      ScaleHeight     =   32
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   17
-      TabIndex        =   22
-      Top             =   3120
-      Visible         =   0   'False
-      Width           =   315
-   End
-   Begin VB.PictureBox picMONSTERL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   0
-      Left            =   4680
-      Picture         =   "frmATTACK.frx":B65E
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   21
-      Top             =   480
-      Visible         =   0   'False
-      Width           =   375
-   End
-   Begin VB.PictureBox picMONSTERBACKL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   0
-      Left            =   5280
-      Picture         =   "frmATTACK.frx":B703
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   20
-      Top             =   480
-      Visible         =   0   'False
-      Width           =   375
-   End
-   Begin VB.PictureBox picMONSTERBACKL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   1
-      Left            =   5280
-      Picture         =   "frmATTACK.frx":B7A8
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   19
-      Top             =   960
-      Visible         =   0   'False
-      Width           =   375
-   End
-   Begin VB.PictureBox picMONSTERL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   1
-      Left            =   4680
-      Picture         =   "frmATTACK.frx":B84D
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   18
-      Top             =   960
-      Visible         =   0   'False
-      Width           =   375
-   End
-   Begin VB.PictureBox picMONSTERL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   225
-      Index           =   2
-      Left            =   4680
-      Picture         =   "frmATTACK.frx":BBB8
-      ScaleHeight     =   11
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   10
-      TabIndex        =   17
-      Top             =   1440
-      Visible         =   0   'False
-      Width           =   210
-   End
-   Begin VB.PictureBox picMONSTERBACKL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   225
-      Index           =   2
-      Left            =   5280
-      Picture         =   "frmATTACK.frx":BC05
-      ScaleHeight     =   11
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   10
-      TabIndex        =   16
-      Top             =   1440
-      Visible         =   0   'False
-      Width           =   210
-   End
-   Begin VB.PictureBox picMONSTERBACKL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   780
-      Index           =   3
-      Left            =   5280
-      Picture         =   "frmATTACK.frx":BC52
-      ScaleHeight     =   48
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   30
-      TabIndex        =   15
-      Top             =   1680
-      Visible         =   0   'False
-      Width           =   510
-   End
-   Begin VB.PictureBox picMONSTERL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   780
-      Index           =   3
-      Left            =   4680
-      Picture         =   "frmATTACK.frx":C02F
-      ScaleHeight     =   48
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   30
-      TabIndex        =   14
-      Top             =   1680
-      Visible         =   0   'False
-      Width           =   510
-   End
-   Begin VB.PictureBox picMONSTERL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   480
-      Index           =   4
-      Left            =   4680
-      Picture         =   "frmATTACK.frx":C490
-      ScaleHeight     =   28
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   43
-      TabIndex        =   13
-      Top             =   2520
-      Visible         =   0   'False
-      Width           =   705
-   End
-   Begin VB.PictureBox picMONSTERBACKL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   480
-      Index           =   4
-      Left            =   5280
-      Picture         =   "frmATTACK.frx":C82F
-      ScaleHeight     =   28
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   43
-      TabIndex        =   12
-      Top             =   2520
-      Visible         =   0   'False
-      Width           =   705
-   End
-   Begin VB.PictureBox picMONSTERBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   480
-      Index           =   4
-      Left            =   3840
-      Picture         =   "frmATTACK.frx":CBDC
-      ScaleHeight     =   28
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   43
-      TabIndex        =   11
-      Top             =   2520
-      Visible         =   0   'False
-      Width           =   705
-   End
-   Begin VB.PictureBox picMONSTER 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   480
-      Index           =   4
-      Left            =   3240
-      Picture         =   "frmATTACK.frx":CF89
-      ScaleHeight     =   28
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   43
-      TabIndex        =   10
-      Top             =   2520
-      Visible         =   0   'False
-      Width           =   705
-   End
-   Begin VB.PictureBox picMONSTER 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   780
-      Index           =   3
-      Left            =   3240
-      Picture         =   "frmATTACK.frx":D328
-      ScaleHeight     =   48
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   30
-      TabIndex        =   9
-      Top             =   1680
-      Visible         =   0   'False
-      Width           =   510
-   End
-   Begin VB.PictureBox picMONSTERBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   780
-      Index           =   3
-      Left            =   3840
-      Picture         =   "frmATTACK.frx":D789
-      ScaleHeight     =   48
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   30
-      TabIndex        =   8
-      Top             =   1680
-      Visible         =   0   'False
-      Width           =   510
-   End
-   Begin VB.PictureBox picMONSTERBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   225
-      Index           =   2
-      Left            =   3840
-      Picture         =   "frmATTACK.frx":DB66
-      ScaleHeight     =   11
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   10
-      TabIndex        =   7
-      Top             =   1440
-      Visible         =   0   'False
-      Width           =   210
-   End
-   Begin VB.PictureBox picMONSTER 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   225
-      Index           =   2
-      Left            =   3240
-      Picture         =   "frmATTACK.frx":DBB0
-      ScaleHeight     =   11
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   10
-      TabIndex        =   6
-      Top             =   1440
-      Visible         =   0   'False
-      Width           =   210
-   End
-   Begin VB.PictureBox picMONSTER 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   1
-      Left            =   3240
-      Picture         =   "frmATTACK.frx":DBFA
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   5
-      Top             =   960
-      Visible         =   0   'False
-      Width           =   375
-   End
-   Begin VB.PictureBox picMONSTERBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   1
-      Left            =   3840
-      Picture         =   "frmATTACK.frx":DF65
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   4
-      Top             =   960
-      Visible         =   0   'False
-      Width           =   375
-   End
-   Begin VB.PictureBox picFLAILBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   270
-      Left            =   720
-      Picture         =   "frmATTACK.frx":E00A
-      ScaleHeight     =   14
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   14
-      TabIndex        =   3
-      Top             =   3000
-      Visible         =   0   'False
-      Width           =   270
-   End
-   Begin VB.PictureBox picFLAIL 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   270
-      Left            =   360
-      Picture         =   "frmATTACK.frx":E063
-      ScaleHeight     =   14
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   14
-      TabIndex        =   2
-      Top             =   3000
-      Visible         =   0   'False
-      Width           =   270
-   End
-   Begin VB.PictureBox picMONSTERBACK 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   0
-      Left            =   3840
-      Picture         =   "frmATTACK.frx":E0BC
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   1
-      Top             =   480
-      Visible         =   0   'False
-      Width           =   375
-   End
-   Begin VB.PictureBox picMONSTER 
-      AutoRedraw      =   -1  'True
-      AutoSize        =   -1  'True
-      Height          =   435
-      Index           =   0
-      Left            =   3240
-      Picture         =   "frmATTACK.frx":E161
-      ScaleHeight     =   25
-      ScaleMode       =   3  'Pixel
-      ScaleWidth      =   21
-      TabIndex        =   0
-      Top             =   480
-      Visible         =   0   'False
-      Width           =   375
-   End
    Begin VB.Timer timerMAIN 
       Enabled         =   0   'False
       Interval        =   10
-      Left            =   1920
-      Top             =   2040
+      Left            =   960
+      Top             =   600
    End
    Begin VB.Label lblSCORE 
       BackStyle       =   0  'Transparent
@@ -480,14 +31,14 @@ Begin VB.Form frmATTACK
       EndProperty
       Height          =   255
       Left            =   240
-      TabIndex        =   30
+      TabIndex        =   0
       Top             =   120
-      Width           =   1575
+      Width           =   3495
    End
    Begin VB.Line lineAIM 
       Visible         =   0   'False
-      X1              =   48
-      X2              =   184
+      X1              =   8
+      X2              =   88
       Y1              =   32
       Y2              =   32
    End
@@ -513,6 +64,7 @@ Attribute VB_Exposed = False
 Dim intPLAYERS As Integer
 
 Dim cbitBACKGROUND As clsBITMAP
+Dim cbitHEALTH As clsBITMAP
 Dim arrMONSTERS(0 To 99) As New clsMONSTER
 Dim arrFLAILS(0 To 99) As New clsFLAIL
 Dim cbitBUFFER As clsBITMAP
@@ -520,59 +72,17 @@ Dim cbitBUFFER As clsBITMAP
 Dim arrTOBEMONSTERS() As Integer
 Dim intCURRENTMONSTER As Integer
 Dim intMONSTERSKILLED As Integer
+Dim intMONSTERSATTACKEDCASTLE As Integer
+Dim bEXIT As Boolean
 
 Const keepX = 338
 Const keepY = 190
 
+Const castleWALLLEFT = 288
+Const castleWALLRIGHT = 410
+
 Const windowX = 700
 Const windowY = 500
-
-Private Sub Form_Load()
-Randomize
-
-' load images
-Set cbitBACKGROUND = New clsBITMAP
-If cbitBACKGROUND.loadFILE(App.Path & "\images\background.bmp") = False Then
-    MsgBox "Error: cannot load image!"
-    End
-End If
-
-Set cbitBUFFER = New clsBITMAP
-cbitBUFFER.createNewImage windowX, windowY
-
-intPLAYERS = 1
-intCURRENTMONSTER = 0
-intMONSTERSKILLED = 0
-
-Dim intTOTALMONSTERS As Integer
-intTOTALMONSTERS = 0
-Dim nC As Integer
-nC = 0
-Dim nC2 As Integer
-Do While nC < numberOfMonsters
-    intTOTALMONSTERS = intTOTALMONSTERS + intMONSTERSONLEVEL(nC)
-    nC2 = 0
-    If intTOTALMONSTERS <> 0 Then ReDim Preserve arrTOBEMONSTERS(0 To intTOTALMONSTERS - 1)
-
-    Do While nC2 < intMONSTERSONLEVEL(nC)
-        arrTOBEMONSTERS(intTOTALMONSTERS - 1 - nC2) = nC
-        nC2 = nC2 + 1
-    Loop
-    nC = nC + 1
-Loop
-
-Dim intTEMPSPOT As Integer
-Dim intTEMP As Integer
-nC = 0
-Do While nC < intTOTALMONSTERS - 1 ' -1 is to keep last monster at last spot
-    intTEMPSPOT = Int(Rnd() * intTOTALMONSTERS - 1) + 1
-    intTEMP = arrTOBEMONSTERS(nC)
-    arrTOBEMONSTERS(nC) = arrTOBEMONSTERS(intTEMPSPOT)
-    arrTOBEMONSTERS(intTEMPSPOT) = intTEMP
-    nC = nC + 1
-Loop
-timerMAIN.Enabled = True
-End Sub
 
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
 If Button = 1 Then
@@ -589,6 +99,16 @@ If Button = 1 Or Button = 3 Or Button = 5 Or Button = 7 Then
     lineAIM.X2 = x
     lineAIM.Y2 = y
 End If
+End Sub
+
+Private Sub Form_Resize()
+'If frmATTACK.WindowState <> vbMinimized Then ' if minimized, don't worry
+'    If frmATTACK.WindowState = vbMaximized Then ' if maximized
+'        frmATTACK.WindowState = vbNormal ' return to window mode
+'    End If
+'    frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
+'    frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
+'End If
 End Sub
 
 Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
@@ -617,57 +137,55 @@ If Button = 1 Then
 End If
 End Sub
 
-Private Sub Form_Resize()
-'If frmATTACK.WindowState <> vbMinimized Then ' if minimized, don't worry
-'    If frmATTACK.WindowState = vbMaximized Then ' if maximized
-'        frmATTACK.WindowState = vbNormal ' return to window mode
-'    End If
-'    frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
-'    frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
-'End If
+Sub drawBUFFER()
+frmATTACK.Cls
+
+'BitBlt frmATTACK.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, cbitBUFFER.hdc, 0, 0, vbSrcCopy
+StretchBlt frmATTACK.hdc, 0, 0, frmATTACK.ScaleWidth, frmATTACK.ScaleHeight, cbitBUFFER.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, vbSrcCopy
+
+frmATTACK.Refresh
 End Sub
 
-Private Sub timerMAIN_Timer()
-Const moveSPEED = 1
-Const distMOVEBACK = 50
-
-' draw background
-'BitBlt frmATTACK.hDC, 0, 0, frmATTACK.Width, frmATTACK.Height, picBACKGROUND.hDC, intBGLEFT, intBGTOP, vbSrcCopy
-BitBlt cbitBUFFER.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBACKGROUND.hdc, 0, 0, vbSrcCopy
-
-If intMONSTERSKILLED = UBound(arrTOBEMONSTERS) + 1 Then
-    BitBlt frmATTACK.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBACKGROUND.hdc, 0, 0, vbSrcCopy
-    MsgBox "You beat this level!"
-    frmLEVELSELECT.Show
-    Unload frmATTACK
-    Exit Sub
-End If
-
+Sub moveEVERYTHING()
+Dim lMOVESPEED As Long
+lMOVESPEED = 0.5 + (lCURRENTLEVEL / 10)
 Dim nC As Integer
 
 ' spawn monsters
-If Int(Rnd() * (intPLAYERS * 5 + 100)) < intPLAYERS Or intMONSTERSKILLED = intCURRENTMONSTER Then ' randomly, but force if no monsters currently on screen
+Dim bSPAWN As Boolean
+bSPAWN = False
+
+If intPLAYERS = -1 Then
+    If intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE Then ' force if nobody on screen
+        bSPAWN = True
+    ElseIf lCURRENTLEVEL > 4 And intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + 1 Then ' force if only 1 person on screen and high level
+        bSPAWN = True
+    ElseIf Int(Rnd() * 500) < lCURRENTLEVEL And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' randomly if some monsters are waiting
+        bSPAWN = True
+    End If
+End If
+
+If bSPAWN = True Then
     If intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then
-    
         nC = 0
         Do While nC <= UBound(arrMONSTERS)
             If arrMONSTERS(nC).bACTIVE = False Then
                 arrMONSTERS(nC).bACTIVE = True
                 arrMONSTERS(nC).intTYPE = arrTOBEMONSTERS(intCURRENTMONSTER) 'Int(Rnd() * numberOfMonsters)
-                arrMONSTERS(nC).lCURRENTANIFRAME = 0
+                arrMONSTERS(nC).currentFRAME = 0
                 
                 ' set default variables
                 arrMONSTERS(nC).sngX = Int(Rnd() * 2)
                 If arrMONSTERS(nC).sngX = 0 Then
-                    arrMONSTERS(nC).sngX = 0 - picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
+                    arrMONSTERS(nC).sngX = 0 - arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width
                     arrMONSTERS(nC).sngMOVINGH = 1 ' go left
                 Else
-                    arrMONSTERS(nC).sngX = windowX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth
+                    arrMONSTERS(nC).sngX = windowX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width
                     arrMONSTERS(nC).sngMOVINGH = -1 ' go right
                 End If
                 
                 arrMONSTERS(nC).intHEALTH = 1
-                arrMONSTERS(nC).sngY = landHEIGHT - picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight
+                arrMONSTERS(nC).sngY = landHEIGHT - arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height
                 
                 ' set height and health for a specific monster
                 Select Case arrMONSTERS(nC).intTYPE
@@ -692,37 +210,25 @@ If Int(Rnd() * (intPLAYERS * 5 + 100)) < intPLAYERS Or intMONSTERSKILLED = intCU
     End If
 End If
 
-' draw monsters
-
-'Dim spMONSTER As New StdPicture
+' move monsters
 nC = 0
 Do While nC <= UBound(arrMONSTERS)
     If arrMONSTERS(nC).bACTIVE = True Then
-        arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + moveSPEED * arrMONSTERS(nC).sngMOVINGH
-        If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > windowX) Then
+        arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + lMOVESPEED * arrMONSTERS(nC).sngMOVINGH
+        If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > windowX) Then
             arrMONSTERS(nC).bACTIVE = False
-        Else
-            If arrMONSTERS(nC).sngMOVINGH >= 0 Then
-                'Set spMONSTER = picMONSTER(arrMONSTERS(nC).intTYPE).Picture
-                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
-                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).framehDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
-            Else
-                'Set spMONSTER = picMONSTERL(arrMONSTERS(nC).intTYPE).Picture
-                'BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERBACKL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcAnd
-                'BitBlt frmATTACK.hDC, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleWidth, picMONSTERL(arrMONSTERS(nC).intTYPE).ScaleHeight, picMONSTERL(arrMONSTERS(nC).intTYPE).hDC, 0, 0, vbSrcPaint
-                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
-                BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).framehDC(arrMONSTERS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
-            End If
-            'PaintPicture spMONSTER, arrMONSTERS(nC).sngX * (frmATTACK.ScaleWidth / windowX), arrMONSTERS(nC).sngY * (frmATTACK.ScaleHeight / windowY), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleWidth * (frmATTACK.ScaleWidth / windowX), picMONSTER(arrMONSTERS(nC).intTYPE).ScaleHeight * (frmATTACK.ScaleHeight / windowY)
+        ElseIf (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width > castleWALLLEFT) Or (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX < castleWALLRIGHT) Then 'attack
+            lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH - 10
+            intMONSTERSATTACKEDCASTLE = intMONSTERSATTACKEDCASTLE + 1
+            arrMONSTERS(nC).bACTIVE = False
+            If lCASTLECURRENTHEALTH <= 0 Then bEXIT = True
         End If
     End If
     nC = nC + 1
 Loop
 
-' draw arrows
+' move flails
 nC = 0
-'Dim spFLAIL As New StdPicture
-'Set spFLAIL = picFLAIL.Picture
 Do While nC <= UBound(arrFLAILS)
     If arrFLAILS(nC).bACTIVE = True Then
         Dim intNEWX As Integer
@@ -735,7 +241,7 @@ Do While nC <= UBound(arrFLAILS)
         arrFLAILS(nC).sngMOVINGV = arrFLAILS(nC).sngMOVINGV + 0.5
         If arrFLAILS(nC).sngMOVINGH < 0 Then
             arrFLAILS(nC).sngMOVINGH = arrFLAILS(nC).sngMOVINGH + 0.1
-        Else
+        ElseIf arrFLAILS(nC).sngMOVINGH > 0 Then
             arrFLAILS(nC).sngMOVINGH = arrFLAILS(nC).sngMOVINGH - 0.1
         End If
         
@@ -744,11 +250,11 @@ Do While nC <= UBound(arrFLAILS)
         nCMONSTERS = 0
         Do While nCMONSTERS <= UBound(arrMONSTERS)
             If arrMONSTERS(nCMONSTERS).bACTIVE = True Then
-                If (arrFLAILS(nC).sngY < arrMONSTERS(nCMONSTERS).sngY + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).height And intNEWY + picFLAIL.height > arrMONSTERS(nCMONSTERS).sngY) Or _
-                (intNEWY < arrMONSTERS(nCMONSTERS).sngY + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).height And arrFLAILS(nC).sngY + picFLAIL.height > arrMONSTERS(nCMONSTERS).sngY) Then
+                If (arrFLAILS(nC).sngY < arrMONSTERS(nCMONSTERS).sngY + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height And intNEWY + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height > arrMONSTERS(nCMONSTERS).sngY) Or _
+                (intNEWY < arrMONSTERS(nCMONSTERS).sngY + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height And arrFLAILS(nC).sngY + csprFLAIL.height > arrMONSTERS(nCMONSTERS).sngY) Then
                     'If arrFLAILS(nC).sngx + picFLAIL.Width < arrMONSTERS(nCMONSTERS).sngx And intNEWX + picFLAIL.Width > arrMONSTERS(nCMONSTERS).sngx Then
-                    If (arrFLAILS(nC).sngX < arrMONSTERS(nCMONSTERS).sngX + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).width And intNEWX + picFLAIL.width > arrMONSTERS(nCMONSTERS).sngX) Or _
-                    (intNEWX < arrMONSTERS(nCMONSTERS).sngX + picMONSTER(arrMONSTERS(nCMONSTERS).intTYPE).width And arrFLAILS(nC).sngX + picFLAIL.width > arrMONSTERS(nCMONSTERS).sngX) Then
+                    If (arrFLAILS(nC).sngX < arrMONSTERS(nCMONSTERS).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width And intNEWX + csprFLAIL.width > arrMONSTERS(nCMONSTERS).sngX) Or _
+                    (intNEWX < arrMONSTERS(nCMONSTERS).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width And arrFLAILS(nC).sngX + csprFLAIL.width > arrMONSTERS(nCMONSTERS).sngX) Then
                         intDELETEMONSTER = nCMONSTERS
                     End If
                 End If
@@ -757,13 +263,13 @@ Do While nC <= UBound(arrFLAILS)
         Loop
         
         If intDELETEMONSTER <> -1 Then ' delete a monster
-            arrMONSTERS(intDELETEMONSTER).intHEALTH = arrMONSTERS(intDELETEMONSTER).intHEALTH - intFLAILPOWER - 1
+            arrMONSTERS(intDELETEMONSTER).intHEALTH = arrMONSTERS(intDELETEMONSTER).intHEALTH - intFLAILPOWER
             If arrMONSTERS(intDELETEMONSTER).intHEALTH < 1 Then
                 arrMONSTERS(intDELETEMONSTER).bACTIVE = False
                 intMONSTERSKILLED = intMONSTERSKILLED + 1
-                intSCORE = intSCORE + (arrMONSTERS(intDELETEMONSTER).intTYPE * 100) + 100
+                safeADDLONG lMONEY, (arrMONSTERS(intDELETEMONSTER).intTYPE * 100) + 100
             Else
-                intSCORE = intSCORE + (arrMONSTERS(intDELETEMONSTER).intTYPE * 10) + 10
+                safeADDLONG lMONEY, (arrMONSTERS(intDELETEMONSTER).intTYPE * 10) + 10
             End If
             arrFLAILS(nC).bACTIVE = False
         End If
@@ -771,50 +277,155 @@ Do While nC <= UBound(arrFLAILS)
         arrFLAILS(nC).sngX = intNEWX
         arrFLAILS(nC).sngY = intNEWY
         
-        
-        If arrFLAILS(nC).sngX + picFLAIL.ScaleWidth < 0 Or arrFLAILS(nC).sngX > windowX Or arrFLAILS(nC).sngY < -1000 Or arrFLAILS(nC).sngY > windowY Then
+        If arrFLAILS(nC).sngX + csprFLAIL.width < 0 Or arrFLAILS(nC).sngX > windowX Or arrFLAILS(nC).sngY < -1000 Or arrFLAILS(nC).sngY > windowY - 50 - csprFLAIL.height Then
             arrFLAILS(nC).bACTIVE = False
-        Else
-            'PaintPicture spFLAIL, arrFLAILS(nC).sngX * (frmATTACK.ScaleWidth / windowX), arrFLAILS(nC).sngY * (frmATTACK.ScaleHeight / windowY), picFLAIL.ScaleWidth * (frmATTACK.ScaleWidth / windowX), picFLAIL.ScaleHeight * (frmATTACK.ScaleHeight / windowY)
-            'BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAILBACK.ScaleWidth, picFLAILBACK.ScaleHeight, picFLAILBACK.hdc, 0, 0, vbSrcAnd
-            'BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, picFLAIL.ScaleWidth, picFLAIL.ScaleHeight, picFLAIL.hdc, 0, 0, vbSrcPaint
-            BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
-            BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
         End If
     End If
     nC = nC + 1
 Loop
 
-'BitBlt frmATTACK.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, cbitBUFFER.hdc, 0, 0, vbSrcCopy
-StretchBlt frmATTACK.hdc, 0, 0, frmATTACK.ScaleWidth, frmATTACK.ScaleHeight, cbitBUFFER.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, vbSrcCopy
-
-frmATTACK.Refresh
-
-lblSCORE.Caption = "Score: " & intSCORE
+If intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE = UBound(arrTOBEMONSTERS) + 1 Then
+    bEXIT = True
+End If
 End Sub
 
-'Private Sub Form_KeyDown(KeyCode As Integer, Shift As Integer)
-'Select Case KeyCode
-'    Case vbKeyUp
-'        bISPRESSED_UP = True
-'    Case vbKeyDown
-'        bISPRESSED_DOWN = True
-'    Case vbKeyLeft
-'        bISPRESSED_LEFT = True
-''    Case vbKeyRight
-'        bISPRESSED_RIGHT = True
-'End Select
-'End Sub
+Sub drawEVERYTHING()
+Dim nC As Integer
 
-'Private Sub Form_KeyUp(KeyCode As Integer, Shift As Integer)
-'Select Case KeyCode
-'    Case vbKeyUp
-'        bISPRESSED_UP = False
-'    Case vbKeyDown
-'        bISPRESSED_DOWN = False
-'    Case vbKeyLeft
-'        bISPRESSED_LEFT = False
-'    Case vbKeyRight
-'        bISPRESSED_RIGHT = False
-'End Select
-'End Sub
+' draw background
+'BitBlt frmATTACK.hDC, 0, 0, frmATTACK.Width, frmATTACK.Height, picBACKGROUND.hDC, intBGLEFT, intBGTOP, vbSrcCopy
+BitBlt cbitBUFFER.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBACKGROUND.hdc, 0, 0, vbSrcCopy
+
+' draw monsters
+nC = 0
+Do While nC <= UBound(arrMONSTERS)
+    If arrMONSTERS(nC).bACTIVE = True Then
+        If arrMONSTERS(nC).sngMOVINGH >= 0 Then
+            BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).currentFRAME), 0, 0, vbSrcAnd
+            BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).framehDC(arrMONSTERS(nC).currentFRAME), 0, 0, vbSrcPaint
+        Else
+            BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).currentFRAME), 0, 0, vbSrcAnd
+            BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).framehDC(arrMONSTERS(nC).currentFRAME), 0, 0, vbSrcPaint
+        End If
+        arrMONSTERS(nC).nextFRAME
+    End If
+    nC = nC + 1
+Loop
+
+' draw arrows
+nC = 0
+Do While nC <= UBound(arrFLAILS)
+    If arrFLAILS(nC).bACTIVE = True Then
+        BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
+        BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
+        arrFLAILS(nC).nextFRAME
+    End If
+    nC = nC + 1
+Loop
+
+'draw health
+If lCASTLECURRENTHEALTH >= 0 Then
+    BitBlt cbitBUFFER.hdc, 10, windowY - cbitHEALTH.height - 20, 30 + ((cbitHEALTH.width - 30) * (lCASTLECURRENTHEALTH / lCASTLEMAXHEALTH)), cbitHEALTH.height, cbitHEALTH.hdc, 0, 0, vbSrcCopy
+Else
+    BitBlt cbitBUFFER.hdc, 10, windowY - cbitHEALTH.height - 20, 30, cbitHEALTH.height, cbitHEALTH.hdc, 0, 0, vbSrcCopy
+End If
+
+drawBUFFER
+lblSCORE.Caption = "Score: " & lMONEY
+
+End Sub
+
+Private Sub timerMAIN_Timer()
+moveEVERYTHING
+drawEVERYTHING
+
+'check for win/loose
+If bEXIT = True Then
+    lineAIM.Visible = False
+    If lCASTLECURRENTHEALTH <= 0 Then
+        MsgBox "You died!"
+        'frmNEWGAME.Show
+        frmLEVELSELECT.Show
+        Unload frmATTACK
+    Else
+        MsgBox "You beat this level!"
+        If lLEVEL = lCURRENTLEVEL Then lLEVEL = lLEVEL + 1
+        frmLEVELSELECT.Show
+        Unload frmATTACK
+    End If
+    Exit Sub
+End If
+End Sub
+
+Private Sub Form_Load()
+Randomize
+
+' load images
+Set cbitBACKGROUND = New clsBITMAP
+If cbitBACKGROUND.loadFILE(imagePATH & "background.bmp") = False Then
+    MsgBox "Error: cannot load image!"
+    End
+End If
+
+Set cbitHEALTH = New clsBITMAP
+If cbitHEALTH.loadFILE(imagePATH & "health.bmp") = False Then
+    MsgBox "Error: cannot load image!"
+    End
+End If
+
+Set cbitBUFFER = New clsBITMAP
+cbitBUFFER.createNewImage windowX, windowY
+
+' set vars
+Dim nC As Integer
+intPLAYERS = -1
+bEXIT = False
+intMONSTERSKILLED = 0
+intMONSTERSATTACKEDCASTLE = 0
+intCURRENTMONSTER = 0
+ReDim arrTOBEMONSTERS(0 To 0)
+
+nC = 0
+Do While nC <= UBound(arrMONSTERS)
+    arrMONSTERS(nC).bACTIVE = False
+    nC = nC + 1
+Loop
+
+nC = 0
+Do While nC <= UBound(arrFLAILS)
+    arrFLAILS(nC).bACTIVE = False
+    nC = nC + 1
+Loop
+
+Dim intTOTALMONSTERS As Integer
+intTOTALMONSTERS = 0
+nC = 0
+Dim nC2 As Integer
+Do While nC < numberOfMonsters
+    intTOTALMONSTERS = intTOTALMONSTERS + intMONSTERSONLEVEL(nC)
+    nC2 = 0
+    If intTOTALMONSTERS <> 0 Then ReDim Preserve arrTOBEMONSTERS(0 To intTOTALMONSTERS - 1)
+
+    Do While nC2 < intMONSTERSONLEVEL(nC)
+        arrTOBEMONSTERS(intTOTALMONSTERS - 1 - nC2) = nC
+        nC2 = nC2 + 1
+    Loop
+    nC = nC + 1
+Loop
+
+Dim intTEMPSPOT As Integer
+Dim intTEMP As Integer
+nC = 0
+Do While nC < intTOTALMONSTERS - 2 ' -2 is to get to second last monster in array, keeping last monster at last spot
+    intTEMPSPOT = Int(Rnd() * (intTOTALMONSTERS - 2))
+    intTEMP = arrTOBEMONSTERS(nC)
+    arrTOBEMONSTERS(nC) = arrTOBEMONSTERS(intTEMPSPOT)
+    arrTOBEMONSTERS(intTEMPSPOT) = intTEMP
+    nC = nC + 1
+Loop
+
+frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
+frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
+
+timerMAIN.Enabled = True
+End Sub

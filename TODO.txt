@@ -1,7 +1,6 @@
-- attack castle
-- points system
-- shop
-- arrow upgrades (fire, go through)
-- redraw some monsters - look at castle
-- rearrange monster order - 0 on lvl1, 0-1 on lvl2, 0-2 on lvl3
-- monster animation
+- redraw castle
+	- attack castle
+- shop - arrow upgrades (fire, go through)
+- star rating?
+- bosses and more monsters
+- more levels

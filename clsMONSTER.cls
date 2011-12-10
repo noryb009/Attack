@@ -22,12 +22,23 @@ Public sngY As Single
 Public sngMOVINGH As Single
 Public intTYPE As Integer
 Public intHEALTH As Integer
-Public lCURRENTANIFRAME As Long
+Dim lCURRENTANIFRAME As Long
+
+Public Property Get currentFRAME() As Long
+    currentFRAME = lCURRENTANIFRAME \ ticksPerFrame
+End Property
+
+Public Property Let currentFRAME(ByVal newFRAME As Long)
+    If newFRAME > -1 And newFRAME < arrcMONSTERPICS(intTYPE).numberOfFrames * ticksPerFrame Then
+        lCURRENTANIFRAME = newFRAME \ ticksPerFrame
+    Else
+        lCURRENTANIFRAME = 0
+    End If
+End Property
 
 Public Property Let fromTYPE(ByVal intNEWTYPE As Integer)
     bACTIVE = True
     intTYPE = intNEWTYPE
-    
 End Property
 
 Private Sub Class_Initialize()
@@ -35,9 +46,16 @@ Private Sub Class_Initialize()
 End Sub
 
 Public Sub nextFRAME()
-    
+    lCURRENTANIFRAME = lCURRENTANIFRAME + 1
+    If lCURRENTANIFRAME = arrcMONSTERPICS(intTYPE).numberOfFrames * ticksPerFrame Then
+        lCURRENTANIFRAME = 0
+    End If
 End Sub
 
 Public Sub previousFRAME()
-    
+    lCURRENTANIFRAME = lCURRENTANIFRAME - 1
+    If lCURRENTANIFRAME = -1 Then
+        lCURRENTANIFRAME = (arrcMONSTERPICS(intTYPE).numberOfFrames * ticksPerFrame) - 1
+    End If
 End Sub
+

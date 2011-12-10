@@ -30,6 +30,13 @@ Public Sub nextFRAME()
     End If
 End Sub
 
+Public Sub previousFRAME()
+    lCURRENTANIFRAME = lCURRENTANIFRAME - 1
+    If lCURRENTANIFRAME = -1 Then
+        lCURRENTANIFRAME = csprFLAIL.numberOfFrames - 1
+    End If
+End Sub
+
 Private Sub Class_Initialize()
     bACTIVE = False
 End Sub

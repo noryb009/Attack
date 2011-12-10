@@ -1,4 +1,9 @@
-frmATTACK = 0, 0, 0, 0, C, 0, 0, 0, 0, C
-modGLOBAL = 0, 0, 0, 0, C
-clsMONSTER = 0, 0, 0, 0, C
-clsFLAIL = 0, 0, 0, 0, C
+frmATTACK = 399, 3, 994, 414, , 17, 55, 484, 448, C
+modGLOBAL = 77, 29, 492, 362, 
+clsMONSTER = 105, 49, 472, 379, C
+clsFLAIL = 88, 92, 455, 422, C
+frmLEVELSELECT = 79, 97, 812, 599, C, 75, 66, 442, 396, C
+frmSTORE = 124, 17, 631, 395, C, 515, 131, 882, 461, C
+clsBITMAP = 29, 64, 447, 417, C
+clsSPRITE = 5, -8, 523, 406, C
+frmNEWGAME = 464, 164, 906, 532, C, 9, 67, 369, 359, C
