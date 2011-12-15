@@ -36,11 +36,6 @@ Public Property Let currentFRAME(ByVal newFRAME As Long)
     End If
 End Property
 
-Public Property Let fromTYPE(ByVal intNEWTYPE As Integer)
-    bACTIVE = True
-    intTYPE = intNEWTYPE
-End Property
-
 Private Sub Class_Initialize()
     bACTIVE = False
 End Sub

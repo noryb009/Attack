@@ -1,6 +1,2 @@
-- redraw castle
-	- attack castle
-- shop - arrow upgrades (fire, go through)
-- star rating?
-- bosses and more monsters
-- more levels
+- multiplayer and endless mode
+- spread left/right

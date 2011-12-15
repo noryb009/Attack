@@ -22,6 +22,30 @@ Public sngY As Single
 Public sngMOVINGH As Single
 Public sngMOVINGV As Single
 Public lCURRENTANIFRAME As Long
+Public intGOTHROUGH As Integer
+Dim longWENTTHROUGH() As Integer
+
+Public Sub clearWENTTHROUGH()
+    ReDim longWENTTHROUGH(0 To 0)
+End Sub
+
+Public Function didGOTHROUGH(intCHECK As Integer) As Boolean
+    Dim nC As Integer
+    nC = 1
+    didGOTHROUGH = False
+    Do While nC <= UBound(longWENTTHROUGH)
+        If longWENTTHROUGH(nC) = intCHECK Then
+            didGOTHROUGH = True
+            Exit Do
+        End If
+        nC = nC + 1
+    Loop
+End Function
+
+Public Sub addGOTHROUGH(intNEW As Integer)
+    ReDim Preserve longWENTTHROUGH(0 To UBound(longWENTTHROUGH) + 1)
+    longWENTTHROUGH(UBound(longWENTTHROUGH)) = intNEW
+End Sub
 
 Public Sub nextFRAME()
     lCURRENTANIFRAME = lCURRENTANIFRAME + 1
@@ -39,4 +63,5 @@ End Sub
 
 Private Sub Class_Initialize()
     bACTIVE = False
+    ReDim longWENTTHROUGH(0 To 0)
 End Sub

@@ -4,13 +4,16 @@ Attribute VB_Name = "modGLOBAL"
 ' 21 November, 2011
 ' Defend your castle!
 
-Global Const landHEIGHT = 336
-Global Const numberOfMonsters = 7
+Global Const numberOfMonsters = 11
 Global Const ticksPerFrame = 6
+Global Const landHEIGHT = 376
+
 Global imagePATH As String
 
 Global arrcMONSTERPICS(0 To numberOfMonsters - 1) As New clsSPRITE
 Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE
+
+Global cmontypeMONSTERINFO(0 To numberOfMonsters - 1) As New clsMONSTERTYPE
 
 Global csprFLAIL As New clsSPRITE
 
@@ -21,20 +24,12 @@ Global strNAME As String
 Global lLEVEL As Long
 Global lMONEY As Long
 Global intFLAILPOWER As Integer
+Global intFLAILGOTHROUGH As Integer
+Global intFLAILAMOUNT As Integer
 Global lCASTLECURRENTHEALTH As Long
 Global lCASTLEMAXHEALTH As Long
 
 Public intMONSTERSONLEVEL(0 To numberOfMonsters - 1) As Integer
-
-Public Enum monsterNames
-    greenMonster
-    blackMonster
-    bat
-    tree
-    cloud
-    rabbit
-    ladybug
-End Enum
 
 'hDestDC - destination object, X - destination X axis, Y - destination Y axis
 'nwidth - width to copy, nheight - height to copy,
@@ -127,6 +122,20 @@ Public Declare Function SetBitmapBits Lib "gdi32" ( _
     lpBits As Any _
 ) As Long
 
+Public Enum monsterNames
+    greenMonster
+    blackMonster
+    bat
+    tree
+    cloud
+    rabbit
+    ladybug
+    knightSword
+    knightFlail
+    knightHorse
+    dragon
+End Enum
+
 Public Function escapeQUOTES(strINPUT As String) As String
     escapeQUOTES = Replace$(strINPUT, "'", "''")
 End Function
@@ -158,42 +167,83 @@ Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long
     End If
 End Function
 
-Sub main()
+Sub loadMONSTERINFO()
+    loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 2, -1, 1, 0, 2
+    loadONEMONSTERINFO blackMonster, "monster1", 9, 25, 2, 5, -1, 1, 1, 2
+    loadONEMONSTERINFO bat, "monster2", 10, 11, 1, 3, 150, 1.5, 0, 2
+    loadONEMONSTERINFO tree, "monster3", 26, 50, 3, 8, -1, 0.4, 1, 5
+    loadONEMONSTERINFO cloud, "monster4", 43, 28, 2, 5, 10, 1, 1, 3
+    loadONEMONSTERINFO rabbit, "monster5", 17, 34, 2, 3, -1, 2, 1, 3
+    loadONEMONSTERINFO ladybug, "monster6", 13, 7, 2, 2, -1, 2.5, 1, 2
+    
+    'TODO: customize
+    loadONEMONSTERINFO knightSword, "knight", 21, 51, 3, 20, -1, 0.5, 1, 4
+    loadONEMONSTERINFO knightFlail, "knightFlail", 33, 51, 4, 35, -1, 0.5, 1, 6
+    loadONEMONSTERINFO knightHorse, "knightHorse", 92, 43, 2, 20, -1, 3, 1, 8
+    loadONEMONSTERINFO dragon, "dragon", 91, 53, 5, 200, 200, 1, 0, 10
+End Sub
+
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
+    Dim bSUCCESS As Boolean
+    bSUCCESS = True
+    
+    bSUCCESS = bSUCCESS And arrcMONSTERPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, False, True)
+    bSUCCESS = bSUCCESS And arrcMONSTERLPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, True, True)
+    
+    If bSUCCESS = False Then
+        MsgBox "Error loading images!"
+        End
+    End If
+    cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH
+    cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER
+    cmontypeMONSTERINFO(intNUMBER).sngSPEED = sngSPEED
+    If intSTARTINGY = -1 Then ' default: ground
+        cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = landHEIGHT - arrcMONSTERPICS(intNUMBER).height
+    Else
+        cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = intSTARTINGY
+    End If
+    cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDHIT = intMONEYONHIT
+    cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDKILL = intMONEYONKILL
+End Sub
+
+Sub Main()
     ' load monster types
     Dim bSUCCESS As Boolean
     bSUCCESS = True
     
     imagePATH = App.Path & "\images\"
     
-    Dim arrlIMAGESIZES(0 To numberOfMonsters - 1, 0 To 1) As Long
+    loadMONSTERINFO
     
-    'green monster
-    arrlIMAGESIZES(0, 0) = 9
-    arrlIMAGESIZES(0, 1) = 25
-    arrlIMAGESIZES(1, 0) = 9
-    arrlIMAGESIZES(1, 1) = 25
-    arrlIMAGESIZES(2, 0) = 10
-    arrlIMAGESIZES(2, 1) = 11
-    arrlIMAGESIZES(3, 0) = 26
-    arrlIMAGESIZES(3, 1) = 50
-    arrlIMAGESIZES(4, 0) = 43
-    arrlIMAGESIZES(4, 1) = 28
-    arrlIMAGESIZES(5, 0) = 17
-    arrlIMAGESIZES(5, 1) = 34
-    arrlIMAGESIZES(6, 0) = 13
-    arrlIMAGESIZES(6, 1) = 7
-    
-    Dim nC As Integer
-    nC = 0
-    Do While nC < numberOfMonsters
-        bSUCCESS = bSUCCESS And arrcMONSTERPICS(nC).loadFRAMES(imagePATH & "monster" & nC & ".bmp", arrlIMAGESIZES(nC, 0), arrlIMAGESIZES(nC, 1), False, True)
-        bSUCCESS = bSUCCESS And arrcMONSTERLPICS(nC).loadFRAMES(imagePATH & "monster" & nC & ".bmp", arrlIMAGESIZES(nC, 0), arrlIMAGESIZES(nC, 1), True, True)
-        nC = nC + 1
-    Loop
-    
+'    Dim arrlIMAGESIZES(0 To numberOfMonsters - 1, 0 To 1) As Long
+'
+'    'green monster
+'    arrlIMAGESIZES(0, 0) = 9
+'    arrlIMAGESIZES(0, 1) = 25
+'    arrlIMAGESIZES(1, 0) = 9
+'    arrlIMAGESIZES(1, 1) = 25
+'    arrlIMAGESIZES(2, 0) = 10
+'    arrlIMAGESIZES(2, 1) = 11
+'    arrlIMAGESIZES(3, 0) = 26
+'    arrlIMAGESIZES(3, 1) = 50
+'    arrlIMAGESIZES(4, 0) = 43
+'    arrlIMAGESIZES(4, 1) = 28
+'    arrlIMAGESIZES(5, 0) = 17
+'    arrlIMAGESIZES(5, 1) = 34
+'    arrlIMAGESIZES(6, 0) = 13
+'    arrlIMAGESIZES(6, 1) = 7
+'
+'    Dim nC As Integer
+'    nC = 0
+'    Do While nC < numberOfMonsters
+'        bSUCCESS = bSUCCESS And arrcMONSTERPICS(nC).loadFRAMES(imagePATH & "monster" & nC & ".bmp", arrlIMAGESIZES(nC, 0), arrlIMAGESIZES(nC, 1), False, True)
+'        bSUCCESS = bSUCCESS And arrcMONSTERLPICS(nC).loadFRAMES(imagePATH & "monster" & nC & ".bmp", arrlIMAGESIZES(nC, 0), arrlIMAGESIZES(nC, 1), True, True)
+'        nC = nC + 1
+'    Loop
+'
     ' load flail
     bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(imagePATH & "flail.bmp", 14, 14, False, True)
-    
+'
     If bSUCCESS = False Then
         MsgBox "Error loading images!"
         End

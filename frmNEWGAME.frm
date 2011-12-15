@@ -113,6 +113,8 @@ Private Sub cmdLOAD_Click()
     lCASTLEMAXHEALTH = recsetSAVES.Fields("MaxHealth")
     lCASTLECURRENTHEALTH = recsetSAVES.Fields("CurrentHealth")
     intFLAILPOWER = recsetSAVES.Fields("FlailPower")
+    intFLAILGOTHROUGH = recsetSAVES.Fields("FlailGoThrough")
+    intFLAILAMOUNT = recsetSAVES.Fields("FlailAmount")
     
     Set recsetsavefiles = Nothing
     Set dbSAVEFILES = Nothing
@@ -150,9 +152,11 @@ Sub newGAME()
     strNAME = Trim(txtNAME.Text)
     lMONEY = 0
     lLEVEL = 1
-    lCASTLECURRENTHEALTH = 100
+    lCASTLECURRENTHEALTH = 10
     lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH
     intFLAILPOWER = 1
+    intFLAILGOTHROUGH = 1
+    intFLAILAMOUNT = 1
     
     Set recsetsavefiles = Nothing
     Set dbSAVEFILES = Nothing

@@ -94,7 +94,7 @@ Public Function loadFRAMES(strFILE As String, lWIDTH As Long, lHEIGHT As Long, b
         
         If loadFRAMES = False Then Exit Function
         
-        BitBlt cbitFRAMES(nC).hdc, 0, 0, lWIDTH, lHEIGHT, cbitINFO.hdc, (nC * lWIDTH) Mod cbitINFO.width, nC \ cbitINFO.width, vbSrcCopy
+        BitBlt cbitFRAMES(nC).hdc, 0, 0, lWIDTH, lHEIGHT, cbitINFO.hdc, (nC * lWIDTH) Mod cbitINFO.width, ((nC * lWIDTH) \ cbitINFO.width) * lHEIGHT, vbSrcCopy
         
         If bFLIP = True Then
             StretchBlt cbitFRAMES(nC).hdc, cbitFRAMES(nC).width - 1, 0, cbitFRAMES(nC).width * -1, cbitFRAMES(nC).height, cbitFRAMES(nC).hdc, 0, 0, cbitFRAMES(nC).width, cbitFRAMES(nC).height, vbSrcCopy

@@ -11,15 +11,9 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-Dim csprMONSTER As clsSPRITE
-
-Public strNAME As String
-Public sngY As Single
-Public sngMOVINGH As Single
-Public intHEALTH As Integer
-Public lTOTALFRAMES As Long
-Public lANIMATIONRATE As Long
-
-Public Function openSPRITE(strFILENAME As String) As Boolean
-    openSPRITE = True 'clssprite.loadFRAMES strFILENAME
-End Function
+Public intMAXHEALTH  As Integer
+Public intSTARTINGY As Integer
+Public sngSPEED As Single
+Public intATTACKPOWER As Integer
+Public intMONEYADDEDKILL As Integer
+Public intMONEYADDEDHIT As Integer

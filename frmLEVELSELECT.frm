@@ -1,70 +1,70 @@
 VERSION 5.00
 Begin VB.Form frmLEVELSELECT 
    Caption         =   "Form1"
-   ClientHeight    =   3360
+   ClientHeight    =   2565
    ClientLeft      =   60
    ClientTop       =   360
-   ClientWidth     =   4680
+   ClientWidth     =   4545
    LinkTopic       =   "Form1"
-   ScaleHeight     =   224
+   ScaleHeight     =   171
    ScaleMode       =   3  'Pixel
-   ScaleWidth      =   312
+   ScaleWidth      =   303
    StartUpPosition =   3  'Windows Default
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "10"
       Height          =   375
       Index           =   9
-      Left            =   3600
+      Left            =   2640
       Style           =   1  'Graphical
       TabIndex        =   14
-      Top             =   960
+      Top             =   1320
       Width           =   375
    End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "9"
       Height          =   375
       Index           =   8
-      Left            =   3240
+      Left            =   2280
       Style           =   1  'Graphical
       TabIndex        =   13
-      Top             =   960
+      Top             =   1320
       Width           =   375
    End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "8"
       Height          =   375
       Index           =   7
-      Left            =   2880
+      Left            =   1920
       Style           =   1  'Graphical
       TabIndex        =   12
-      Top             =   960
+      Top             =   1320
       Width           =   375
    End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "7"
       Height          =   375
       Index           =   6
-      Left            =   2520
+      Left            =   1560
       Style           =   1  'Graphical
       TabIndex        =   11
-      Top             =   960
+      Top             =   1320
       Width           =   375
    End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "6"
       Height          =   375
       Index           =   5
-      Left            =   2160
+      Left            =   1200
       Style           =   1  'Graphical
       TabIndex        =   10
-      Top             =   960
+      Top             =   1320
       Width           =   375
    End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "5"
       Height          =   375
       Index           =   4
-      Left            =   1800
+      Left            =   2640
       Style           =   1  'Graphical
       TabIndex        =   9
       Top             =   960
@@ -74,7 +74,7 @@ Begin VB.Form frmLEVELSELECT
       Caption         =   "4"
       Height          =   375
       Index           =   3
-      Left            =   1440
+      Left            =   2280
       Style           =   1  'Graphical
       TabIndex        =   8
       Top             =   960
@@ -91,16 +91,16 @@ Begin VB.Form frmLEVELSELECT
    Begin VB.CommandButton cmdSAVE 
       Caption         =   "cmdSAVE"
       Height          =   375
-      Left            =   2880
+      Left            =   2640
       TabIndex        =   5
-      Top             =   2640
+      Top             =   1920
       Width           =   1695
    End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "3"
       Height          =   375
       Index           =   2
-      Left            =   1080
+      Left            =   1920
       Style           =   1  'Graphical
       TabIndex        =   4
       Top             =   960
@@ -109,16 +109,16 @@ Begin VB.Form frmLEVELSELECT
    Begin VB.CommandButton cmdSHOP 
       Caption         =   "Visit the shop"
       Height          =   375
-      Left            =   480
+      Left            =   240
       TabIndex        =   3
-      Top             =   2640
+      Top             =   1920
       Width           =   2055
    End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "2"
       Height          =   375
       Index           =   1
-      Left            =   720
+      Left            =   1560
       Style           =   1  'Graphical
       TabIndex        =   2
       Top             =   960
@@ -128,7 +128,7 @@ Begin VB.Form frmLEVELSELECT
       Caption         =   "1"
       Height          =   375
       Index           =   0
-      Left            =   360
+      Left            =   1200
       Style           =   1  'Graphical
       TabIndex        =   0
       Top             =   960
@@ -162,16 +162,26 @@ Attribute VB_Exposed = False
 ' Defend your castle!
 
 Private Sub cmdLEVEL_Click(Index As Integer)
+    If lCASTLECURRENTHEALTH = 0 Then
+        If lMONEY >= 10 Then
+            MsgBox "You don't have any health! You can buy more at the store."
+        Else
+            MsgBox "You don't have any health! Here's a few gold coins for you to buy some at the store."
+            lMONEY = 10
+        End If
+        Exit Sub
+    End If
+    
     lCURRENTLEVEL = Index + 1
     
     'default of 0
-    intMONSTERSONLEVEL(greenMonster) = 0
-    intMONSTERSONLEVEL(blackMonster) = 0
-    intMONSTERSONLEVEL(bat) = 0
-    intMONSTERSONLEVEL(tree) = 0
-    intMONSTERSONLEVEL(cloud) = 0
-    intMONSTERSONLEVEL(rabbit) = 0
-    intMONSTERSONLEVEL(ladybug) = 0
+    Dim nC As Integer
+    nC = 0
+    Do While nC < UBound(intMONSTERSONLEVEL)
+        intMONSTERSONLEVEL(nC) = 0
+        nC = nC + 1
+    Loop
+    
     Select Case Index + 1
         Case 1
             intMONSTERSONLEVEL(greenMonster) = 10
@@ -186,9 +196,30 @@ Private Sub cmdLEVEL_Click(Index As Integer)
             intMONSTERSONLEVEL(bat) = 25
             intMONSTERSONLEVEL(cloud) = 1
         Case 5
-            intMONSTERSONLEVEL(rabbit) = 15
-            intMONSTERSONLEVEL(ladybug) = 15
-            intMONSTERSONLEVEL(tree) = 5
+            intMONSTERSONLEVEL(tree) = 25
+        Case 6
+            intMONSTERSONLEVEL(knightSword) = 15
+            intMONSTERSONLEVEL(knightFlail) = 5
+        Case 7
+            intMONSTERSONLEVEL(cloud) = 5
+            intMONSTERSONLEVEL(knightSword) = 25
+            intMONSTERSONLEVEL(knightFlail) = 20
+            intMONSTERSONLEVEL(knightHorse) = 10
+        Case 8
+            intMONSTERSONLEVEL(greenMonster) = 20
+            intMONSTERSONLEVEL(blackMonster) = 20
+            intMONSTERSONLEVEL(bat) = 20
+            intMONSTERSONLEVEL(cloud) = 20
+            intMONSTERSONLEVEL(knightSword) = 20
+            intMONSTERSONLEVEL(knightFlail) = 20
+            intMONSTERSONLEVEL(knightHorse) = 15
+        Case 9
+            intMONSTERSONLEVEL(knightSword) = 20
+            intMONSTERSONLEVEL(knightFlail) = 20
+            intMONSTERSONLEVEL(knightHorse) = 15
+            intMONSTERSONLEVEL(dragon) = 1
+        Case 10
+            intMONSTERSONLEVEL(dragon) = 15
     End Select
     frmATTACK.Show
     Unload frmLEVELSELECT
@@ -214,9 +245,9 @@ Sub saveGAME()
     Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(strNAME) & "'")
     
     If recsetSAVES.RecordCount = 0 Then
-        dbSAVEFILES.Execute "INSERT INTO `SaveGames` (`Name`, `Level`, `FlailPower`, `MaxHealth`, `CurrentHealth`, `Money`) VALUES('" & escapeQUOTES(strNAME) & "', '" & lLEVEL & "', '" & intFLAILPOWER & "', '" & lCASTLEMAXHEALTH & "', '" & lCASTLECURRENTHEALTH & "', '" & lMONEY & "')"
+        dbSAVEFILES.Execute "INSERT INTO `SaveGames` (`Name`, `Level`, `MaxHealth`, `CurrentHealth`, `Money`, `FlailGoThrough`, `FlailPower`, `FlailAmount`) VALUES('" & escapeQUOTES(strNAME) & "', '" & lLEVEL & "', '" & lCASTLEMAXHEALTH & "', '" & lCASTLECURRENTHEALTH & "', '" & lMONEY & "', '" & intFLAILGOTHROUGH & "', '" & intFLAILPOWER & "', '" & intFLAILAMOUNT & "')"
     Else
-        dbSAVEFILES.Execute "UPDATE `SaveGames` SET `Level`=" & lLEVEL & ", `FlailPower`=" & intFLAILPOWER & ", `MaxHealth`=" & lCASTLEMAXHEALTH & ", `CurrentHealth`=" & lCASTLECURRENTHEALTH & ", `Money`=" & lMONEY & " WHERE `Name`='" & escapeQUOTES(strNAME) & "'"
+        dbSAVEFILES.Execute "UPDATE `SaveGames` SET `Level`=" & lLEVEL & ", `MaxHealth`=" & lCASTLEMAXHEALTH & ", `CurrentHealth`=" & lCASTLECURRENTHEALTH & ", `Money`=" & lMONEY & ", `FlailGoThrough`=" & intFLAILGOTHROUGH & ", `FlailPower`=" & intFLAILPOWER & ", `FlailAmount`=" & intFLAILAMOUNT & " WHERE `Name`='" & escapeQUOTES(strNAME) & "'"
     End If
     
     Set recsetSAVES = Nothing
