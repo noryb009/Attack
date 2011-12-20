@@ -63,12 +63,11 @@ Attribute VB_Exposed = False
 
 Dim intPLAYERS As Integer
 
-Dim cbitBACKGROUND As New clsBITMAP
-Dim csprCASTLE As New clsSPRITE
-Dim cbitHEALTH As New clsBITMAP
-Dim arrMONSTERS(0 To 99) As New clsMONSTER
-Dim arrFLAILS(0 To 99) As New clsFLAIL
-Dim cbitBUFFER As New clsBITMAP
+' images
+Dim cbitBACKGROUND As New clsBITMAP ' static background
+Dim csprCASTLE As New clsSPRITE ' castle with different health ranges
+Dim cbitBUFFER As New clsBITMAP ' buffer
+Dim cbitHEALTH As New clsBITMAP ' health bar
 
 Dim arrTOBEMONSTERS() As Integer
 Dim intCURRENTMONSTER As Integer
@@ -121,6 +120,7 @@ Const divideSPEED = 10
 
 If Button = 1 Then
     lineAIM.Visible = False
+    
     If (lineAIM.X1 - lineAIM.X2) \ divideSPEED = 0 And (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED = 0 Then
         Exit Sub
     End If
@@ -130,25 +130,33 @@ If Button = 1 Then
     nC = 0
     nC2 = 0
     Do While nC2 < intFLAILAMOUNT
-        Do While nC < UBound(arrFLAILS)
-            If arrFLAILS(nC).bACTIVE = False Then
-                arrFLAILS(nC).bACTIVE = True
-                arrFLAILS(nC).sngX = keepX
-                arrFLAILS(nC).sngY = keepY
-                arrFLAILS(nC).sngMOVINGV = (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED
-                arrFLAILS(nC).sngMOVINGH = (lineAIM.X1 - lineAIM.X2) \ divideSPEED
-                
-                arrFLAILS(nC).sngMOVINGV = arrFLAILS(nC).sngMOVINGV + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 4)
-                'arrFLAILS(nC).sngMOVINGH = arrFLAILS(nC).sngMOVINGH + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 2)
-                
-                arrFLAILS(nC).lCURRENTANIFRAME = 0
-                arrFLAILS(nC).intGOTHROUGH = intFLAILGOTHROUGH
-                arrFLAILS(nC).clearWENTTHROUGH
-                Exit Do
-            End If
-            nC = nC + 1
-        Loop
-        nC2 = nC2 + 1
+        If onlineMODE = False Then
+            Do While nC <= UBound(arrFLAILS)
+                If arrFLAILS(nC).bACTIVE = False Then
+                    arrFLAILS(nC).bACTIVE = True
+                    arrFLAILS(nC).sngX = keepX
+                    arrFLAILS(nC).sngY = keepY
+                    arrFLAILS(nC).sngMOVINGV = (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED
+                    arrFLAILS(nC).sngMOVINGH = (lineAIM.X1 - lineAIM.X2) \ divideSPEED
+                    
+                    arrFLAILS(nC).sngMOVINGV = arrFLAILS(nC).sngMOVINGV + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 4)
+                    'arrFLAILS(nC).sngMOVINGH = arrFLAILS(nC).sngMOVINGH + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 2)
+                    
+                    arrFLAILS(nC).lCURRENTANIFRAME = 0
+                    arrFLAILS(nC).intGOTHROUGH = intFLAILGOTHROUGH
+                    arrFLAILS(nC).clearWENTTHROUGH
+                    Exit Do
+                End If
+                nC = nC + 1
+            Loop
+            nC2 = nC2 + 1
+        Else
+            cSERVER(0).sendString "newFla", True & "~" & keepX & "~" & keepY & "~" & _
+            (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 4) & "~" & _
+            (lineAIM.X1 - lineAIM.X2) \ divideSPEED & "~" & _
+            intFLAILGOTHROUGH & "~" & _
+            True
+        End If
     Loop
 End If
 End Sub
@@ -162,31 +170,7 @@ StretchBlt frmATTACK.hdc, 0, 0, frmATTACK.ScaleWidth, frmATTACK.ScaleHeight, cbi
 frmATTACK.Refresh
 End Sub
 
-Sub moveEVERYTHING()
-Dim lMOVESPEED As Long
-lMOVESPEED = 0.5 + (lCURRENTLEVEL / 10)
-Dim nC As Integer
-
-' spawn monsters
-Dim bSPAWN As Boolean
-bSPAWN = False
-
-If intPLAYERS = -1 Then
-    If intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE Then ' force if nobody on screen
-        bSPAWN = True
-    ElseIf lCURRENTLEVEL > 3 And intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + 1 Then ' force if only 1 person on screen and high level
-        bSPAWN = True
-    ElseIf lCURRENTLEVEL > 6 And intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + 2 Then ' force if only 1 person on screen and high level
-        bSPAWN = True
-    ElseIf lCURRENTLEVEL > 9 And intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + 5 Then ' force if only 1 person on screen and high level
-        bSPAWN = True
-    'ElseIf Int(Rnd() * 500) < lCURRENTLEVEL And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' randomly if some monsters are waiting
-    ElseIf Int(Rnd() * 200) < lCURRENTLEVEL And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then
-        bSPAWN = True
-    End If
-End If
-
-If bSPAWN = True Then
+Sub spawnMONSTER()
     If intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then
         nC = 0
         Do While nC <= UBound(arrMONSTERS)
@@ -207,40 +191,32 @@ If bSPAWN = True Then
                 arrMONSTERS(nC).intHEALTH = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intMAXHEALTH
                 
                 Exit Do
-                
-'                ' set default variables
-'                arrMONSTERS(nC).sngX = Int(Rnd() * 2)
-'                If arrMONSTERS(nC).sngX = 0 Then
-'                    arrMONSTERS(nC).sngX = 0 - arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width
-'                    arrMONSTERS(nC).sngMOVINGH = 1 ' go left
-'                Else
-'                    arrMONSTERS(nC).sngX = windowX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width
-'                    arrMONSTERS(nC).sngMOVINGH = -1 ' go right
-'                End If
-'
-'                arrMONSTERS(nC).intHEALTH = 1
-'                arrMONSTERS(nC).sngY = landHEIGHT - arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height
-'
-'                ' set height and health for a specific monster
-'                Select Case arrMONSTERS(nC).intTYPE
-'                    Case 0
-'                    Case 1
-'                        arrMONSTERS(nC).intHEALTH = 2
-'                    Case 2
-'                        arrMONSTERS(nC).sngY = 150
-'                        arrMONSTERS(nC).sngMOVINGH = arrMONSTERS(nC).sngMOVINGH * 2
-'                    Case 3
-'                        arrMONSTERS(nC).intHEALTH = 4
-'                        arrMONSTERS(nC).sngMOVINGH = arrMONSTERS(nC).sngMOVINGH / 5
-'                    Case 4
-'                        arrMONSTERS(nC).intHEALTH = 2
-'                        arrMONSTERS(nC).sngY = 20
-'                End Select
-'                Exit Do
             End If
             nC = nC + 1
         Loop
         intCURRENTMONSTER = intCURRENTMONSTER + 1
+    End If
+End Sub
+
+Sub moveEVERYTHING()
+Dim lMOVESPEED As Long
+lMOVESPEED = 0.5 + (lCURRENTLEVEL / 5)
+Dim nC As Integer
+
+' spawn monsters
+
+If onlineMODE = False Then
+    Dim bSPAWN As Boolean
+    bSPAWN = False
+    
+    If intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) Then ' force if nobody on screen
+        bSPAWN = True
+    ElseIf Int(Rnd() * 200) < lCURRENTLEVEL And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' randomly if some monsters are waiting
+        bSPAWN = True
+    End If
+    
+    If bSPAWN = True Then
+        spawnMONSTER
     End If
 End If
 
@@ -326,7 +302,7 @@ Do While nC <= UBound(arrFLAILS)
     nC = nC + 1
 Loop
 
-If intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE = UBound(arrTOBEMONSTERS) + 1 Then
+If intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then
     bEXIT = True
 End If
 End Sub
@@ -412,11 +388,12 @@ If bEXIT = True Then
         Unload frmATTACK
     Else
         If lLEVELMONEY <> 0 Then
-            MsgBox "You beat this level!" & vbCrLf & "You got $" & lLEVELMONEY & "0!"
+            MsgBox "You beat this level!" & vbCrLf & "You got $" & lLEVELMONEY & "0, plus a level bonus of $" & lCURRENTLEVEL * 2 & "00!"
         Else
-            MsgBox "You beat the level!"
+            MsgBox "You beat the level!" & vbCrLf & "You got a level bonus of $" & lCURRENTLEVEL * 2 & "00!"
         End If
         lMONEY = safeADDLONG(lMONEY, lLEVELMONEY)
+        lMONEY = safeADDLONG(lMONEY, (lCURRENTLEVEL * 20))
         If lLEVEL = lCURRENTLEVEL Then lLEVEL = lLEVEL + 1
         frmLEVELSELECT.Show
         Unload frmATTACK
@@ -454,12 +431,14 @@ intMONSTERSATTACKEDCASTLE = 0
 intCURRENTMONSTER = 0
 ReDim arrTOBEMONSTERS(0 To 0)
 
+ReDim arrMONSTERS(0 To 99)
 nC = 0
 Do While nC <= UBound(arrMONSTERS)
     arrMONSTERS(nC).bACTIVE = False
     nC = nC + 1
 Loop
 
+ReDim arrFLAILS(0 To 99)
 nC = 0
 Do While nC <= UBound(arrFLAILS)
     arrFLAILS(nC).bACTIVE = False

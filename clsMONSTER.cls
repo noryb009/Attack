@@ -53,4 +53,3 @@ Public Sub previousFRAME()
         lCURRENTANIFRAME = (arrcMONSTERPICS(intTYPE).numberOfFrames * ticksPerFrame) - 1
     End If
 End Sub
-

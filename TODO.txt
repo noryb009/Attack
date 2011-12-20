@@ -1,2 +1,5 @@
+- hide load listbox if no files
+- harder trees - lots of HP
+- first upgrade for amount, power... more, after is less (((n^10)\3)?)
 - multiplayer and endless mode
 - spread left/right

@@ -177,7 +177,7 @@ Private Sub cmdLEVEL_Click(Index As Integer)
     'default of 0
     Dim nC As Integer
     nC = 0
-    Do While nC < UBound(intMONSTERSONLEVEL)
+    Do While nC <= UBound(intMONSTERSONLEVEL)
         intMONSTERSONLEVEL(nC) = 0
         nC = nC + 1
     Loop

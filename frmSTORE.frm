@@ -154,7 +154,11 @@ Sub updateLABELS()
     Else
         lblCURRENTHEALTH.Caption = "Current health: 0/" & lCASTLEMAXHEALTH & "0"
     End If
-    lblMONEY = "$" & lMONEY & "0"
+    If lMONEY <> 0 Then
+        lblMONEY = "$" & lMONEY & "0"
+    Else
+        lblMONEY = "$0"
+    End If
     Dim nC As Integer
     nC = 0
     Do While nC < 4

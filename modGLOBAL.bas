@@ -4,28 +4,35 @@ Attribute VB_Name = "modGLOBAL"
 ' 21 November, 2011
 ' Defend your castle!
 
-Global Const numberOfMonsters = 11
+Global Const VERSION = "0.0.0.1a"
+Global Const SERVER = False
+Global onlineMODE As Boolean
+
+Global currentSTATE As String
+
 Global Const ticksPerFrame = 6
-Global Const landHEIGHT = 376
+
+Global cSERVER(0 To 0) As New clsCONNECTION
 
 Global imagePATH As String
 
 Global arrcMONSTERPICS(0 To numberOfMonsters - 1) As New clsSPRITE
 Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE
 
-Global cmontypeMONSTERINFO(0 To numberOfMonsters - 1) As New clsMONSTERTYPE
+Global arrMONSTERS() As clsMONSTER
+Global arrFLAILS() As clsFLAIL
 
 Global csprFLAIL As New clsSPRITE
 
 Global lCURRENTLEVEL As Long
 
 'savefile
-Global strNAME As String
-Global lLEVEL As Long
-Global lMONEY As Long
-Global intFLAILPOWER As Integer
-Global intFLAILGOTHROUGH As Integer
-Global intFLAILAMOUNT As Integer
+Global strNAME As String ' player name
+Global lLEVEL As Long ' max level
+Global lMONEY As Long ' current money
+Global intFLAILPOWER As Integer ' the attack power of the flails
+Global intFLAILGOTHROUGH As Integer ' the number of monsters a flail can go through
+Global intFLAILAMOUNT As Integer ' the amount of flails thrown
 Global lCASTLECURRENTHEALTH As Long
 Global lCASTLEMAXHEALTH As Long
 
@@ -122,20 +129,6 @@ Public Declare Function SetBitmapBits Lib "gdi32" ( _
     lpBits As Any _
 ) As Long
 
-Public Enum monsterNames
-    greenMonster
-    blackMonster
-    bat
-    tree
-    cloud
-    rabbit
-    ladybug
-    knightSword
-    knightFlail
-    knightHorse
-    dragon
-End Enum
-
 Public Function escapeQUOTES(strINPUT As String) As String
     escapeQUOTES = Replace$(strINPUT, "'", "''")
 End Function
@@ -166,22 +159,6 @@ Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long
         safeADDLONG = 2147483647
     End If
 End Function
-
-Sub loadMONSTERINFO()
-    loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 2, -1, 1, 0, 2
-    loadONEMONSTERINFO blackMonster, "monster1", 9, 25, 2, 5, -1, 1, 1, 2
-    loadONEMONSTERINFO bat, "monster2", 10, 11, 1, 3, 150, 1.5, 0, 2
-    loadONEMONSTERINFO tree, "monster3", 26, 50, 3, 8, -1, 0.4, 1, 5
-    loadONEMONSTERINFO cloud, "monster4", 43, 28, 2, 5, 10, 1, 1, 3
-    loadONEMONSTERINFO rabbit, "monster5", 17, 34, 2, 3, -1, 2, 1, 3
-    loadONEMONSTERINFO ladybug, "monster6", 13, 7, 2, 2, -1, 2.5, 1, 2
-    
-    'TODO: customize
-    loadONEMONSTERINFO knightSword, "knight", 21, 51, 3, 20, -1, 0.5, 1, 4
-    loadONEMONSTERINFO knightFlail, "knightFlail", 33, 51, 4, 35, -1, 0.5, 1, 6
-    loadONEMONSTERINFO knightHorse, "knightHorse", 92, 43, 2, 20, -1, 3, 1, 8
-    loadONEMONSTERINFO dragon, "dragon", 91, 53, 5, 200, 200, 1, 0, 10
-End Sub
 
 Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
     Dim bSUCCESS As Boolean
@@ -243,11 +220,19 @@ Sub Main()
 '
     ' load flail
     bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(imagePATH & "flail.bmp", 14, 14, False, True)
-'
+    
     If bSUCCESS = False Then
         MsgBox "Error loading images!"
         End
     End If
     
+    ' server connection setup
+    'cSERVER.arrayID = 0
+    
     frmNEWGAME.Show
 End Sub
+
+Public Sub log(strNEWLINE As String)
+    ' empty sub to allow server to share clsCONNECTION
+End Sub
+
