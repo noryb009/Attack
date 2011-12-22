@@ -9,6 +9,12 @@ Begin VB.Form frmSERVER
    ScaleHeight     =   3090
    ScaleWidth      =   4680
    StartUpPosition =   3  'Windows Default
+   Begin VB.Timer timerGAME 
+      Enabled         =   0   'False
+      Interval        =   40
+      Left            =   3000
+      Top             =   120
+   End
    Begin VB.TextBox txtLOG 
       Height          =   2655
       Left            =   0
@@ -82,6 +88,7 @@ Private Sub cmdSTART_Click()
         Exit Sub
     End If
     
+    lCURRENTLEVEL = 0
     showSTOP
     
     sockLISTEN.LocalPort = lPORT
@@ -137,4 +144,8 @@ Private Sub sockLISTEN_ConnectionRequest(ByVal requestID As Long)
         End If
         nC = nC + 1
     Loop
+End Sub
+
+Private Sub timerGAME_Timer()
+    moveEVERYTHING
 End Sub

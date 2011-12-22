@@ -17,3 +17,5 @@ Public sngSPEED As Single
 Public intATTACKPOWER As Integer
 Public intMONEYADDEDKILL As Integer
 Public intMONEYADDEDHIT As Integer
+Public lWIDTH As Long
+Public lHEIGHT As Long

@@ -174,6 +174,8 @@ Private Sub cmdDELETE_Click()
 End Sub
 
 Private Sub cmdLOAD_Click()
+    onlineMODE = False
+    intPLAYERS = -1
     'If dataSAVEFILES.Recordset.AbsolutePosition = -1 Then
     If lstSAVES.ListIndex = -1 Then
         MsgBox "Please select your name"
@@ -247,6 +249,7 @@ End Sub
 
 Private Sub cmdNEWSPGAME_Click()
     onlineMODE = False
+    intPLAYERS = -1
     newGAME
 End Sub
 

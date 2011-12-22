@@ -33,15 +33,16 @@ Public Property Let arrayID(newID As Long)
 End Property
 
 Sub sendString(strCOMMAND As String, Optional strTOSEND As String = "")
-    Replace strCOMMAND, "&", "&amp;"
-    Replace strCOMMAND, "|", "&pipe;"
-    Replace strCOMMAND, " ", "&nbsp;"
+    strCOMMAND = Replace(strCOMMAND, "&", "&amp;")
+    strCOMMAND = Replace(strCOMMAND, "|", "&pipe;")
+    strCOMMAND = Replace(strCOMMAND, " ", "&nbsp;")
     
-    Replace strCOMMAND, "&", "&amp;"
-    Replace strCOMMAND, "|", "&pipe;"
-    Replace strCOMMAND, " ", "&nbsp;"
-    
-    sockCONNECTION.SendData strCOMMAND & " " & strTOSEND & "|"
+    strTOSEND = Replace(strTOSEND, "&", "&amp;")
+    strTOSEND = Replace(strTOSEND, "|", "&pipe;")
+    strTOSEND = Replace(strTOSEND, " ", "&nbsp;")
+    If sockCONNECTION.State = sckConnected Then ' check if still connected
+        sockCONNECTION.SendData strCOMMAND & " " & strTOSEND & "|"
+    End If
 End Sub
 
 Function connectTOSERVER(strCONNECTTOIP As String) As Boolean
@@ -94,6 +95,7 @@ End Function
 Sub acceptCONNECTION(requestID As Long)
     sockCONNECTION.Accept requestID
     bCONNECTED = True
+    If SERVER = True Then intPLAYERS = intPLAYERS + 1
 End Sub
 
 Sub disconnect()
@@ -126,9 +128,9 @@ Private Sub sockCONNECTION_DataArrival(ByVal bytesTotal As Long)
         
         nC2 = 0
         Do While nC2 <= UBound(strCOMMANDPARTS)
-            Replace strCOMMANDPARTS(nC2), "&nbsp;", " "
-            Replace strCOMMANDPARTS(nC2), "&pipe;", "|"
-            Replace strCOMMANDPARTS(nC2), "&amp;", "&"
+            strCOMMANDPARTS(nC2) = Replace(strCOMMANDPARTS(nC2), "&nbsp;", " ")
+            strCOMMANDPARTS(nC2) = Replace(strCOMMANDPARTS(nC2), "&pipe;", "|")
+            strCOMMANDPARTS(nC2) = Replace(strCOMMANDPARTS(nC2), "&amp;", "&")
             nC2 = nC2 + 1
         Loop
         

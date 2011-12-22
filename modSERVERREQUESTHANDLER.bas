@@ -1,12 +1,31 @@
 Attribute VB_Name = "modREQUESTHANDLER"
 Sub sckDISCONNECTED(lARRAYID As Long)
     log cCLIENTS(lARRAYID).ip & " (" & cCLIENTINFO(lARRAYID).strNAME & ") disconnected."
-    cCLIENTINFO(lARRAYID).strNAME = ""
-    cCLIENTINFO(lARRAYID).lngSCORE = 0
+    cCLIENTINFO(lARRAYID).reset
+    intPLAYERS = intPLAYERS - 1
 End Sub
 
 Sub handleError(lARRAYID As Long, strDESCRIPTION As String)
     log "Error from " & lARRAYID & ":" & strDESCRIPTION
+End Sub
+
+Public Sub checkIFEVERYONEREADY()
+    If intPLAYERS = 0 Then ' if nobody connected
+        Exit Sub ' don't start game
+    End If
+    
+    ' see if everyone is ready
+    nC = 0
+    Do While nC < MAXCLIENTS
+        If cCLIENTS(nC).connected = True Then
+            If cCLIENTINFO(nC).bREADY = False Then
+                Exit Sub ' someone not ready, exit sub
+            End If
+        End If
+        nC = nC + 1
+    Loop
+    
+    startGAME ' everyone is ready, start
 End Sub
 
 Sub spawnFLAIL(strSTATS As String)
@@ -21,11 +40,13 @@ Sub spawnFLAIL(strSTATS As String)
             lFLAILSPOT = nC ' remember number
             Exit Do
         End If
+        nC = nC + 1
     Loop
     
     If lFLAILSPOT = -1 Then ' no room left in flail array
         ReDim Preserve arrFLAILS(0 To UBound(arrFLAILS) + 1) ' make array 1 bigger
         Set arrFLAILS(UBound(arrFLAILS)) = New clsFLAIL
+        lFLAILSPOT = UBound(arrFLAILS)
     End If
     
     arrFLAILS(lFLAILSPOT).bACTIVE = CBool(arrstrSTATS(0))
@@ -38,8 +59,7 @@ Sub spawnFLAIL(strSTATS As String)
         arrFLAILS(lFLAILSPOT).clearWENTTHROUGH
     End If
     
-    'TODO: finish
-    broadcast "newFla", lFLAILSPOT & "~" & strSTATS
+    broadcastFLAIL lFLAILSPOT, True
 End Sub
 
 'Sub getMONINFO(lARRAYID As Long, strINFO As String)
@@ -125,6 +145,13 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "chat"
             log "Chat: " & cCLIENTINFO(lARRAYID).strNAME & ": " & strDESCRIPTION
             broadcast "chat", cCLIENTINFO(lARRAYID).strNAME & ": " & strDESCRIPTION
+        Case "ready"
+            If CBool(strDESCRIPTION) = True Then
+                cCLIENTINFO(lARRAYID).bREADY = True
+                checkIFEVERYONEREADY
+            Else
+                cCLIENTINFO(lARRAYID).bREADY = False
+            End If
         Case Else
             log "Unknown command from " & cCLIENTS(lARRAYID).ip & ": " & strCOMMAND
     End Select

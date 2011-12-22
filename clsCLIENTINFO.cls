@@ -13,3 +13,10 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Public strNAME As String
 Public lngSCORE As Long
+Public bREADY As Boolean
+
+Public Sub reset()
+    strNAME = ""
+    lngSCORE = 0
+    bREADY = False
+End Sub

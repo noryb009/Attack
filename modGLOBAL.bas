@@ -149,17 +149,6 @@ Public Function min(intNUM1 As Integer, intNUM2 As Integer) As Integer
     End If
 End Function
 
-Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long
-    Dim dblOUTPUT As Double
-    dblOUTPUT = lNUMBER1
-    dblOUTPUT = dblOUTPUT + lNUMBER2
-    If dblOUTPUT < 2147483647 Then
-        safeADDLONG = dblOUTPUT
-    Else
-        safeADDLONG = 2147483647
-    End If
-End Function
-
 Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
     Dim bSUCCESS As Boolean
     bSUCCESS = True
@@ -181,6 +170,8 @@ Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As
     End If
     cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDHIT = intMONEYONHIT
     cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDKILL = intMONEYONKILL
+    cmontypeMONSTERINFO(intNUMBER).lWIDTH = lIMAGEWIDTH
+    cmontypeMONSTERINFO(intNUMBER).lHEIGHT = lIMAGEHEIGHT
 End Sub
 
 Sub Main()
@@ -236,3 +227,9 @@ Public Sub log(strNEWLINE As String)
     ' empty sub to allow server to share clsCONNECTION
 End Sub
 
+Public Sub broadcastMONSTER(lMONSTERNUMBER As Long)
+    ' empty sub to allow server to share moveEVERYTHING
+End Sub
+Public Sub broadcastFLAIL(lFLAILNUMBER As Long, bCLEARGOTHROUGH As Boolean)
+    ' empty sub to allow server to share moveEVERYTHING
+End Sub

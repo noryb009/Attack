@@ -61,6 +61,30 @@ Sub updateMONSTER(strSTATS As String)
     arrMONSTERS(lSPOT).intHEALTH = CLng(arrstrSTATS(6))
 End Sub
 
+Sub updateFLAIL(strSTATS As String)
+    Dim arrstrSTATS() As String
+    arrstrSTATS = Split(strSTATS, "~") ' get different data parts
+    
+    Dim lSPOT As Long
+    lSPOT = CLng(arrstrSTATS(0))
+    
+    Do While lSPOT > UBound(arrFLAILS) ' if bigger then current array size
+        ReDim Preserve arrFLAILS(0 To UBound(arrFLAILS) + 1) ' make current array bigger
+        Set arrFLAILS(UBound(arrFLAILS)) = New clsFLAIL
+    Loop
+    
+    ' copy new values
+    arrFLAILS(lSPOT).bACTIVE = CBool(arrstrSTATS(1))
+    arrFLAILS(lSPOT).sngX = CSng(arrstrSTATS(2))
+    arrFLAILS(lSPOT).sngY = CSng(arrstrSTATS(3))
+    arrFLAILS(lSPOT).sngMOVINGV = CSng(arrstrSTATS(4))
+    arrFLAILS(lSPOT).sngMOVINGH = CSng(arrstrSTATS(5))
+    arrFLAILS(lSPOT).intGOTHROUGH = CInt(arrstrSTATS(6))
+    If CBool(arrstrSTATS(7)) = True Then
+        arrFLAILS(lSPOT).clearWENTTHROUGH
+    End If
+End Sub
+
 Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION As String)
     Select Case strCOMMAND
         Case "DISCONNECT" ' disconnect
@@ -80,17 +104,30 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
 '            sendMONINFO ' send monster info
         Case "login" ' server wants username
             cSERVER(0).sendString "login", strNAME
+        Case "game" ' game start/stop
+            If strDESCRIPTION = "start" Then
+                frmATTACK.Show
+                Unload frmLOBBY
+            End If
         Case "chat" ' somebody is talking or message from server
             Select Case currentSTATE
                 Case "lobby" ' in lobby
                     If frmLOBBY.txtCHATLOG <> "" Then frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & vbCrLf ' add newline if not empty
                     frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & strDESCRIPTION ' add to chat log
+                    frmLOBBY.txtCHATLOG.SelStart = Len(frmLOBBY.txtCHATLOG.Text) ' scroll textbox to show new message
+                    frmLOBBY.txtCHATLOG.SelLength = 0
             End Select
         Case "updateMon" ' update monster info (can be new/sync/delete)
             If strDESCRIPTION = "" Then
                 MsgBox "Empty updateMon received from server!" ' oh no!
             Else
                 updateMONSTER strDESCRIPTION ' update the monster
+            End If
+        Case "updateFlail" ' update flail info (can be new/sync/delete)
+            If strDESCRIPTION = "" Then
+                MsgBox "Empty updateFLAIL received from server!" ' oh no!
+            Else
+                updateFLAIL strDESCRIPTION ' update the flail
             End If
     End Select
 End Sub

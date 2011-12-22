@@ -16,6 +16,21 @@ End Enum
 Global Const landHEIGHT = 376
 Global Const numberOfMonsters = 11
 Global cmontypeMONSTERINFO(0 To numberOfMonsters - 1) As New clsMONSTERTYPE
+Global Const flailSIZEPX = 14
+
+Global Const windowX = 700
+Global Const windowY = 500
+
+Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long
+    Dim dblOUTPUT As Double
+    dblOUTPUT = lNUMBER1
+    dblOUTPUT = dblOUTPUT + lNUMBER2
+    If dblOUTPUT < 2147483647 Then
+        safeADDLONG = dblOUTPUT
+    Else
+        safeADDLONG = 2147483647
+    End If
+End Function
 
 Sub loadMONSTERINFO()
     loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 2, -1, 1, 0, 2
