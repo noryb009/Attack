@@ -12,11 +12,16 @@ Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Public strNAME As String
-Public lngSCORE As Long
+Public lLEVELSCORE As Long
 Public bREADY As Boolean
 
 Public Sub reset()
     strNAME = ""
-    lngSCORE = 0
+    lLEVELSCORE = 0
+    bREADY = False
+End Sub
+
+Public Sub afterLevelReset()
+    lLEVELSCORE = 0
     bREADY = False
 End Sub

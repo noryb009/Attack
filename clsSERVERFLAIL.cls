@@ -17,6 +17,7 @@ Attribute VB_Exposed = False
 ' Defend your castle!
 
 Public bACTIVE As Boolean
+Public lOWNER As Long
 Public sngX As Single
 Public sngY As Single
 Public sngMOVINGH As Single

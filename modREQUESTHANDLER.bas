@@ -1,9 +1,14 @@
 Attribute VB_Name = "modREQUESTHANDLER"
 Sub sckDISCONNECTED(lARRAYID As Long, Optional bMESSAGE As Boolean = True)
-    Unload frmLOBBY
-    Unload frmATTACK
-    Unload frmSTORE
-    frmNEWGAME.Show
+    Select Case currentSTATE
+        Case "lobby"
+            Unload frmLOBBY
+        Case "lobbyShop"
+            Unload frmLOBBY
+            Unload frmSTORE
+        Case "playing"
+            Unload frmATTACK
+    End Select
     If bMESSAGE = True Then MsgBox "Disconnected from host!"
 End Sub
 
@@ -61,6 +66,26 @@ Sub updateMONSTER(strSTATS As String)
     arrMONSTERS(lSPOT).intHEALTH = CLng(arrstrSTATS(6))
 End Sub
 
+Sub syncMONSTERS(strALLMONINFO As String)
+    Dim nC As Integer
+    nC = 0
+    ' deactivate all monsters
+    Do While nC <= UBound(arrMONSTERS)
+        arrMONSTERS(nC).bACTIVE = False
+        nC = nC + 1
+    Loop
+    
+    Dim strONEMONINFO() As String
+    strONEMONINFO = Split(strALLMONINFO, "\")
+    If strONEMONINFO(0) <> "" Then ' if array isn't empty
+        nC = 0
+        Do While nC <= UBound(strALLMONS) ' for each new monster info
+            updateMONSTER strONEMONINFO(nC) ' add monster
+            nC = nC + 1
+        Loop
+    End If
+End Sub
+
 Sub updateFLAIL(strSTATS As String)
     Dim arrstrSTATS() As String
     arrstrSTATS = Split(strSTATS, "~") ' get different data parts
@@ -85,6 +110,26 @@ Sub updateFLAIL(strSTATS As String)
     End If
 End Sub
 
+Sub syncFLAILS(strALLFLAINFO As String)
+    Dim nC As Integer
+    nC = 0
+    ' deactivate all flails
+    Do While nC <= UBound(arrFLAILS)
+        arrFLAILS(nC).bACTIVE = False
+        nC = nC + 1
+    Loop
+    
+    Dim strONEFLAINFO() As String
+    strONEFLAINFO = Split(strALLFLAINFO, "\")
+    If strONEFLAINFO(0) <> "" Then ' if array isn't empty
+        nC = 0
+        Do While nC <= UBound(strONEFLAINFO) ' for each new monster info
+            updateFLAIL strONEFLAINFO(nC) ' add flail
+            nC = nC + 1
+        Loop
+    End If
+End Sub
+
 Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION As String)
     Select Case strCOMMAND
         Case "DISCONNECT" ' disconnect
@@ -97,26 +142,115 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "VERSION" ' get version
             cSERVER(0).connected = True
             cSERVER(0).sendString "VERSION", VERSION
-            ' server accepted request, frmNEWGAME can continue
-            frmLOBBY.Show
-            Unload frmNEWGAME
 '        Case "monInfo" ' server wants monster info
 '            sendMONINFO ' send monster info
         Case "login" ' server wants username
-            cSERVER(0).sendString "login", strNAME
+            If strDESCRIPTION = "" Then
+                cSERVER(0).sendString "login", strNAME
+            Else ' login success
+                ' frmNEWGAME can continue
+                frmLOBBY.Show
+                Unload frmNEWGAME
+                currentSTATE = "lobby"
+            End If
+        Case "playerList" ' player list update
+            If strDESCRIPTION <> "" Then
+                strPLAYERLIST = Split(strDESCRIPTION, "~")
+                ' intPLAYERS is used as a counter
+                intPLAYERS = 0 ' reset number of players
+                Do While intPLAYERS <= UBound(strPLAYERLIST)
+                    strPLAYERLIST(nC) = Replace(strPLAYERLIST(nC), "&tide;", "~")
+                    strPLAYERLIST(nC) = Replace(strPLAYERLIST(nC), "&amp;", "&")
+                    intPLAYERS = intPLAYERS + 1 ' next player
+                Loop
+                If currentSTATE = "lobby" Or currentSTATE = "lobbyShop" Then
+                    frmLOBBY.updatePLAYERLIST ' update player list
+                End If
+            End If
         Case "game" ' game start/stop
             If strDESCRIPTION = "start" Then
                 frmATTACK.Show
                 Unload frmLOBBY
+                Unload frmSTORE
+                currentSTATE = "playing"
+            Else
+                If strDESCRIPTION = "stopLoose" Or strDESCRIPTION = "stopLooseShop" Then ' won game
+                    bEXIT = True ' stop playing game
+                    If strDESCRIPTION = "stopLoose" Then ' didn't have highest score in round
+                        MsgBox "You lost!"
+                        frmLOBBY.Show
+                        currentSTATE = "lobby"
+                    Else
+                        MsgBox "You lost!" & vbCrLf & "You got the round high score, so you get to visit the shop!"
+                        frmLOBBY.Show
+                        frmSTORE.Show
+                        frmLOBBY.cmdTOSTORE.Visible = True
+                        currentSTATE = "lobbyShop"
+                    End If
+                Else ' won game
+                    bEXIT = True ' stop playing game
+                    If strDESCRIPTION = "stopWin" Then ' didn't have highest score in round
+                        MsgBox "You won!"
+                        frmLOBBY.Show
+                        currentSTATE = "lobby"
+                    Else
+                        MsgBox "You won!" & vbCrLf & "You got the round high score, so you get to visit the shop!"
+                        frmLOBBY.Show
+                        frmSTORE.Show
+                        frmLOBBY.cmdTOSTORE.Visible = True
+                        currentSTATE = "lobbyShop"
+                    End If
+                End If
+                Unload frmATTACK
+            End If
+        Case "maxHealth" ' max health update
+            If strDESCRIPTION <> "" Then
+                lCASTLEMAXHEALTH = CLng(strDESCRIPTION)
+                If currentSTATE = "lobbyShop" Then
+                    frmSTORE.updateLABELS
+                End If
+            End If
+        Case "health" ' health update
+            If strDESCRIPTION <> "" Then
+                lCASTLECURRENTHEALTH = CLng(strDESCRIPTION)
+                If currentSTATE = "lobbyShop" Then
+                    frmSTORE.updateLABELS
+                End If
+            End If
+        Case "moneyLevel" ' money update
+            If strDESCRIPTION <> "" Then
+                lLEVELMONEY = CLng(strDESCRIPTION)
+            End If
+        Case "moneyTotal" ' money update
+            If strDESCRIPTION <> "" Then
+                lMONEY = CLng(strDESCRIPTION)
+                If currentSTATE = "lobbyShop" Then
+                    frmSTORE.updateLABELS
+                End If
+            End If
+        Case "flaPower" ' flail power update
+            If strDESCRIPTION <> "" Then
+                intFLAILPOWER = CInt(strDESCRIPTION)
+            End If
+        Case "flaGoThrough" ' flail go through update
+            If strDESCRIPTION <> "" Then
+                intFLAILGOTHROUGH = CInt(strDESCRIPTION)
+            End If
+        Case "flaAmount" ' flail amount update
+            If strDESCRIPTION <> "" Then
+                intFLAILAMOUNT = CInt(strDESCRIPTION)
+            End If
+        Case "nextLevel" ' current level update (next level user will go on)
+            If strDESCRIPTION <> "" Then
+                lCURRENTLEVEL = CLng(strDESCRIPTION)
             End If
         Case "chat" ' somebody is talking or message from server
-            Select Case currentSTATE
-                Case "lobby" ' in lobby
-                    If frmLOBBY.txtCHATLOG <> "" Then frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & vbCrLf ' add newline if not empty
-                    frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & strDESCRIPTION ' add to chat log
-                    frmLOBBY.txtCHATLOG.SelStart = Len(frmLOBBY.txtCHATLOG.Text) ' scroll textbox to show new message
-                    frmLOBBY.txtCHATLOG.SelLength = 0
-            End Select
+            If currentSTATE = "lobby" Or currentSTATE = "lobbyStore" Then ' in lobby
+                If frmLOBBY.txtCHATLOG <> "" Then frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & vbCrLf ' add newline if not empty
+                frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & strDESCRIPTION ' add to chat log
+                frmLOBBY.txtCHATLOG.SelStart = Len(frmLOBBY.txtCHATLOG.Text) ' scroll textbox to show new message
+                frmLOBBY.txtCHATLOG.SelLength = 0
+            End If
         Case "updateMon" ' update monster info (can be new/sync/delete)
             If strDESCRIPTION = "" Then
                 MsgBox "Empty updateMon received from server!" ' oh no!

@@ -148,6 +148,19 @@ Attribute VB_Exposed = False
 ' 21 November, 2011
 ' Defend your castle!
 
+Dim lFLAILUPGRADECOSTS(0 To 9) As Long
+
+Sub loadFLAILUPGRADECOSTS()
+    lFLAILUPGRADECOSTS(0) = 100 '0    1 -> 2
+    lFLAILUPGRADECOSTS(1) = 200 '0    2 -> 3
+    lFLAILUPGRADECOSTS(2) = 400 '0    3 -> 4
+    lFLAILUPGRADECOSTS(3) = 800 '0    4 -> 5
+    lFLAILUPGRADECOSTS(4) = 1000 '0   5 -> 6
+    lFLAILUPGRADECOSTS(5) = 1500 '0   6 -> 7
+    lFLAILUPGRADECOSTS(6) = 2000 '0   7 -> 8
+    lFLAILUPGRADECOSTS(7) = 3000 '0   8 -> 9
+End Sub
+
 Sub updateLABELS()
     If lCASTLECURRENTHEALTH <> 0 Then
         lblCURRENTHEALTH.Caption = "Current health: " & lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0"
@@ -186,8 +199,8 @@ Sub updateLABELS()
     End If
     
     If intFLAILPOWER < 10 Then
-        cmdFLAILPOWER.Caption = "Increase flail attack power: " & intFLAILPOWER & " => " & intFLAILPOWER + 1 & vbCrLf & "$" & 10 ^ intFLAILPOWER & "00"
-        If lMONEY >= ((10 ^ intFLAILPOWER) * 10) Then
+        cmdFLAILPOWER.Caption = "Increase flail attack power: " & intFLAILPOWER & " => " & intFLAILPOWER + 1 & vbCrLf & "$" & lFLAILUPGRADECOSTS(intFLAILPOWER) & "0"
+        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILPOWER) Then
             cmdFLAILPOWER.Enabled = True
         Else
             cmdFLAILPOWER.Enabled = False
@@ -198,8 +211,8 @@ Sub updateLABELS()
     End If
     
     If intFLAILGOTHROUGH < 10 Then
-        cmdFLAILGOTHROUGH.Caption = "Increase flail piercing power: " & intFLAILGOTHROUGH & " => " & intFLAILGOTHROUGH + 1 & vbCrLf & "$" & 10 ^ intFLAILGOTHROUGH & "00"
-        If lMONEY >= ((10 ^ intFLAILGOTHROUGH) * 10) Then
+        cmdFLAILGOTHROUGH.Caption = "Increase flail piercing power: " & intFLAILGOTHROUGH & " => " & intFLAILGOTHROUGH + 1 & vbCrLf & "$" & lFLAILUPGRADECOSTS(intFLAILGOTHROUGH) & "0"
+        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILGOTHROUGH) Then
             cmdFLAILGOTHROUGH.Enabled = True
         Else
             cmdFLAILGOTHROUGH.Enabled = False
@@ -210,8 +223,8 @@ Sub updateLABELS()
     End If
     
     If intFLAILAMOUNT < 10 Then
-        cmdFLAILAMOUNT.Caption = "Increase number of flails: " & intFLAILAMOUNT & " => " & intFLAILAMOUNT + 1 & vbCrLf & "$" & 10 ^ intFLAILAMOUNT & "00"
-        If lMONEY >= ((10 ^ intFLAILAMOUNT) * 10) Then
+        cmdFLAILAMOUNT.Caption = "Increase number of flails: " & intFLAILAMOUNT & " => " & intFLAILAMOUNT + 1 & vbCrLf & "$" & lFLAILUPGRADECOSTS(intFLAILAMOUNT) & "0"
+        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILAMOUNT) Then
             cmdFLAILAMOUNT.Enabled = True
         Else
             cmdFLAILAMOUNT.Enabled = False
@@ -228,34 +241,54 @@ Private Sub cmdBACK_Click()
 End Sub
 
 Private Sub cmdFLAILAMOUNT_Click()
-    lMONEY = lMONEY - ((10 ^ intFLAILAMOUNT) * 10)
+    If onlineMODE = True Then
+        cSERVER(0).sendString "buy", "amount~" & lFLAILUPGRADECOSTS(intFLAILAMOUNT)
+    End If
+    lMONEY = lMONEY - lFLAILUPGRADECOSTS(intFLAILAMOUNT)
     intFLAILAMOUNT = intFLAILAMOUNT + 1
     updateLABELS
 End Sub
 
 Private Sub cmdFLAILGOTHROUGH_Click()
-    lMONEY = lMONEY - ((10 ^ intFLAILGOTHROUGH) * 10)
+    If onlineMODE = True Then
+        cSERVER(0).sendString "buy", "goThrough~" & lFLAILUPGRADECOSTS(intFLAILGOTHROUGH)
+    End If
+    lMONEY = lMONEY - lFLAILUPGRADECOSTS(intFLAILGOTHROUGH)
     intFLAILGOTHROUGH = intFLAILGOTHROUGH + 1
     updateLABELS
 End Sub
 
 Private Sub cmdFLAILPOWER_Click()
-    lMONEY = lMONEY - ((10 ^ intFLAILPOWER) * 10)
+    If onlineMODE = True Then
+        cSERVER(0).sendString "buy", "power~" & lFLAILUPGRADECOSTS(intFLAILPOWER)
+    End If
+    lMONEY = lFLAILUPGRADECOSTS(intFLAILPOWER)
     intFLAILPOWER = intFLAILPOWER + 1
     updateLABELS
 End Sub
 
 Private Sub cmdHEAL_Click(Index As Integer)
-    lMONEY = lMONEY - (10 ^ (Index + 1)) \ 10
-    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + (10 ^ (Index + 1)) \ 10
+    Dim lCOST As Long ' because it costs $1(added 0) for 1 health, the cost is the same
+    lCOST = (10 ^ (Index + 1)) \ 10
+    If onlineMODE = True Then
+        cSERVER(0).sendString "heal", CStr(lCOST) & "~" & CStr(lCOST)
+    End If
+    lMONEY = lMONEY - lCOST
+    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + lCOST
     updateLABELS
 End Sub
 
 Private Sub cmdHEALALL_Click()
     If lMONEY > (lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) Then
+        If onlineMODE = True Then
+            cSERVER(0).sendString "heal", CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) & "~" & CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH)
+        End If
         lMONEY = lMONEY - (lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH)
         lCASTLECURRENTHEALTH = lCASTLEMAXHEALTH
     Else
+        If onlineMODE = True Then
+            cSERVER(0).sendString "heal", CStr(lMONEY) & "~" & CStr(lMONEY)
+        End If
         lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + lMONEY
         lMONEY = 0
     End If
@@ -263,12 +296,32 @@ Private Sub cmdHEALALL_Click()
 End Sub
 
 Private Sub cmdMOREHEALTH_Click(Index As Integer)
-    lMONEY = lMONEY - ((10 ^ (Index + 2)) \ 10)
-    lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + ((10 ^ (Index + 1)) \ 10)
-    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + ((10 ^ (Index + 1)) \ 10)
+    Dim lCOST As Long
+    Dim lHEALTHADDED As Long
+    lCOST = ((10 ^ (Index + 2)) \ 10)
+    lHEALTHADDED = ((10 ^ (Index + 1)) \ 10)
+    
+    If onlineMODE = True Then
+        cSERVER(0).sendString "addHealth", CStr(lCOST) & "~" & CStr(lHEALTHADDED)
+    End If
+    
+    lMONEY = lMONEY - lCOST
+    lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + lHEALTHADDED
+    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + lHEALTHADDED
     updateLABELS
 End Sub
 
 Private Sub Form_Load()
+    loadFLAILUPGRADECOSTS
+    If onlineMODE = True Then
+        cmdBACK.Visible = False
+    End If
     updateLABELS
+End Sub
+
+Private Sub Form_Terminate()
+    If onlineMODE = True Then
+        currentSTATE = "lobby"
+        frmLOBBY.Show
+    End If
 End Sub

@@ -162,7 +162,7 @@ Attribute VB_Exposed = False
 ' Defend your castle!
 
 Private Sub cmdLEVEL_Click(Index As Integer)
-    If lCASTLECURRENTHEALTH = 0 Then
+    If lCASTLECURRENTHEALTH <= 0 Then
         If lMONEY >= 10 Then
             MsgBox "You don't have any health! You can buy more at the store."
         Else

@@ -8,11 +8,12 @@ Global Const VERSION = "0.0.0.1a"
 Global Const SERVER = False
 Global onlineMODE As Boolean
 
-Global currentSTATE As String
+Global currentSTATE As String ' used for online mode to see what state the game is at (lobby, playing, buying, etc.)
 
 Global Const ticksPerFrame = 6
 
 Global cSERVER(0 To 0) As New clsCONNECTION
+Global strPLAYERLIST() As String
 
 Global imagePATH As String
 
@@ -30,6 +31,7 @@ Global lCURRENTLEVEL As Long
 Global strNAME As String ' player name
 Global lLEVEL As Long ' max level
 Global lMONEY As Long ' current money
+Global lLEVELMONEY As Long ' money on current level
 Global intFLAILPOWER As Integer ' the attack power of the flails
 Global intFLAILGOTHROUGH As Integer ' the number of monsters a flail can go through
 Global intFLAILAMOUNT As Integer ' the amount of flails thrown
@@ -129,6 +131,18 @@ Public Declare Function SetBitmapBits Lib "gdi32" ( _
     lpBits As Any _
 ) As Long
 
+Public Declare Function QueryPerformanceCounter Lib "kernel32" ( _
+    lpPerformanceCount As Currency _
+) As Long
+
+Public Declare Function QueryPerformanceFrequency Lib "kernel32" ( _
+    lpFrequency As Currency _
+) As Long
+
+Public Declare Sub Sleep Lib "kernel32" ( _
+    ByVal dwMilliseconds As Long _
+)
+
 Public Function escapeQUOTES(strINPUT As String) As String
     escapeQUOTES = Replace$(strINPUT, "'", "''")
 End Function
@@ -149,7 +163,7 @@ Public Function min(intNUM1 As Integer, intNUM2 As Integer) As Integer
     End If
 End Function
 
-Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
     Dim bSUCCESS As Boolean
     bSUCCESS = True
     
@@ -160,6 +174,8 @@ Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As
         MsgBox "Error loading images!"
         End
     End If
+    
+    cmontypeMONSTERINFO(intNUMBER).intPOINTCOST = intPOINTCOST
     cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH
     cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER
     cmontypeMONSTERINFO(intNUMBER).sngSPEED = sngSPEED

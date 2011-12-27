@@ -32,7 +32,7 @@ Public Property Let arrayID(newID As Long)
     lARRAYID = newID
 End Property
 
-Sub sendString(strCOMMAND As String, Optional strTOSEND As String = "")
+Sub sendString(strCOMMAND As String, Optional ByVal strTOSEND As String = "")
     strCOMMAND = Replace(strCOMMAND, "&", "&amp;")
     strCOMMAND = Replace(strCOMMAND, "|", "&pipe;")
     strCOMMAND = Replace(strCOMMAND, " ", "&nbsp;")
@@ -95,13 +95,17 @@ End Function
 Sub acceptCONNECTION(requestID As Long)
     sockCONNECTION.Accept requestID
     bCONNECTED = True
-    If SERVER = True Then intPLAYERS = intPLAYERS + 1
+    If SERVER = True Then
+        intPLAYERS = intPLAYERS + 1
+    End If
 End Sub
 
 Sub disconnect()
     If bCONNECTED = True Then
         bCONNECTED = False
-        sockCONNECTION.Close
+        If IsNull(sockCONNECTION) = True Then
+            sockCONNECTION.Close
+        End If
         sckDISCONNECTED lARRAYID
     End If
 End Sub

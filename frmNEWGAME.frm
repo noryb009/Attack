@@ -35,7 +35,7 @@ Begin VB.Form frmNEWGAME
       Width           =   1695
    End
    Begin VB.CommandButton cmdNEWMPGAME 
-      Caption         =   "Start a new multiplayer game"
+      Caption         =   "Join a multiplayer game"
       Height          =   495
       Left            =   2160
       TabIndex        =   7
@@ -128,14 +128,21 @@ Sub showSINGLE()
     lblIP.Visible = False
     txtIP.Visible = False
     cmdNEWMPGAME.Visible = False
-    lstSAVES.Visible = True
+    'lstSAVES.Visible = True ' see below
     cmdLOAD.Visible = True
     cmdDELETE.Visible = True
     
     cmdSINGLE.Visible = False
     cmdMULTI.Visible = True
     
-    frmNEWGAME.height = 3450
+    ' show lstSAVES if there are files, otherwise hide
+    If lstSAVES.ListCount > 0 Then
+        frmNEWGAME.height = 3450
+        lstSAVES.Visible = True
+    Else
+        frmNEWGAME.height = 1950
+        lstSAVES.Visible = False
+    End If
 End Sub
 
 Private Sub cmdSINGLE_Click()
@@ -287,7 +294,7 @@ Sub loadNamesToListbox()
     If recsetSAVES.RecordCount = 0 Then
         lstSAVES.Visible = False
         cmdLOAD.Visible = False
-        frmNEWGAME.height = 1725
+        frmNEWGAME.height = 1950
     Else
         recsetSAVES.MoveFirst
         Do While recsetSAVES.EOF = False

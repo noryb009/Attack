@@ -1,7 +1,5 @@
-- multiplayer - generate monster order
-- multiplayer - crash on double name login
-- hide load listbox if no files
-- harder trees - lots of HP
-- first upgrade for amount, power... more, after is less (((n^10)\3)?)
-- multiplayer and endless mode
+- generate monster order for lvl>10
+- sync randomly
+- multiplayer - in game chat
+- endless mode and high score
 - spread left/right

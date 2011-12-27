@@ -11,7 +11,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-Public intMAXHEALTH  As Integer
+Public intPOINTCOST As Integer
+Public intMAXHEALTH As Integer
 Public intSTARTINGY As Integer
 Public sngSPEED As Single
 Public intATTACKPOWER As Integer

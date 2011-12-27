@@ -1,12 +1,40 @@
 Attribute VB_Name = "modREQUESTHANDLER"
 Sub sckDISCONNECTED(lARRAYID As Long)
     log cCLIENTS(lARRAYID).ip & " (" & cCLIENTINFO(lARRAYID).strNAME & ") disconnected."
+    
+    If cCLIENTINFO(lARRAYID).strNAME <> "" Then
+        broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " logged out]"
+    End If
+    
     cCLIENTINFO(lARRAYID).reset
     intPLAYERS = intPLAYERS - 1
+    broadcastPLAYERLIST ' give clients updated player list
+    checkIFEVERYONEREADY ' see if everyone is ready
+    
+    If intPLAYERS = 0 Then ' nobody playing
+        bFORCEEXIT = True
+    End If
 End Sub
 
 Sub handleError(lARRAYID As Long, strDESCRIPTION As String)
     log "Error from " & lARRAYID & ":" & strDESCRIPTION
+End Sub
+
+Sub broadcastPLAYERLIST() ' turn the player list into a sendable string, then broadcast it
+    Dim strTOSEND As String
+    strTOSEND = ""
+    Dim nC As Integer
+    nC = 0
+    Do While nC < MAXCLIENTS
+        If cCLIENTS(nC).connected = True And cCLIENTINFO(nC).strNAME <> "" Then
+            If strTOSEND <> "" Then ' if not first name
+                strTOSEND = strTOSEND & "~" ' add separator
+            End If
+            strTOSEND = strTOSEND & Replace(Replace(cCLIENTINFO(nC).strNAME, "&", "&amp;"), "~", "&tide;") ' "&" to "&amp;", "~" to "&tide;", add to strTOSEND
+        End If
+        nC = nC + 1
+    Loop
+    broadcast "playerList", strTOSEND ' send string
 End Sub
 
 Public Sub checkIFEVERYONEREADY()
@@ -28,7 +56,7 @@ Public Sub checkIFEVERYONEREADY()
     startGAME ' everyone is ready, start
 End Sub
 
-Sub spawnFLAIL(strSTATS As String)
+Sub spawnFLAIL(lARRAYID As Long, strSTATS As String)
     Dim arrstrSTATS() As String
     arrstrSTATS = Split(strSTATS, "~") ' split stats
     
@@ -49,6 +77,7 @@ Sub spawnFLAIL(strSTATS As String)
         lFLAILSPOT = UBound(arrFLAILS)
     End If
     
+    arrFLAILS(lFLAILSPOT).lOWNER = lARRAYID
     arrFLAILS(lFLAILSPOT).bACTIVE = CBool(arrstrSTATS(0))
     arrFLAILS(lFLAILSPOT).sngX = CSng(arrstrSTATS(1))
     arrFLAILS(lFLAILSPOT).sngY = CSng(arrstrSTATS(2))
@@ -127,13 +156,35 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             Loop
             cCLIENTINFO(lARRAYID).strNAME = strDESCRIPTION
             log cCLIENTS(lARRAYID).ip & " logged in as " & cCLIENTINFO(lARRAYID).strNAME
+            cCLIENTS(lARRAYID).sendString "login", "success" ' tell client they are logged in
+            DoEvents
+            ' send user current stats
+            cCLIENTS(lARRAYID).sendString "flaPower", CStr(intFLAILPOWER)
+            DoEvents
+            cCLIENTS(lARRAYID).sendString "flaGoThrough", CStr(intFLAILGOTHROUGH)
+            DoEvents
+            cCLIENTS(lARRAYID).sendString "flaAmount", CStr(intFLAILAMOUNT)
+            DoEvents
+            cCLIENTS(lARRAYID).sendString "moneyTotal", CStr(lMONEY)
+            DoEvents
+            cCLIENTS(lARRAYID).sendString "health", CStr(lCASTLECURRENTHEALTH)
+            DoEvents
+            cCLIENTS(lARRAYID).sendString "maxHealth", CStr(lCASTLEMAXHEALTH)
+            DoEvents
+            cCLIENTS(lARRAYID).sendString "nextLevel", CStr(lCURRENTLEVEL)
+            DoEvents
             
+            ' give clients updated player list
+            broadcastPLAYERLIST
+            DoEvents
+            ' broadcast new user
+            broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " logged in]"
         Case "newFla"
             If strDESCRIPTION = "" Then
                 log "Empty newFla received from " & cCLIENTS(lARRAYID).ip
             Else
                 log "newFla received from " & cCLIENTS(lARRAYID).ip
-                spawnFLAIL strDESCRIPTION
+                spawnFLAIL lARRAYID, strDESCRIPTION
             End If
 '        Case "monInfo"
 '            If strDESCRIPTION = "" Then
@@ -148,9 +199,54 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "ready"
             If CBool(strDESCRIPTION) = True Then
                 cCLIENTINFO(lARRAYID).bREADY = True
+                broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " is ready]"
                 checkIFEVERYONEREADY
             Else
+                broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " is no longer ready]"
                 cCLIENTINFO(lARRAYID).bREADY = False
+            End If
+        Case "heal"
+            Dim strHEALPARTS() As String
+            strHEALPARTS = Split(strDESCRIPTION, "~", 2)
+            If UBound(strHEALPARTS) = 1 Then
+                lMONEY = lMONEY - CLng(strHEALPARTS(0)) ' cost
+                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+                lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strHEALPARTS(1)) ' heal
+                broadcast "health", CLng(lCASTLECURRENTHEALTH)
+            Else ' bad command
+                log "Bad 'heal' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION
+            End If
+        Case "addHealth"
+            Dim strADDHEALTHPARTS() As String
+            strADDHEALTHPARTS = Split(strDESCRIPTION, "~", 2)
+            If UBound(strADDHEALTHPARTS) = 1 Then
+                lMONEY = lMONEY - CLng(strADDHEALTHPARTS(0)) ' cost
+                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+                lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + CLng(strADDHEALTHPARTS(1)) ' more health
+                broadcast "maxHealth", CLng(lCASTLEMAXHEALTH)
+                lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strADDHEALTHPARTS(1)) ' heal
+                broadcast "health", CLng(lCASTLECURRENTHEALTH)
+            Else ' bad command
+                log "Bad 'addHealth' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION
+            End If
+        Case "buy"
+            Dim strBUYPARTS() As String
+            strBUYPARTS = Split(strDESCRIPTION, "~", 2)
+            If UBound(strBUYPARTS) = 1 Then
+                If strBUYPARTS(0) = "power" Then
+                    intFLAILPOWER = intFLAILPOWER + 1
+                    broadcast "flaPower", CStr(intFLAILPOWER)
+                ElseIf strBUYPARTS(0) = "goThrough" Then
+                    intFLAILGOTHROUGH = intFLAILGOTHROUGH + 1
+                    broadcast "flaGoThrough", CStr(intFLAILGOTHROUGH)
+                Else 'If strBUYPARTS(0) = "amount" Then
+                    intFLAILAMOUNT = intFLAILAMOUNT + 1
+                    broadcast "flaAmount", CStr(intFLAILAMOUNT)
+                End If
+                lMONEY = lMONEY - CLng(strBUYPARTS(1)) ' money spent
+                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+            Else ' bad command
+                log "Bad 'buy' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION
             End If
         Case Else
             log "Unknown command from " & cCLIENTS(lARRAYID).ip & ": " & strCOMMAND

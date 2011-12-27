@@ -9,12 +9,6 @@ Begin VB.Form frmSERVER
    ScaleHeight     =   3090
    ScaleWidth      =   4680
    StartUpPosition =   3  'Windows Default
-   Begin VB.Timer timerGAME 
-      Enabled         =   0   'False
-      Interval        =   40
-      Left            =   3000
-      Top             =   120
-   End
    Begin VB.TextBox txtLOG 
       Height          =   2655
       Left            =   0
@@ -88,17 +82,31 @@ Private Sub cmdSTART_Click()
         Exit Sub
     End If
     
-    lCURRENTLEVEL = 0
-    showSTOP
-    
     sockLISTEN.LocalPort = lPORT
+    
+    On Error GoTo couldNotListen
+    
     sockLISTEN.Listen
     
+    intPLAYERS = 0
+    lCURRENTLEVEL = 0
+    lCASTLECURRENTHEALTH = 10
+    lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH
+    intFLAILPOWER = 1
+    intFLAILGOTHROUGH = 1
+    intFLAILAMOUNT = 1
+    showSTOP
+    
     log "Server started on " & sockLISTEN.LocalIP & " at port " & sockLISTEN.LocalPort & "."
+    Exit Sub
+couldNotListen:
+    log "Could not start server: port busy"
 End Sub
 
 Private Sub cmdSTOP_Click()
     showSTART
+    
+    bFORCEEXIT = True ' stop game if running
     
     Dim nC As Integer
     nC = 0
@@ -126,6 +134,7 @@ Private Sub Form_Resize()
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
+    bFORCEEXIT = True ' exit game if running
     If sockLISTEN.State = sckListening Then
         sockLISTEN.Close
     End If
@@ -144,8 +153,4 @@ Private Sub sockLISTEN_ConnectionRequest(ByVal requestID As Long)
         End If
         nC = nC + 1
     Loop
-End Sub
-
-Private Sub timerGAME_Timer()
-    moveEVERYTHING
 End Sub

@@ -61,29 +61,40 @@ Attribute VB_Exposed = False
 'Dim intBGLEFT As Integer
 'Dim intBGTOP As Integer
 
-Dim intPLAYERS As Integer
-
 ' images
 Dim cbitBACKGROUND As New clsBITMAP ' static background
 Dim csprCASTLE As New clsSPRITE ' castle with different health ranges
 Dim cbitBUFFER As New clsBITMAP ' buffer
 Dim cbitHEALTH As New clsBITMAP ' health bar
 
-Dim arrTOBEMONSTERS() As Integer
-Public intCURRENTMONSTER As Integer
-Public intMONSTERSKILLED As Integer
-Public intMONSTERSATTACKEDCASTLE As Integer
-Dim bEXIT As Boolean
-
-Dim lLEVELMONEY As Long
-
 Const keepX = 338
 Const keepY = 190
 
 Const castleTOPMARGIN = 150
 
-Const castleWALLLEFT = 321
-Const castleWALLRIGHT = 377
+Private Sub Form_Activate()
+    Dim currSTARTTIME As Currency
+    Dim currCURRENTTIME As Currency
+    Dim currFREQUENCY As Currency
+    Dim dblTIMEBETWEENFRAMES As Double
+    
+    QueryPerformanceFrequency currFREQUENCY ' get the frequency of ticks
+    dblTIMEBETWEENFRAMES = currFREQUENCY / FPS ' get time between frames needed to reach FPS
+    Do While bEXIT = False And bFORCEEXIT = False
+        QueryPerformanceCounter currCURRENTTIME ' get current time
+        If currCURRENTTIME >= currSTARTTIME + dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
+            QueryPerformanceCounter currSTARTTIME ' store current time as new start time
+            moveEVERYTHING ' move everything
+            drawEVERYTHING ' draw everything
+            If onlineMODE = False Then checkWINLOOSE ' run win/loose code
+        Else
+            Sleep 3
+        End If
+        DoEvents ' do any events needed to be done
+    Loop
+    
+    Unload frmATTACK
+End Sub
 
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
 If Button = 1 Then
@@ -115,8 +126,8 @@ End Sub
 Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single)
 Const divideSPEED = 10
 
-If Button = 1 Then
-    lineAIM.Visible = False
+If Button = 1 Then ' mouse released
+    lineAIM.Visible = False ' make aim line invisible
     
     If (lineAIM.X1 - lineAIM.X2) \ divideSPEED = 0 And (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED = 0 Then
         Exit Sub
@@ -124,11 +135,13 @@ If Button = 1 Then
     
     Dim nC As Integer
     Dim nC2 As Integer
+    Dim nCMAX As Integer
     nC = 0
     nC2 = 0
     Do While nC2 < intFLAILAMOUNT
         If onlineMODE = False Then
-            Do While nC <= UBound(arrFLAILS)
+            nCMAX = UBound(arrFLAILS)
+            Do While nC <= nCMAX
                 If arrFLAILS(nC).bACTIVE = False Then
                     arrFLAILS(nC).bACTIVE = True
                     arrFLAILS(nC).sngX = keepX
@@ -146,7 +159,6 @@ If Button = 1 Then
                 End If
                 nC = nC + 1
             Loop
-            nC2 = nC2 + 1
         Else
             cSERVER(0).sendString "newFla", True & "~" & keepX & "~" & keepY & "~" & _
             (lineAIM.Y1 - lineAIM.Y2) \ divideSPEED + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 4) & "~" & _
@@ -170,9 +182,11 @@ frmATTACK.Refresh
 End Sub
 
 Sub spawnMONSTER()
+    Dim nCMAX As Integer
     If intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then
         nC = 0
-        Do While nC <= UBound(arrMONSTERS)
+        nCMAX = UBound(arrMONSTERS)
+        Do While nC <= nCMAX
             If arrMONSTERS(nC).bACTIVE = False Then
                 arrMONSTERS(nC).bACTIVE = True
                 arrMONSTERS(nC).intTYPE = arrTOBEMONSTERS(intCURRENTMONSTER) 'Int(Rnd() * numberOfMonsters)
@@ -198,42 +212,44 @@ Sub spawnMONSTER()
 End Sub
 
 Sub moveEVERYTHING()
-    Dim lMOVESPEED As Long
-    If onlineMODE = False Then ' single player
-        lMOVESPEED = 0.5 + (lCURRENTLEVEL / 5)
-    Else ' multi player
-        lMOVESPEED = 0.5 + ((lCURRENTLEVEL / 5) * intPLAYERS)
-    End If
-    
     Dim nC As Long
+    Dim nCMAXMON As Long
+    nCMAXMON = UBound(arrMONSTERS)
+    Dim nCMAXFLAILS As Long
+    nCMAXFLAILS = UBound(arrFLAILS)
     
     ' spawn monsters
     If onlineMODE = False Then
-        Dim bSPAWN As Boolean
-        bSPAWN = False
-        If intCURRENTMONSTER = intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) Then ' force if nobody on screen
-            bSPAWN = True
-        ElseIf Int(Rnd() * 200) < lCURRENTLEVEL And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' randomly if some monsters are waiting
-            bSPAWN = True
-        End If
-        
-        If bSPAWN = True Then
-            spawnMONSTER
+        If lMONSTERSPAWNCOOLDOWN = 0 Then
+            Dim bSPAWN As Boolean
+            bSPAWN = False
+            If intCURRENTMONSTER <= intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) Then ' force if nobody on screen
+                bSPAWN = True
+            ElseIf Int(Rnd() * 200) < lCURRENTLEVEL And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' randomly if some monsters are waiting
+                bSPAWN = True
+            End If
+            
+            If bSPAWN = True Then
+                spawnMONSTER
+                lMONSTERSPAWNCOOLDOWN = 20
+            End If
+        Else
+            lMONSTERSPAWNCOOLDOWN = lMONSTERSPAWNCOOLDOWN - 1
         End If
     End If
     
     ' move monsters
     nC = 0
-    Do While nC <= UBound(arrMONSTERS)
+    Do While nC <= nCMAXMON
         If arrMONSTERS(nC).bACTIVE = True Then
-            arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + lMOVESPEED * arrMONSTERS(nC).sngMOVINGH
+            arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + sngMOVESPEED * arrMONSTERS(nC).sngMOVINGH
             If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > windowX) Then
                 arrMONSTERS(nC).bACTIVE = False
             ElseIf (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width > castleWALLLEFT) Or (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX < castleWALLRIGHT) Then 'attack
                 lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH - cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intATTACKPOWER
                 intMONSTERSATTACKEDCASTLE = intMONSTERSATTACKEDCASTLE + 1
                 arrMONSTERS(nC).bACTIVE = False
-                If lCASTLECURRENTHEALTH <= 0 Then bEXIT = True
+                If lCASTLECURRENTHEALTH <= 0 And onlineMODE = False Then bEXIT = True
             End If
         End If
         nC = nC + 1
@@ -241,7 +257,7 @@ Sub moveEVERYTHING()
     
     ' move flails
     nC = 0
-    Do While nC <= UBound(arrFLAILS)
+    Do While nC <= nCMAXFLAILS
         If arrFLAILS(nC).bACTIVE = True Then
             Dim intNEWX As Integer
             Dim intNEWY As Integer
@@ -261,7 +277,7 @@ Sub moveEVERYTHING()
             'check if hitting monster
             Dim nCMONSTERS As Integer
             nCMONSTERS = 0
-            Do While nCMONSTERS <= UBound(arrMONSTERS)
+            Do While nCMONSTERS <= nCMAXMON ' UBound(arrMONSTERS)
                 If arrMONSTERS(nCMONSTERS).bACTIVE = True Then
                     If (arrFLAILS(nC).sngY < arrMONSTERS(nCMONSTERS).sngY + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height And intNEWY + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height > arrMONSTERS(nCMONSTERS).sngY) Or _
                     (intNEWY < arrMONSTERS(nCMONSTERS).sngY + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height And arrFLAILS(nC).sngY + csprFLAIL.height > arrMONSTERS(nCMONSTERS).sngY) Then
@@ -282,10 +298,10 @@ Sub moveEVERYTHING()
                 If arrMONSTERS(intDELETEMONSTER).intHEALTH < 1 Then
                     arrMONSTERS(intDELETEMONSTER).bACTIVE = False
                     intMONSTERSKILLED = intMONSTERSKILLED + 1
-                    lLEVELMONEY = safeADDLONG(lLEVELMONEY, cmontypeMONSTERINFO(arrMONSTERS(intDELETEMONSTER).intTYPE).intMONEYADDEDKILL)
+                    If onlineMODE = False Then lLEVELMONEY = safeADDLONG(lLEVELMONEY, cmontypeMONSTERINFO(arrMONSTERS(intDELETEMONSTER).intTYPE).intMONEYADDEDKILL)
                 Else
                     If intFLAILGOTHROUGH > 1 Then arrFLAILS(nC).addGOTHROUGH intDELETEMONSTER
-                    lLEVELMONEY = safeADDLONG(lLEVELMONEY, cmontypeMONSTERINFO(arrMONSTERS(intDELETEMONSTER).intTYPE).intMONEYADDEDHIT)
+                    If onlineMODE = False Then lLEVELMONEY = safeADDLONG(lLEVELMONEY, cmontypeMONSTERINFO(arrMONSTERS(intDELETEMONSTER).intTYPE).intMONEYADDEDHIT)
                 End If
                 If arrFLAILS(nC).intGOTHROUGH > 1 Then
                     arrFLAILS(nC).intGOTHROUGH = arrFLAILS(nC).intGOTHROUGH - 1
@@ -304,13 +320,14 @@ Sub moveEVERYTHING()
         nC = nC + 1
     Loop
     
-    If intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then
+    If onlineMODE = False And intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then
         bEXIT = True
     End If
 End Sub
 
 Sub drawEVERYTHING()
 Dim nC As Integer
+Dim nCMAX As Integer
 
 ' draw background
 'BitBlt frmATTACK.hDC, 0, 0, frmATTACK.Width, frmATTACK.Height, picBACKGROUND.hDC, intBGLEFT, intBGTOP, vbSrcCopy
@@ -318,7 +335,7 @@ BitBlt cbitBUFFER.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBA
 
 'draw castle
 If lCASTLECURRENTHEALTH > 0 Then
-    nC = (csprCASTLE.numberOfFrames - 1) \ (lCASTLEMAXHEALTH / (lCASTLECURRENTHEALTH + 1))
+    nC = (csprCASTLE.numberOfFrames - 1) \ (lCASTLEMAXHEALTH / lCASTLECURRENTHEALTH)
 Else
     nC = 0
 End If
@@ -329,7 +346,8 @@ BitBlt cbitBUFFER.hdc, (windowX - csprCASTLE.width) \ 2, castleTOPMARGIN, csprCA
 If bEXIT = False Then
     ' draw monsters
     nC = 0
-    Do While nC <= UBound(arrMONSTERS)
+    nCMAX = UBound(arrMONSTERS)
+    Do While nC <= nCMAX
         If arrMONSTERS(nC).bACTIVE = True Then
             If arrMONSTERS(nC).sngMOVINGH >= 0 Then
                 BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).currentFRAME), 0, 0, vbSrcAnd
@@ -345,7 +363,8 @@ If bEXIT = False Then
     
     ' draw arrows
     nC = 0
-    Do While nC <= UBound(arrFLAILS)
+    nCMAX = UBound(arrFLAILS)
+    Do While nC <= nCMAX
         If arrFLAILS(nC).bACTIVE = True Then
             BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcAnd
             BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lCURRENTANIFRAME), 0, 0, vbSrcPaint
@@ -370,46 +389,38 @@ Else
 End If
 End Sub
 
-Private Sub timerMAIN_Timer()
-moveEVERYTHING
-
-If intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then
-    bEXIT = True
-End If
-
-drawEVERYTHING
-
-'check for win/loose
-If bEXIT = True Then
-    timerMAIN.Enabled = False
-    lineAIM.Visible = False
-    If lCASTLECURRENTHEALTH <= 0 Then
-        lCASTLECURRENTHEALTH = 0 ' reset health
-        If lLEVELMONEY <> 0 Then
-            MsgBox "Your castle has fallen! At least you got to keep half of your loot, $" & lLEVELMONEY \ 2 & "0."
+Sub checkWINLOOSE()
+    'check for win/loose
+    If bEXIT = True Then
+        timerMAIN.Enabled = False
+        lineAIM.Visible = False
+        If lCASTLECURRENTHEALTH <= 0 Then
+            lCASTLECURRENTHEALTH = 0 ' reset health
+            If lLEVELMONEY <> 0 Then
+                MsgBox "Your castle has fallen! At least you got to keep half of your loot, $" & lLEVELMONEY \ 2 & "0."
+            Else
+                MsgBox "Your castle has fallen!"
+            End If
+            lMONEY = safeADDLONG(lMONEY, lLEVELMONEY \ 2)
         Else
-            MsgBox "Your castle has fallen!"
+            If lLEVELMONEY <> 0 Then
+                MsgBox "You beat this level!" & vbCrLf & "You got $" & lLEVELMONEY & "0, plus a level bonus of $" & lCURRENTLEVEL * 2 & "00!"
+            Else
+                MsgBox "You beat the level!" & vbCrLf & "You got a level bonus of $" & lCURRENTLEVEL * 2 & "00!"
+            End If
+            lMONEY = safeADDLONG(lMONEY, lLEVELMONEY)
+            lMONEY = safeADDLONG(lMONEY, (lCURRENTLEVEL * 20))
+            If lLEVEL = lCURRENTLEVEL Then lLEVEL = lLEVEL + 1
         End If
-        lMONEY = safeADDLONG(lMONEY, lLEVELMONEY \ 2)
-    Else
-        If lLEVELMONEY <> 0 Then
-            MsgBox "You beat this level!" & vbCrLf & "You got $" & lLEVELMONEY & "0, plus a level bonus of $" & lCURRENTLEVEL * 2 & "00!"
+        'frmNEWGAME.Show
+        If onlineMODE = False Then
+            frmLEVELSELECT.Show ' single player, go to menu
         Else
-            MsgBox "You beat the level!" & vbCrLf & "You got a level bonus of $" & lCURRENTLEVEL * 2 & "00!"
+            frmLOBBY.Show
+            'TODO: show store
         End If
-        lMONEY = safeADDLONG(lMONEY, lLEVELMONEY)
-        lMONEY = safeADDLONG(lMONEY, (lCURRENTLEVEL * 20))
-        If lLEVEL = lCURRENTLEVEL Then lLEVEL = lLEVEL + 1
+        Unload frmATTACK
     End If
-    'frmNEWGAME.Show
-    If onlineMODE = False Then
-        frmLEVELSELECT.Show ' single player, go to menu
-    Else
-        frmLOBBY.Show
-        'TODO: show store
-    End If
-    Unload frmATTACK
-End If
 End Sub
 
 Private Sub Form_Load()
@@ -434,11 +445,18 @@ End If
 ' set vars
 Dim nC As Integer
 bEXIT = False
+bFORCEEXIT = False
 lLEVELMONEY = 0
 intMONSTERSKILLED = 0
 intMONSTERSATTACKEDCASTLE = 0
 intCURRENTMONSTER = 0
+lMONSTERSPAWNCOOLDOWN = 0
 ReDim arrTOBEMONSTERS(0 To 0)
+If onlineMODE = False Then ' single player
+    sngMOVESPEED = 1 + (lCURRENTLEVEL / 10)
+Else
+    sngMOVESPEED = getMOVESPEED
+End If
 
 ReDim arrMONSTERS(0 To 99)
 nC = 0
@@ -486,5 +504,9 @@ Loop
 frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
 frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
 
-timerMAIN.Enabled = True
+'timerMAIN.Enabled = True
+End Sub
+
+Private Sub Form_Unload(Cancel As Integer)
+    bFORCEEXIT = True ' stop game loop if still running
 End Sub
