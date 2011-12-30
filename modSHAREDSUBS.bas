@@ -42,6 +42,9 @@ Public bEXIT As Boolean ' somebody won
 Public bFORCEEXIT As Boolean ' exited program or stopped server
 
 Sub loadMONSTERINFO()
+    ' monster info
+    ' number in enum, image filename, image width, image height, point cost, health,
+    '   attack power, Y location (-1 is ground), speed, money given when hit, money given when killed
     loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 1, 2, -1, 1, 0, 2
     loadONEMONSTERINFO blackMonster, "monster1", 9, 25, 2, 2, 5, -1, 1, 1, 2
     loadONEMONSTERINFO bat, "monster2", 10, 11, 2, 1, 3, 150, 1.5, 0, 2
@@ -56,28 +59,28 @@ Sub loadMONSTERINFO()
     ' note to self: when adding monsters, change numberOfMonsters
 End Sub
 
-Function getMOVESPEED() As Single
-    getMOVESPEED = 1 + ((lCURRENTLEVEL * intPLAYERS) / 10)
+Function getMOVESPEED() As Single ' get the movement speed (used by server and online client)
+    getMOVESPEED = 1 + ((lCURRENTLEVEL * intPLAYERS) / 10) ' return formula to get move speed
 End Function
 
-Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long
-    Dim dblOUTPUT As Double
-    dblOUTPUT = lNUMBER1
-    dblOUTPUT = dblOUTPUT + lNUMBER2
-    If dblOUTPUT < 2147483647 Then
-        safeADDLONG = dblOUTPUT
-    Else
-        safeADDLONG = 2147483647
+Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long ' add longs without overflows
+    Dim dblOUTPUT As Double ' temp double (can hold more then longs, so no overflow)
+    dblOUTPUT = lNUMBER1 ' store first number
+    dblOUTPUT = dblOUTPUT + lNUMBER2 ' add second number
+    If dblOUTPUT < 2147483647 Then ' if number won't overflow a long
+        safeADDLONG = dblOUTPUT ' return number
+    Else ' dblOUTPUT would overflow long
+        safeADDLONG = 2147483647 ' return long max
     End If
 End Function
 
-Sub generateMONSTERS(ByRef lLEVELPOINTS As Long)
-    Dim intNEWMONSTER As Integer
+Sub generateMONSTERS(ByRef lLEVELPOINTS As Long) ' generate monsters
+    Dim intNEWMONSTER As Integer ' random new monster
     Dim intSTARTINGMONSTER As Integer ' stops infinite loop if there isn't a monster worth 1 point
-    Dim intCURRENTMON As Integer
-    intCURRENTMON = -1
+    Dim intCURRENTMON As Integer ' number of current monster
+    intCURRENTMON = -1 ' starts with -1 monsters, adds one, and starts at 0
     
-    Do While lLEVELPOINTS > 0
+    Do While lLEVELPOINTS > 0 ' do while you still have points
         intNEWMONSTER = Int(Rnd() * numberOfMonsters) ' random monster
         intSTARTINGMONSTER = intNEWMONSTER ' record starting monster
         Do While cmontypeMONSTERINFO(intNEWMONSTER).intPOINTCOST > lLEVELPOINTS ' while monsters have too many points

@@ -11,6 +11,11 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
 Dim bLOADED As Boolean ' is loaded
 Dim cbitFRAMES() As clsBITMAP ' array of frames in sprite
 Dim cbitFRAMESMASK() As clsBITMAP ' array of frame masks in sprite

@@ -16,13 +16,17 @@ Attribute VB_Exposed = False
 ' 21 November, 2011
 ' Defend your castle!
 
-Public bACTIVE As Boolean
-Public sngX As Single
-Public sngY As Single
-Public sngMOVINGH As Single
-Public intTYPE As Integer
-Public intHEALTH As Integer
+Public bACTIVE As Boolean ' if monster is on the screen
+Public sngX As Single ' X location
+Public sngY As Single ' Y location
+Public sngMOVINGH As Single ' moving speed
+Public intTYPE As Integer ' monster type
+Public intHEALTH As Integer ' monster health
 
-Private Sub Class_Initialize()
-    bACTIVE = False
+Private Sub Class_Initialize() ' on class init
+    bACTIVE = False ' monster is not active
+End Sub
+
+Public Sub moveMONSTER() ' move monster
+    sngX = sngX + sngMOVESPEED * sngMOVINGH ' add distance
 End Sub

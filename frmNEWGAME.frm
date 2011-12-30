@@ -122,6 +122,7 @@ Dim dbSAVEFILES As Database
 Dim recsetSAVES As Recordset
 
 Sub showSINGLE()
+    ' show singleplayer GUI, hide multiplayer GUI
     lblNAME.Visible = True
     txtNAME.Visible = True
     cmdNEWSPGAME.Visible = True
@@ -137,19 +138,19 @@ Sub showSINGLE()
     
     ' show lstSAVES if there are files, otherwise hide
     If lstSAVES.ListCount > 0 Then
-        frmNEWGAME.height = 3450
+        frmNEWGAME.height = 3450 ' resize form height
         lstSAVES.Visible = True
     Else
-        frmNEWGAME.height = 1950
-        lstSAVES.Visible = False
+        frmNEWGAME.height = 1950 ' resize form height
+        lstSAVES.Visible = False ' hide listbox
     End If
 End Sub
-
 Private Sub cmdSINGLE_Click()
-    showSINGLE
+    showSINGLE ' show single player GUI
 End Sub
 
 Private Sub cmdMULTI_Click()
+    ' show multiplayer GUI, hide singleplayer GUI
     lblNAME.Visible = True
     txtNAME.Visible = True
     cmdNEWSPGAME.Visible = False
@@ -163,40 +164,56 @@ Private Sub cmdMULTI_Click()
     cmdSINGLE.Visible = True
     cmdMULTI.Visible = False
     
+    ' resize form height
     frmNEWGAME.height = 2865
 End Sub
 
+Sub loadNamesToListbox()
+    lstSAVES.Clear ' clear save list
+    
+    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT `Name` FROM `SaveGames` ORDER BY `Name`") ' get savefile list
+
+    If recsetSAVES.RecordCount <> 0 Then ' if records
+        recsetSAVES.MoveFirst ' go to the first record
+        Do While recsetSAVES.EOF = False ' while not at the last record
+            lstSAVES.AddItem recsetSAVES.Fields("Name") ' add the name to the listbox
+            recsetSAVES.MoveNext ' next record
+        Loop
+    End If
+    
+    showSINGLE ' update GUI, hide listbox if no records
+End Sub
+
 Private Sub cmdDELETE_Click()
-    If lstSAVES.ListIndex = -1 Then
-        MsgBox "Please select the save file to delete"
-        Exit Sub
-    End If
-    If MsgBox("Are you sure you want to delete " & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "?", vbYesNo) = vbNo Then
+    If lstSAVES.ListIndex = -1 Then ' if you don't have a save file selected
+        MsgBox "Please select the save file to delete" ' alert the user
         Exit Sub
     End If
     
-    dbSAVEFILES.Execute "DELETE FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "'"
-    
-    loadNamesToListbox
+    If MsgBox("Are you sure you want to delete " & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "?", vbYesNo) = vbYes Then ' double check
+        dbSAVEFILES.Execute "DELETE FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "'" ' delete from database
+        loadNamesToListbox ' refresh listbox
+    End If
 End Sub
 
 Private Sub cmdLOAD_Click()
-    onlineMODE = False
-    intPLAYERS = -1
-    'If dataSAVEFILES.Recordset.AbsolutePosition = -1 Then
-    If lstSAVES.ListIndex = -1 Then
-        MsgBox "Please select your name"
+    onlineMODE = False ' not online
+    intPLAYERS = -1 ' not multiplayer
+    
+    If lstSAVES.ListIndex = -1 Then ' player hasn't selected a name
+        MsgBox "Please select your name" ' alert the user
         Exit Sub
     End If
     
-    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "'")
+    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "'") ' load save file
     
-    'strNAME = dataSAVEFILES.Recordset.Fields("Name")
-    'lLEVEL = dataSAVEFILES.Recordset.Fields("Level")
-    'lCASTLECURRENTHEALTH = dataSAVEFILES.Recordset.Fields("CurrentHealth")
-    'lCASTLEMAXHEALTH = dataSAVEFILES.Recordset.Fields("MaxHealth")
-    'intFLAILPOWER = dataSAVEFILES.Recordset.Fields("FlailPower")
+    If recsetSAVES.RecordCount = 0 Then ' if couldn't find router
+        MsgBox "Error: could not find save file" ' alert the user
+        loadNamesToListbox ' refresh listbox
+        Exit Sub
+    End If
     
+    ' load from save file
     strNAME = recsetSAVES.Fields("Name")
     lMONEY = recsetSAVES.Fields("Money")
     lLEVEL = recsetSAVES.Fields("Level")
@@ -206,118 +223,94 @@ Private Sub cmdLOAD_Click()
     intFLAILGOTHROUGH = recsetSAVES.Fields("FlailGoThrough")
     intFLAILAMOUNT = recsetSAVES.Fields("FlailAmount")
     
-    Set recsetsavefiles = Nothing
-    Set dbSAVEFILES = Nothing
-    
-    frmLEVELSELECT.Show
-    Unload frmNEWGAME
+    frmLEVELSELECT.Show ' show level select form
+    Unload frmNEWGAME ' hide this form
 End Sub
 
 Sub newGAME()
-    If Trim(txtNAME.Text) = "" Then ' if empty
-        MsgBox "Please input a name."
+    If Trim(txtNAME.Text) = "" Then ' if name is empty
+        MsgBox "Please input a name." ' alert the user
         Exit Sub
     End If
     
-    Dim nC As Integer
     
-    If lstSAVES.ListCount <> 0 Then ' for each name in list box
+    If lstSAVES.ListCount <> 0 Then  ' if there are save files
+        Dim nC As Integer
         nC = 0
-        'Do While dataSAVEFILES.Recordset.EOF <> True
-        Do While nC < lstSAVES.ListCount
-            'If dataSAVEFILES.Recordset.Fields("Name") = Trim(txtNAME.Text) Then
-            If UCase(lstSAVES.List(nC)) = UCase(Trim(txtNAME.Text)) Then
-                MsgBox "Name already exists in database!"
-                'dataSAVEFILES.Recordset.Move intID
+        Do While nC < lstSAVES.ListCount ' for each name in listbox
+            If UCase(lstSAVES.List(nC)) = UCase(Trim(txtNAME.Text)) Then ' if name already used
+                MsgBox "Name already exists in database!" ' alert user
                 Exit Sub
             End If
-            'dataSAVEFILES.Recordset.MoveNext
-            nC = nC + 1
+            nC = nC + 1 ' next name
         Loop
-        'dataSAVEFILES.Move intID
     End If
     
-    strNAME = Trim(txtNAME.Text)
-    lMONEY = 0
-    lLEVEL = 1
-    lCASTLECURRENTHEALTH = 10
-    lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH
-    intFLAILPOWER = 1
-    intFLAILGOTHROUGH = 1
-    intFLAILAMOUNT = 1
+    onlineMODE = False ' not online
+    intPLAYERS = -1 ' single player
+    strNAME = Trim(txtNAME.Text) ' store name
+    lMONEY = 0 ' defaut money
+    lLEVEL = 1 ' starting level
+    lCASTLECURRENTHEALTH = 10 ' starting health
+    lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH ' starting max health
+    intFLAILPOWER = 1 ' starting flail power
+    intFLAILGOTHROUGH = 1 ' starting flail go through
+    intFLAILAMOUNT = 1 ' starting flail amount
     
-    Set recsetsavefiles = Nothing
-    Set dbSAVEFILES = Nothing
-    
-    frmLEVELSELECT.Show
-    frmLEVELSELECT.saveGAME
-    Unload frmNEWGAME
+    frmLEVELSELECT.Show ' show the level select form
+    frmLEVELSELECT.saveGAME ' save the game
+    Unload frmNEWGAME ' hide this form
 End Sub
 
 Private Sub cmdNEWSPGAME_Click()
-    onlineMODE = False
-    intPLAYERS = -1
-    newGAME
+    newGAME ' start a new game
 End Sub
 
 Private Sub cmdNEWMPGAME_Click()
-    If Trim(txtNAME.Text) = "" Then ' if empty
-        MsgBox "Please input a name."
+    If Trim(txtNAME.Text) = "" Then ' if name is empty
+        MsgBox "Please input a name." ' alert user
         Exit Sub
     End If
     
-    onlineMODE = True
-    Set cSERVER(0) = New clsCONNECTION
-    cSERVER(0).arrayID = 0
+    onlineMODE = True ' online
+    strNAME = Trim(txtNAME.Text) ' save name
+    lMONEY = 0 ' default money
+    lLEVEL = 1 ' starting level
+    lCASTLECURRENTHEALTH = 10 ' starting health
+    lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH ' starting max health
+    intFLAILPOWER = 1 ' starting flail power
+    intFLAILGOTHROUGH = 1 ' starting flail go through
+    intFLAILAMOUNT = 1 ' starting flail amount
+    
+    Set cSERVER(0) = New clsCONNECTION ' make a new clsCONNECTION, will be able to connect to the server
+    cSERVER(0).arrayID = 0 ' array spot 0
     If cSERVER(0).connectTOSERVER(Trim(txtIP.Text)) = False Then ' if parsing error
         Exit Sub
     End If
-    
-    strNAME = Trim(txtNAME.Text)
-    lMONEY = 0
-    lLEVEL = 1
-    lCASTLECURRENTHEALTH = 10
-    lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH
-    intFLAILPOWER = 1
-    intFLAILGOTHROUGH = 1
-    intFLAILAMOUNT = 1
     
     'cmdMULTI.Enabled = False
     'cmdNEWMPGAME.Enabled = False
 End Sub
 
-Sub loadNamesToListbox()
-    lstSAVES.Clear
-    
-    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT `Name` FROM `SaveGames` ORDER BY `Name`")
-
-    If recsetSAVES.RecordCount = 0 Then
-        lstSAVES.Visible = False
-        cmdLOAD.Visible = False
-        frmNEWGAME.height = 1950
-    Else
-        recsetSAVES.MoveFirst
-        Do While recsetSAVES.EOF = False
-            lstSAVES.AddItem recsetSAVES.Fields("Name")
-            recsetSAVES.MoveNext
-        Loop
+Private Sub txtNAME_KeyPress(KeyAscii As Integer)
+    If onlineMODE = False Then ' if not playing online
+        Select Case KeyAscii
+            Case 13 ' enter
+                newGAME ' start a new game
+        End Select
     End If
 End Sub
 
 Private Sub Form_Activate()
-    showSINGLE
+    loadNamesToListbox ' get save files
 End Sub
 
 Private Sub Form_Load()
-    Set dbSAVEFILES = OpenDatabase(App.Path & "\saveFiles.mdb")
-    
-    loadNamesToListbox
+    Randomize ' randomize random numbers
+    Set dbSAVEFILES = OpenDatabase(App.Path & "\saveFiles.mdb") ' open database
 End Sub
 
-Private Sub txtNAME_KeyPress(KeyAscii As Integer)
-Select Case KeyAscii
-    Case 13 ' enter
-        newGAME
-        KeyAscii = 0
-End Select
+Private Sub Form_Unload(Cancel As Integer)
+    Set recsetsavefiles = Nothing ' close recordset
+    Set dbSAVEFILES = Nothing ' close database
 End Sub

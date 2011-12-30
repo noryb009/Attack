@@ -148,180 +148,190 @@ Attribute VB_Exposed = False
 ' 21 November, 2011
 ' Defend your castle!
 
-Dim lFLAILUPGRADECOSTS(0 To 9) As Long
+Dim lFLAILUPGRADECOSTS(0 To 9) As Long ' cost to upgrade flail power, go through, or amount
 
-Sub loadFLAILUPGRADECOSTS()
-    lFLAILUPGRADECOSTS(0) = 100 '0    1 -> 2
-    lFLAILUPGRADECOSTS(1) = 200 '0    2 -> 3
-    lFLAILUPGRADECOSTS(2) = 400 '0    3 -> 4
-    lFLAILUPGRADECOSTS(3) = 800 '0    4 -> 5
-    lFLAILUPGRADECOSTS(4) = 1000 '0   5 -> 6
-    lFLAILUPGRADECOSTS(5) = 1500 '0   6 -> 7
-    lFLAILUPGRADECOSTS(6) = 2000 '0   7 -> 8
-    lFLAILUPGRADECOSTS(7) = 3000 '0   8 -> 9
+Sub loadFLAILUPGRADECOSTS() ' sub to load the cost of flail upgrades
+    ' all prices are *10, so $100 will display $1000
+    lFLAILUPGRADECOSTS(0) = 100 '  1 -> 2
+    lFLAILUPGRADECOSTS(1) = 200 '  2 -> 3
+    lFLAILUPGRADECOSTS(2) = 400 '  3 -> 4
+    lFLAILUPGRADECOSTS(3) = 800 '  4 -> 5
+    lFLAILUPGRADECOSTS(4) = 1000 ' 5 -> 6
+    lFLAILUPGRADECOSTS(5) = 1500 ' 6 -> 7
+    lFLAILUPGRADECOSTS(6) = 2000 ' 7 -> 8
+    lFLAILUPGRADECOSTS(7) = 3000 ' 8 -> 9
 End Sub
 
+Function healthDISPLAYAMOUNT(intINDEX As Integer) As Long ' get display amount from index
+    healthDISPLAYAMOUNT = (10 ^ (intINDEX + 1)) ' get display amount (*10)
+End Function
+
+Function healthAMOUNT(intINDEX As Integer) As Long ' get amount from index
+    healthAMOUNT = healthDISPLAYAMOUNT(intINDEX) \ 10 ' get amount
+End Function
+
+Function healCOST(intINDEX As Integer) As Long ' get cost of healing
+    healCOST = healthAMOUNT(intINDEX) ' same price
+End Function
+
+Function moreHEALTHCOST(intINDEX As Integer) As Long ' get cost of buying more max health
+    moreHEALTHCOST = healthAMOUNT(intINDEX) * 10 ' $10 per amount
+End Function
+
 Sub updateLABELS()
-    If lCASTLECURRENTHEALTH <> 0 Then
-        lblCURRENTHEALTH.Caption = "Current health: " & lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0"
+    If lCASTLECURRENTHEALTH <> 0 Then ' if you have health
+        lblCURRENTHEALTH.Caption = "Current health: " & lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0" ' display current health
     Else
-        lblCURRENTHEALTH.Caption = "Current health: 0/" & lCASTLEMAXHEALTH & "0"
+        lblCURRENTHEALTH.Caption = "Current health: 0/" & lCASTLEMAXHEALTH & "0" ' display current health as 0, not 00
     End If
-    If lMONEY <> 0 Then
-        lblMONEY = "$" & lMONEY & "0"
+    If lMONEY <> 0 Then ' if you have money
+        lblMONEY = "$" & lMONEY & "0" ' display money *10
     Else
-        lblMONEY = "$0"
+        lblMONEY = "$0" ' display 0, not 00
     End If
     Dim nC As Integer
     nC = 0
-    Do While nC < 4
-        If (10 ^ (nC + 1)) \ 10 <= lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH And ((10 ^ (nC + 1)) \ 10) <= lMONEY Then
-            cmdHEAL(nC).Enabled = True
+    Do While nC < cmdHEAL.Count ' for each heal and morehealth button
+        If healthAMOUNT(nC) <= lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH And healCOST(nC) <= lMONEY Then ' if it won't overfill your health and you have enough money
+            cmdHEAL(nC).Enabled = True ' you can buy this much health
         Else
-            cmdHEAL(nC).Enabled = False
+            cmdHEAL(nC).Enabled = False ' you can't buy this much health
         End If
-        cmdHEAL(nC).Caption = "Heal " & (10 ^ (nC + 1)) & " - $" & (10 ^ (nC + 1))
+        cmdHEAL(nC).Caption = "Heal " & healthDISPLAYAMOUNT(nC) & " - $" & healCOST(nC) & "0" ' display health amount and cost
         
-        If (10 ^ (nC + 2)) \ 10 <= lMONEY Then
-            cmdMOREHEALTH(nC).Enabled = True
+        If healthAMOUNT(nC) <= lMONEY Then ' if you have enough money to buy morehealth
+            cmdMOREHEALTH(nC).Enabled = True ' you can buy this much morehealth
         Else
-            cmdMOREHEALTH(nC).Enabled = False
+            cmdMOREHEALTH(nC).Enabled = False ' you can't buy this much morehealth
         End If
-        cmdMOREHEALTH(nC).Caption = "+" & (10 ^ (nC + 1)) & " health - $" & (10 ^ (nC + 2))
+        cmdMOREHEALTH(nC).Caption = "+" & healthDISPLAYAMOUNT(nC) & " health - $" & moreHEALTHCOST(nC) & "0" ' display amount and cost
         
-        nC = nC + 1
+        nC = nC + 1 ' next button
     Loop
     
-    If lCASTLEMAXHEALTH <> lCASTLECURRENTHEALTH And lMONEY <> 0 Then
-        cmdHEALALL.Enabled = True
+    If lCASTLEMAXHEALTH <> lCASTLECURRENTHEALTH And lMONEY <> 0 Then ' if you have money and you don't have full health
+        cmdHEALALL.Enabled = True ' enable heal all button
     Else
-        cmdHEALALL.Enabled = False
+        cmdHEALALL.Enabled = False ' disable heal all button, it wouldn't do anything
     End If
     
-    If intFLAILPOWER < 10 Then
+    If intFLAILPOWER < 10 Then ' if not fully upgraded
         cmdFLAILPOWER.Caption = "Increase flail attack power: " & intFLAILPOWER & " => " & intFLAILPOWER + 1 & vbCrLf & "$" & lFLAILUPGRADECOSTS(intFLAILPOWER) & "0"
-        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILPOWER) Then
-            cmdFLAILPOWER.Enabled = True
+        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILPOWER) Then ' if enough money to upgrade
+            cmdFLAILPOWER.Enabled = True ' can upgrade
         Else
-            cmdFLAILPOWER.Enabled = False
+            cmdFLAILPOWER.Enabled = False ' can't upgrade
         End If
     Else
-        cmdFLAILPOWER.Caption = "Flail attack power fully upgraded!"
-        cmdFLAILPOWER.Enabled = False
+        cmdFLAILPOWER.Caption = "Flail attack power fully upgraded!" ' fully upgraded
+        cmdFLAILPOWER.Enabled = False ' can't upgrade
     End If
     
-    If intFLAILGOTHROUGH < 10 Then
+    If intFLAILGOTHROUGH < 10 Then ' if not fully upgraded
         cmdFLAILGOTHROUGH.Caption = "Increase flail piercing power: " & intFLAILGOTHROUGH & " => " & intFLAILGOTHROUGH + 1 & vbCrLf & "$" & lFLAILUPGRADECOSTS(intFLAILGOTHROUGH) & "0"
-        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILGOTHROUGH) Then
-            cmdFLAILGOTHROUGH.Enabled = True
+        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILGOTHROUGH) Then ' if enough money to upgrade
+            cmdFLAILGOTHROUGH.Enabled = True ' can upgrade
         Else
-            cmdFLAILGOTHROUGH.Enabled = False
+            cmdFLAILGOTHROUGH.Enabled = False ' can't upgrade
         End If
     Else
-        cmdFLAILGOTHROUGH.Caption = "Flail piercing power fully upgraded!"
-        cmdFLAILGOTHROUGH.Enabled = False
+        cmdFLAILGOTHROUGH.Caption = "Flail piercing power fully upgraded!" ' fully upgraded
+        cmdFLAILGOTHROUGH.Enabled = False ' can't upgrade
     End If
     
-    If intFLAILAMOUNT < 10 Then
+    If intFLAILAMOUNT < 10 Then ' if not fully upgraded
         cmdFLAILAMOUNT.Caption = "Increase number of flails: " & intFLAILAMOUNT & " => " & intFLAILAMOUNT + 1 & vbCrLf & "$" & lFLAILUPGRADECOSTS(intFLAILAMOUNT) & "0"
-        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILAMOUNT) Then
-            cmdFLAILAMOUNT.Enabled = True
+        If lMONEY >= lFLAILUPGRADECOSTS(intFLAILAMOUNT) Then ' if enough money to upgrade
+            cmdFLAILAMOUNT.Enabled = True ' can upgrade
         Else
-            cmdFLAILAMOUNT.Enabled = False
+            cmdFLAILAMOUNT.Enabled = False ' can't upgrade
         End If
     Else
-        cmdFLAILAMOUNT.Caption = "Number of flails fully upgraded!"
-        cmdFLAILAMOUNT.Enabled = False
+        cmdFLAILAMOUNT.Caption = "Number of flails fully upgraded!" ' fully upgraded
+        cmdFLAILAMOUNT.Enabled = False ' can't upgrade
     End If
 End Sub
 
 Private Sub cmdBACK_Click()
-    frmLEVELSELECT.Show
-    Unload frmSTORE
+    frmLEVELSELECT.Show ' show the level select form
+    Unload frmSTORE ' hide this form
 End Sub
 
-Private Sub cmdFLAILAMOUNT_Click()
-    If onlineMODE = True Then
-        cSERVER(0).sendString "buy", "amount~" & lFLAILUPGRADECOSTS(intFLAILAMOUNT)
+Private Sub cmdFLAILPOWER_Click()
+    If onlineMODE = True Then ' if playing multiplayer
+        cSERVER(0).sendString "buy", "power~" & lFLAILUPGRADECOSTS(intFLAILPOWER) ' update server
     End If
-    lMONEY = lMONEY - lFLAILUPGRADECOSTS(intFLAILAMOUNT)
-    intFLAILAMOUNT = intFLAILAMOUNT + 1
+    lMONEY = lMONEY - lFLAILUPGRADECOSTS(intFLAILPOWER) ' spend money
+    intFLAILPOWER = intFLAILPOWER + 1 ' upgrade flail power
     updateLABELS
 End Sub
 
 Private Sub cmdFLAILGOTHROUGH_Click()
-    If onlineMODE = True Then
-        cSERVER(0).sendString "buy", "goThrough~" & lFLAILUPGRADECOSTS(intFLAILGOTHROUGH)
+    If onlineMODE = True Then ' if playing multiplayer
+        cSERVER(0).sendString "buy", "goThrough~" & lFLAILUPGRADECOSTS(intFLAILGOTHROUGH) ' update server
     End If
-    lMONEY = lMONEY - lFLAILUPGRADECOSTS(intFLAILGOTHROUGH)
-    intFLAILGOTHROUGH = intFLAILGOTHROUGH + 1
+    lMONEY = lMONEY - lFLAILUPGRADECOSTS(intFLAILGOTHROUGH) ' spend money
+    intFLAILGOTHROUGH = intFLAILGOTHROUGH + 1 ' upgrade flail gothrough
     updateLABELS
 End Sub
 
-Private Sub cmdFLAILPOWER_Click()
-    If onlineMODE = True Then
-        cSERVER(0).sendString "buy", "power~" & lFLAILUPGRADECOSTS(intFLAILPOWER)
+Private Sub cmdFLAILAMOUNT_Click()
+    If onlineMODE = True Then ' if playing multiplayer
+        cSERVER(0).sendString "buy", "amount~" & lFLAILUPGRADECOSTS(intFLAILAMOUNT) ' update server
     End If
-    lMONEY = lFLAILUPGRADECOSTS(intFLAILPOWER)
-    intFLAILPOWER = intFLAILPOWER + 1
-    updateLABELS
-End Sub
-
-Private Sub cmdHEAL_Click(Index As Integer)
-    Dim lCOST As Long ' because it costs $1(added 0) for 1 health, the cost is the same
-    lCOST = (10 ^ (Index + 1)) \ 10
-    If onlineMODE = True Then
-        cSERVER(0).sendString "heal", CStr(lCOST) & "~" & CStr(lCOST)
-    End If
-    lMONEY = lMONEY - lCOST
-    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + lCOST
+    lMONEY = lMONEY - lFLAILUPGRADECOSTS(intFLAILAMOUNT) ' spend money
+    intFLAILAMOUNT = intFLAILAMOUNT + 1 ' upgrade flail amount
     updateLABELS
 End Sub
 
 Private Sub cmdHEALALL_Click()
-    If lMONEY > (lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) Then
-        If onlineMODE = True Then
-            cSERVER(0).sendString "heal", CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) & "~" & CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH)
+    If lMONEY > lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH Then ' if more money then missing health
+        If onlineMODE = True Then ' if playing multiplayer
+            cSERVER(0).sendString "heal", CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) & "~" & CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) ' update server
         End If
-        lMONEY = lMONEY - (lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH)
-        lCASTLECURRENTHEALTH = lCASTLEMAXHEALTH
-    Else
-        If onlineMODE = True Then
-            cSERVER(0).sendString "heal", CStr(lMONEY) & "~" & CStr(lMONEY)
+        lMONEY = lMONEY - healCOST(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) ' take away money
+        lCASTLECURRENTHEALTH = lCASTLEMAXHEALTH ' add health
+    Else ' more missing health then money
+        If onlineMODE = True Then ' if playing multiplayer
+            cSERVER(0).sendString "heal", CStr(lMONEY) & "~" & CStr(lMONEY) ' update server
         End If
-        lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + lMONEY
-        lMONEY = 0
+        lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + lMONEY ' add health
+        lMONEY = 0 ' 0 money left
     End If
+    updateLABELS
+End Sub
+
+Private Sub cmdHEAL_Click(Index As Integer)
+    If onlineMODE = True Then ' if playing multiplayer
+        cSERVER(0).sendString "heal", CStr(healthAMOUNT(Index)) & "~" & CStr(healCOST(Index)) ' update server
+    End If
+    lMONEY = lMONEY - healCOST(Index) ' take away money
+    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + healthAMOUNT(Index) ' add health
     updateLABELS
 End Sub
 
 Private Sub cmdMOREHEALTH_Click(Index As Integer)
-    Dim lCOST As Long
-    Dim lHEALTHADDED As Long
-    lCOST = ((10 ^ (Index + 2)) \ 10)
-    lHEALTHADDED = ((10 ^ (Index + 1)) \ 10)
-    
-    If onlineMODE = True Then
-        cSERVER(0).sendString "addHealth", CStr(lCOST) & "~" & CStr(lHEALTHADDED)
+    If onlineMODE = True Then ' if playing multiplayer
+        cSERVER(0).sendString "addHealth", CStr(moreHEALTHCOST(Index)) & "~" & CStr(healthAMOUNT(Index)) ' update server
     End If
     
-    lMONEY = lMONEY - lCOST
-    lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + lHEALTHADDED
-    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + lHEALTHADDED
+    lMONEY = lMONEY - moreHEALTHCOST(Index) ' take away money
+    lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + healthAMOUNT(Index) ' add max health
+    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + healthAMOUNT(Index) ' add health
     updateLABELS
 End Sub
 
 Private Sub Form_Load()
-    loadFLAILUPGRADECOSTS
-    If onlineMODE = True Then
-        cmdBACK.Visible = False
+    loadFLAILUPGRADECOSTS ' load the cost of flail upgrades into lFLAILUPGRADECOSTS()
+    If onlineMODE = True Then ' if multiplayer
+        cmdBACK.Visible = False ' can't go to level select form
     End If
     updateLABELS
 End Sub
 
 Private Sub Form_Terminate()
-    If onlineMODE = True Then
-        currentSTATE = "lobby"
-        frmLOBBY.Show
+    If onlineMODE = True Then ' if multiplayer
+        currentSTATE = "lobby" ' no longer in the shop
+        frmLOBBY.Show ' show the lobby
     End If
 End Sub

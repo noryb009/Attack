@@ -162,29 +162,31 @@ Attribute VB_Exposed = False
 ' Defend your castle!
 
 Private Sub cmdLEVEL_Click(Index As Integer)
-    If lCASTLECURRENTHEALTH <= 0 Then
-        If lMONEY >= 10 Then
+    If lCASTLECURRENTHEALTH <= 0 Then ' if you don't have health
+        If lMONEY >= 10 Then ' if you have enough money to buy health
+            ' tell user to buy health
             MsgBox "You don't have any health! You can buy more at the store."
         Else
+            ' tell user to buy health, and give some money for them to buy it
             MsgBox "You don't have any health! Here's a few gold coins for you to buy some at the store."
             lMONEY = 10
         End If
         Exit Sub
     End If
     
-    lCURRENTLEVEL = Index + 1
+    lCURRENTLEVEL = Index + 1 ' set the current level
     
-    'default of 0
+    ' default: 0 monsters of each type
     Dim nC As Integer
     nC = 0
-    Do While nC <= UBound(intMONSTERSONLEVEL)
-        intMONSTERSONLEVEL(nC) = 0
+    Do While nC < numberOfMonsters ' for each monster spot
+        intMONSTERSONLEVEL(nC) = 0 ' no monsters on this level of this type
         nC = nC + 1
     Loop
     
-    Select Case Index + 1
-        Case 1
-            intMONSTERSONLEVEL(greenMonster) = 10
+    Select Case lCURRENTLEVEL ' monsters on current level
+        Case 1 ' on level 1
+            intMONSTERSONLEVEL(greenMonster) = 10 ' there are 10 green monsters
         Case 2
             intMONSTERSONLEVEL(greenMonster) = 20
             intMONSTERSONLEVEL(blackMonster) = 5
@@ -220,68 +222,78 @@ Private Sub cmdLEVEL_Click(Index As Integer)
             intMONSTERSONLEVEL(dragon) = 1
         Case 10
             intMONSTERSONLEVEL(dragon) = 15
+        Case Else ' not defined above
+            generateMONSTERS 10 + (lCURRENTLEVEL * 20) ' generate monsters
     End Select
-    frmATTACK.Show
-    Unload frmLEVELSELECT
+    frmATTACK.Show ' show the main game form
+    Unload frmLEVELSELECT ' hide this form
 End Sub
 
 Private Sub cmdLOGOUT_Click()
-    If cmdSAVE.Enabled = True Then
-        If MsgBox("Do you want to save?", vbYesNo) = vbYes Then
-            saveGAME
+    If cmdSAVE.Enabled = True Then ' if user hasn't saved yet
+        If MsgBox("Do you want to save?", vbYesNo) = vbYes Then ' offer to save
+            saveGAME ' save game
         End If
     End If
-    frmNEWGAME.Show
-    Unload frmLEVELSELECT
+    frmNEWGAME.Show ' show the new game form
+    Unload frmLEVELSELECT ' hide this form
 End Sub
 
 Sub saveGAME()
-    Dim dbSAVEFILES As Database
-    Dim recsetSAVES As Recordset
+    Dim dbSAVEFILES As Database ' database link
+    Dim recsetSAVES As Recordset ' record set
     
     ' open database
-    Set dbSAVEFILES = OpenDatabase(App.Path & "\saveFiles.mdb")
+    Set dbSAVEFILES = OpenDatabase(App.Path & "\saveFiles.mdb") ' open database
     
-    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(strNAME) & "'")
+    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(strNAME) & "'") ' get all rows with current username
     
-    If recsetSAVES.RecordCount = 0 Then
+    If recsetSAVES.RecordCount = 0 Then ' if not inserted yet
+        ' insert new save row into the database
         dbSAVEFILES.Execute "INSERT INTO `SaveGames` (`Name`, `Level`, `MaxHealth`, `CurrentHealth`, `Money`, `FlailGoThrough`, `FlailPower`, `FlailAmount`) VALUES('" & escapeQUOTES(strNAME) & "', '" & lLEVEL & "', '" & lCASTLEMAXHEALTH & "', '" & lCASTLECURRENTHEALTH & "', '" & lMONEY & "', '" & intFLAILGOTHROUGH & "', '" & intFLAILPOWER & "', '" & intFLAILAMOUNT & "')"
     Else
+        ' update the save row
         dbSAVEFILES.Execute "UPDATE `SaveGames` SET `Level`=" & lLEVEL & ", `MaxHealth`=" & lCASTLEMAXHEALTH & ", `CurrentHealth`=" & lCASTLECURRENTHEALTH & ", `Money`=" & lMONEY & ", `FlailGoThrough`=" & intFLAILGOTHROUGH & ", `FlailPower`=" & intFLAILPOWER & ", `FlailAmount`=" & intFLAILAMOUNT & " WHERE `Name`='" & escapeQUOTES(strNAME) & "'"
     End If
     
-    Set recsetSAVES = Nothing
-    Set dbSAVEFILES = Nothing
+    Set recsetSAVES = Nothing ' close the recordset
+    Set dbSAVEFILES = Nothing ' close the database link
 End Sub
 
 Private Sub cmdSAVE_Click()
-    saveGAME
+    saveGAME ' save the game
     
-    cmdSAVE.Caption = "Game saved!"
-    cmdSAVE.Enabled = False
+    cmdSAVE.Caption = "Game saved!" ' user has saved the game
+    cmdSAVE.Enabled = False ' user can't save again
 End Sub
 
 Private Sub cmdSHOP_Click()
-    frmSTORE.Show
-    Unload frmLEVELSELECT
+    frmSTORE.Show ' show the shop
+    Unload frmLEVELSELECT ' hide this form
 End Sub
 
 Private Sub Form_Load()
-    cmdSAVE.Enabled = True
-    cmdSAVE.Caption = "Save game"
+    cmdSAVE.Enabled = True ' user can still save
+    cmdSAVE.Caption = "Save game" ' user hasn't saved yet
     
-    lblYOUARE.Caption = "Welcome, " & strNAME & "!"
+    lblYOUARE.Caption = "Welcome, " & strNAME & "!" ' display username
     
     Dim nC As Integer
     nC = 0
-    Do While nC < cmdLEVEL.Count
-        If nC < lLEVEL Then
-            cmdLEVEL(nC).Visible = True
-            cmdLEVEL(nC).BackColor = vbGreen
-            If nC = lLEVEL - 1 Then cmdLEVEL(nC).BackColor = vbRed
-        Else
-            cmdLEVEL(nC).Visible = False
+    Do While nC < cmdLEVEL.Count ' for each level button
+        If cmdLEVEL(nC).Caption <> CStr(nC + 1) Then ' if caption isn't the same as the level
+            MsgBox "Button mismatch:" & vbCrLf & "Index: " & CStr(nC) & vbCrLf & "Caption: " & cmdLEVEL(nC).Caption & vbCrLf & "Should be: " & CStr(Index + 1) ' alert the user
         End If
-        nC = nC + 1
+        If nC < lLEVEL Then ' if user has beaten level
+            cmdLEVEL(nC).Visible = True ' show button
+            If nC = lLEVEL - 1 Then ' if not beaten yet
+                cmdLEVEL(nC).BackColor = vbRed ' red background
+            Else
+                cmdLEVEL(nC).BackColor = vbGreen ' green background
+            End If
+        Else
+            cmdLEVEL(nC).Visible = False ' hide level
+        End If
+        nC = nC + 1 ' next level button
     Loop
 End Sub

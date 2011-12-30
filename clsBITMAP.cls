@@ -138,5 +138,5 @@ Public Function createNewImage(width As Long, height As Long) As Boolean
     createNewImage = True ' loaded successfully
     Exit Function
 endOFcreateNewImage: ' on error
-    createNewImage = False
+    createNewImage = False ' didn't create image, return error
 End Function

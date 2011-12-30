@@ -1,23 +1,28 @@
 Attribute VB_Name = "modREQUESTHANDLER"
-Sub sckDISCONNECTED(lARRAYID As Long)
-    log cCLIENTS(lARRAYID).ip & " (" & cCLIENTINFO(lARRAYID).strNAME & ") disconnected."
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
+Sub sckDISCONNECTED(lARRAYID As Long) ' handle client disconnection
+    log cCLIENTS(lARRAYID).ip & " (" & cCLIENTINFO(lARRAYID).strNAME & ") disconnected." ' log that the client disconnected
     
-    If cCLIENTINFO(lARRAYID).strNAME <> "" Then
-        broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " logged out]"
+    If cCLIENTINFO(lARRAYID).strNAME <> "" Then ' if had name
+        broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " logged out]" ' alert users about logging out
     End If
     
-    cCLIENTINFO(lARRAYID).reset
+    cCLIENTINFO(lARRAYID).reset ' reset client info for next client
     intPLAYERS = intPLAYERS - 1
     broadcastPLAYERLIST ' give clients updated player list
     checkIFEVERYONEREADY ' see if everyone is ready
     
     If intPLAYERS = 0 Then ' nobody playing
-        bFORCEEXIT = True
+        bFORCEEXIT = True ' stop server
     End If
 End Sub
 
 Sub handleError(lARRAYID As Long, strDESCRIPTION As String)
-    log "Error from " & lARRAYID & ":" & strDESCRIPTION
+    log "Error from " & lARRAYID & ":" & strDESCRIPTION ' log error
 End Sub
 
 Sub broadcastPLAYERLIST() ' turn the player list into a sendable string, then broadcast it

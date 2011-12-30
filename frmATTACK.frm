@@ -53,64 +53,68 @@ Attribute VB_Exposed = False
 ' 21 November, 2011
 ' Defend your castle!
 
-'Dim bISPRESSED_UP As Boolean
-'Dim bISPRESSED_DOWN As Boolean
-'Dim bISPRESSED_LEFT As Boolean
-'Dim bISPRESSED_RIGHT As Boolean
-
-'Dim intBGLEFT As Integer
-'Dim intBGTOP As Integer
-
 ' images
 Dim cbitBACKGROUND As New clsBITMAP ' static background
 Dim csprCASTLE As New clsSPRITE ' castle with different health ranges
 Dim cbitBUFFER As New clsBITMAP ' buffer
 Dim cbitHEALTH As New clsBITMAP ' health bar
 
-Const keepX = 338
-Const keepY = 190
+Const keepX = 338 ' X location of flail starting point
+Const keepY = 190 ' Y location of flail starting point
 
-Const castleTOPMARGIN = 150
+Const castleTOPMARGIN = 150 ' space above top of castle image
 
 Private Sub Form_Activate()
-    Dim currSTARTTIME As Currency
-    Dim currCURRENTTIME As Currency
-    Dim currFREQUENCY As Currency
-    Dim dblTIMEBETWEENFRAMES As Double
+    Dim currSTARTTIME As Currency ' starting time
+    Dim currCURRENTTIME As Currency ' current time
+    'Dim currFREQUENCY As Currency ' frame frequency
+    Dim dblTIMEBETWEENFRAMES As Double ' time between frames
     
-    QueryPerformanceFrequency currFREQUENCY ' get the frequency of ticks
-    dblTIMEBETWEENFRAMES = currFREQUENCY / FPS ' get time between frames needed to reach FPS
+    QueryPerformanceFrequency currCURRENTTIME ' currFREQUENCY ' get the frequency of ticks
+    dblTIMEBETWEENFRAMES = currCURRENTTIME / FPS ' currFREQUENCY / FPS ' get time between frames needed to reach FPS
+    
+    Dim bDRAWN As Boolean
+    bDRAWN = False
+    
     Do While bEXIT = False And bFORCEEXIT = False
         QueryPerformanceCounter currCURRENTTIME ' get current time
         If currCURRENTTIME >= currSTARTTIME + dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
             QueryPerformanceCounter currSTARTTIME ' store current time as new start time
             moveEVERYTHING ' move everything
-            drawEVERYTHING ' draw everything
+            'drawEVERYTHING ' draw everything
             If onlineMODE = False Then checkWINLOOSE ' run win/loose code
+            bDRAWN = False ' you haven't drawn this frame yet
         Else
-            Sleep 3
+            If bDRAWN = True Then ' if frame already drawn
+                Sleep 1 ' sleep
+            Else
+                drawEVERYTHING ' draw everything
+                bDRAWN = True ' you have drawn this frame
+            End If
         End If
         DoEvents ' do any events needed to be done
     Loop
     
-    Unload frmATTACK
+    drawEVERYTHING ' draw everything a final time
+    
+    Unload frmATTACK ' hide this frame
 End Sub
 
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
-If Button = 1 Then
-    lineAIM.Visible = True
-    lineAIM.X1 = x
-    lineAIM.Y1 = y
-    lineAIM.X2 = x
-    lineAIM.Y2 = y
-End If
+    If Button = 1 Then ' if left click
+        lineAIM.Visible = True ' show the aim line
+        lineAIM.X1 = x ' set the starting x
+        lineAIM.Y1 = y ' set the starting y
+        lineAIM.X2 = x ' set the current x
+        lineAIM.Y2 = y ' set the current y
+    End If
 End Sub
 
 Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single)
-If Button = 1 Or Button = 3 Or Button = 5 Or Button = 7 Then
-    lineAIM.X2 = x
-    lineAIM.Y2 = y
-End If
+    If Button = 1 Or Button = 3 Or Button = 5 Or Button = 7 Then
+        lineAIM.X2 = x
+        lineAIM.Y2 = y
+    End If
 End Sub
 
 Private Sub Form_Resize()
@@ -242,7 +246,7 @@ Sub moveEVERYTHING()
     nC = 0
     Do While nC <= nCMAXMON
         If arrMONSTERS(nC).bACTIVE = True Then
-            arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + sngMOVESPEED * arrMONSTERS(nC).sngMOVINGH
+            arrMONSTERS(nC).moveMONSTER
             If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > windowX) Then
                 arrMONSTERS(nC).bACTIVE = False
             ElseIf (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width > castleWALLLEFT) Or (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX < castleWALLRIGHT) Then 'attack
@@ -254,6 +258,10 @@ Sub moveEVERYTHING()
         End If
         nC = nC + 1
     Loop
+    
+    If lCASTLECURRENTHEALTH <= 0 And onlineMODE = False Then ' if dead and not online
+        bEXIT = True ' exit
+    End If
     
     ' move flails
     nC = 0
@@ -424,87 +432,88 @@ Sub checkWINLOOSE()
 End Sub
 
 Private Sub Form_Load()
-Randomize
-
-Dim bLOADED As Boolean
-bLOADED = True
-
-' load images
-bLOADED = bLOADED And cbitBACKGROUND.loadFILE(imagePATH & "background.bmp")
-bLOADED = bLOADED And csprCASTLE.loadFRAMES(imagePATH & "castle.bmp", 211, 226, False, True)
-
-bLOADED = bLOADED And cbitHEALTH.loadFILE(imagePATH & "health.bmp")
-
-bLOADED = bLOADED And cbitBUFFER.createNewImage(windowX, windowY)
-
-If bLOADED = False Then
-    MsgBox "Error loading images!"
-    End
-End If
-
-' set vars
-Dim nC As Integer
-bEXIT = False
-bFORCEEXIT = False
-lLEVELMONEY = 0
-intMONSTERSKILLED = 0
-intMONSTERSATTACKEDCASTLE = 0
-intCURRENTMONSTER = 0
-lMONSTERSPAWNCOOLDOWN = 0
-ReDim arrTOBEMONSTERS(0 To 0)
-If onlineMODE = False Then ' single player
-    sngMOVESPEED = 1 + (lCURRENTLEVEL / 10)
-Else
-    sngMOVESPEED = getMOVESPEED
-End If
-
-ReDim arrMONSTERS(0 To 99)
-nC = 0
-Do While nC <= UBound(arrMONSTERS)
-    Set arrMONSTERS(nC) = New clsMONSTER
-    arrMONSTERS(nC).bACTIVE = False
-    nC = nC + 1
-Loop
-
-ReDim arrFLAILS(0 To 99)
-nC = 0
-Do While nC <= UBound(arrFLAILS)
-    Set arrFLAILS(nC) = New clsFLAIL
-    arrFLAILS(nC).bACTIVE = False
-    nC = nC + 1
-Loop
-
-Dim intTOTALMONSTERS As Integer
-intTOTALMONSTERS = 0
-nC = 0
-Dim nC2 As Integer
-Do While nC < numberOfMonsters
-    intTOTALMONSTERS = intTOTALMONSTERS + intMONSTERSONLEVEL(nC)
-    nC2 = 0
-    If intTOTALMONSTERS <> 0 Then ReDim Preserve arrTOBEMONSTERS(0 To intTOTALMONSTERS - 1)
-
-    Do While nC2 < intMONSTERSONLEVEL(nC)
-        arrTOBEMONSTERS(intTOTALMONSTERS - 1 - nC2) = nC
-        nC2 = nC2 + 1
+    Dim bLOADED As Boolean
+    bLOADED = True
+    
+    ' load images
+    bLOADED = bLOADED And cbitBACKGROUND.loadFILE(imagePATH & "background.bmp")
+    bLOADED = bLOADED And csprCASTLE.loadFRAMES(imagePATH & "castle.bmp", 211, 226, False, True)
+    
+    bLOADED = bLOADED And cbitHEALTH.loadFILE(imagePATH & "health.bmp")
+    
+    bLOADED = bLOADED And cbitBUFFER.createNewImage(windowX, windowY)
+    
+    If bLOADED = False Then
+        MsgBox "Error loading images!"
+        End
+    End If
+    
+    ' set vars
+    Dim nC As Integer
+    bEXIT = False
+    bFORCEEXIT = False
+    lLEVELMONEY = 0
+    intMONSTERSKILLED = 0
+    intMONSTERSATTACKEDCASTLE = 0
+    intCURRENTMONSTER = 0
+    lMONSTERSPAWNCOOLDOWN = 0
+    ReDim arrTOBEMONSTERS(0 To 0)
+    If onlineMODE = False Then ' single player
+        sngMOVESPEED = 1 + (lCURRENTLEVEL / 10)
+    Else
+        sngMOVESPEED = getMOVESPEED
+    End If
+    
+    ReDim arrMONSTERS(0 To 99)
+    nC = 0
+    Do While nC <= UBound(arrMONSTERS)
+        Set arrMONSTERS(nC) = New clsMONSTER
+        arrMONSTERS(nC).bACTIVE = False
+        nC = nC + 1
     Loop
-    nC = nC + 1
-Loop
-
-Dim intTEMPSPOT As Integer
-Dim intTEMP As Integer
-nC = 0
-Do While nC < intTOTALMONSTERS - 2 ' -2 is to get to second last monster in array, keeping last monster at last spot
-    intTEMPSPOT = Int(Rnd() * (intTOTALMONSTERS - 2))
-    intTEMP = arrTOBEMONSTERS(nC)
-    arrTOBEMONSTERS(nC) = arrTOBEMONSTERS(intTEMPSPOT)
-    arrTOBEMONSTERS(intTEMPSPOT) = intTEMP
-    nC = nC + 1
-Loop
-
-frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
-frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
-
-'timerMAIN.Enabled = True
+    
+    ReDim arrFLAILS(0 To 99)
+    nC = 0
+    Do While nC <= UBound(arrFLAILS)
+        Set arrFLAILS(nC) = New clsFLAIL
+        arrFLAILS(nC).bACTIVE = False
+        nC = nC + 1
+    Loop
+    
+    If onlineMODE = False Then
+        Dim intTOTALMONSTERS As Integer
+        intTOTALMONSTERS = 0
+        nC = 0
+        Dim nC2 As Integer
+        Do While nC < numberOfMonsters
+            intTOTALMONSTERS = intTOTALMONSTERS + intMONSTERSONLEVEL(nC)
+            nC2 = 0
+            If intTOTALMONSTERS <> 0 Then ReDim Preserve arrTOBEMONSTERS(0 To intTOTALMONSTERS - 1)
+        
+            Do While nC2 < intMONSTERSONLEVEL(nC)
+                arrTOBEMONSTERS(intTOTALMONSTERS - 1 - nC2) = nC
+                nC2 = nC2 + 1
+            Loop
+            nC = nC + 1
+        Loop
+        
+        Dim intTEMPSPOT As Integer
+        Dim intTEMP As Integer
+        nC = 0
+        Do While nC < intTOTALMONSTERS - 2 ' -2 is to get to second last monster in array, keeping last monster at last spot
+            intTEMPSPOT = Int(Rnd() * (intTOTALMONSTERS - 2)) ' get another random spot
+            ' switch the 2 spots
+            intTEMP = arrTOBEMONSTERS(nC)
+            arrTOBEMONSTERS(nC) = arrTOBEMONSTERS(intTEMPSPOT)
+            arrTOBEMONSTERS(intTEMPSPOT) = intTEMP
+            nC = nC + 1 ' next spot
+        Loop
+    End If
+    
+    frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
+    frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
+    
+    'timerMAIN.Enabled = True
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)

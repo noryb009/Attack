@@ -1,5 +1,10 @@
 Attribute VB_Name = "modGLOBAL"
-Global Const VERSION = "0.0.0.1a"
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
+Global Const VERSION = "0.0.0.1s"
 Global Const SERVER = True
 Global Const onlineMODE = False
 Global Const MAXCLIENTS = 4
@@ -69,7 +74,7 @@ Public Sub moveEVERYTHING()
     nC = 0
     Do While nC <= UBound(arrMONSTERS)
         If arrMONSTERS(nC).bACTIVE = True Then
-            arrMONSTERS(nC).sngX = arrMONSTERS(nC).sngX + sngMOVESPEED * arrMONSTERS(nC).sngMOVINGH
+            arrMONSTERS(nC).moveMONSTER
             If (arrMONSTERS(nC).sngMOVINGH < 0 And arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH < 0) Or (arrMONSTERS(nC).sngMOVINGH > 0 And arrMONSTERS(nC).sngX > windowX) Then
                 arrMONSTERS(nC).bACTIVE = False
                 broadcastMONSTER nC

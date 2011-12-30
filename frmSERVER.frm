@@ -58,99 +58,118 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
-Dim WithEvents sockLISTEN As Winsock
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
+Dim WithEvents sockLISTEN As Winsock ' winsock to listen for new connections
 Attribute sockLISTEN.VB_VarHelpID = -1
 
 Sub showSTART()
+    ' hide stop button
     cmdSTOP.Visible = False
+    ' show start button and port select
     lblPORT.Visible = True
     txtPORT.Visible = True
     cmdSTART.Visible = True
 End Sub
 
 Sub showSTOP()
+    ' show stop button
     cmdSTOP.Visible = True
+    ' hide start button and port select
     lblPORT.Visible = False
     txtPORT.Visible = False
     cmdSTART.Visible = False
 End Sub
 
-Private Sub cmdSTART_Click()
-    lPORT = Val(txtPORT.Text)
-    If lPORT < 1 Or lPORT > 65535 Then
-        MsgBox "Please input a port between 1 and 65535"
+Private Sub cmdSTART_Click() ' start the server
+    lPORT = Val(txtPORT.Text) ' get the port
+    If lPORT < 1024 Or lPORT > 65535 Then ' if out of bounds
+        MsgBox "Please input a port between 1024 and 65535" ' alert user
         Exit Sub
     End If
     
-    sockLISTEN.LocalPort = lPORT
+    sockLISTEN.LocalPort = lPORT ' listen on port
     
-    On Error GoTo couldNotListen
+    On Error GoTo couldNotListen ' if port used, send error
+    sockLISTEN.Listen ' listen
     
-    sockLISTEN.Listen
+    intPLAYERS = 0 ' 0 players
+    lCURRENTLEVEL = 0 ' starting level
+    lCASTLECURRENTHEALTH = 10 ' starting health
+    lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH ' starting max health
+    intFLAILPOWER = 1 ' starting flail power
+    intFLAILGOTHROUGH = 1 ' starting amount go through
+    intFLAILAMOUNT = 1 ' starting flail amount
+    showSTOP ' show the stop GUI
     
-    intPLAYERS = 0
-    lCURRENTLEVEL = 0
-    lCASTLECURRENTHEALTH = 10
-    lCASTLEMAXHEALTH = lCASTLECURRENTHEALTH
-    intFLAILPOWER = 1
-    intFLAILGOTHROUGH = 1
-    intFLAILAMOUNT = 1
-    showSTOP
-    
-    log "Server started on " & sockLISTEN.LocalIP & " at port " & sockLISTEN.LocalPort & "."
+    log "Server started on " & sockLISTEN.LocalIP & " at port " & sockLISTEN.LocalPort & "." ' log the IP and port info
     Exit Sub
 couldNotListen:
-    log "Could not start server: port busy"
+    log "Could not start server: port busy" ' log that the port is busy
 End Sub
 
 Private Sub cmdSTOP_Click()
-    showSTART
+    showSTART ' show start GUI
     
     bFORCEEXIT = True ' stop game if running
     
     Dim nC As Integer
     nC = 0
-    Do While nC < MAXCLIENTS
-        cCLIENTS(nC).disconnect
+    Do While nC < MAXCLIENTS ' for each client
+        cCLIENTS(nC).disconnect ' disconnect client
         nC = nC + 1
     Loop
     
-    sockLISTEN.Close
+    sockLISTEN.Close ' close listening winsock
     
-    log "Server stopped."
+    log "Server stopped." ' log that the server has stopped
 End Sub
 
 Private Sub Form_Load()
-    showSTART
-    Set sockLISTEN = New Winsock
+    Randomize ' randomize random numbers
+    showSTART ' show the start GUI
+    Set sockLISTEN = New Winsock ' make the winsock listener
 End Sub
 
-Private Sub Form_Resize()
-    If frmSERVER.ScaleWidth > 0 And frmSERVER.ScaleHeight > txtLOG.Top Then
-        txtLOG.Left = 0
-        txtLOG.Width = frmSERVER.ScaleWidth
-        txtLOG.Height = frmSERVER.ScaleHeight - txtLOG.Top
+Private Sub Form_Resize() ' on resize
+    If frmSERVER.ScaleWidth > 0 And frmSERVER.ScaleHeight > txtLOG.Top Then ' if form is bigger then log textbox
+        txtLOG.Left = 0 ' log textbox on left size
+        txtLOG.Width = frmSERVER.ScaleWidth ' log textbox is same size as form
+        txtLOG.Height = frmSERVER.ScaleHeight - txtLOG.Top ' set the height to go to the bottom of the form
     End If
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
     bFORCEEXIT = True ' exit game if running
-    If sockLISTEN.State = sckListening Then
-        sockLISTEN.Close
+    If sockLISTEN.State = sckListening Then ' if listening
+        sockLISTEN.Close ' close the listening winsock
     End If
-    Set sockLISTEN = Nothing
+    Set sockLISTEN = Nothing ' delete the listening winsock
 End Sub
 
 Private Sub sockLISTEN_ConnectionRequest(ByVal requestID As Long)
     Dim nC As Integer
     nC = 0
-    Do While nC < MAXCLIENTS
-        If cCLIENTS(nC).connected = False Then
-            cCLIENTS(nC).acceptCONNECTION requestID
-            log "Connection accepted from " & cCLIENTS(nC).ip
-            cCLIENTS(nC).sendString "VERSION"
-            Exit Do
+    
+    Dim bACCEPTED As Boolean ' if client has been accepted
+    bACCEPTED = False ' not accepted yet
+    
+    Do While nC < MAXCLIENTS ' for each client spot
+        If cCLIENTS(nC).connected = False Then ' if not used
+            cCLIENTS(nC).acceptCONNECTION requestID ' accept the new connection
+            log "Connection accepted from " & cCLIENTS(nC).ip ' log the accepting
+            cCLIENTS(nC).sendString "VERSION" ' ask for version
+            bACCEPTED = True ' has accepted the request
+            intplayer = intplayer + 1 ' one more player
+            Exit Do ' accepted, don't need to keep looking for empty clients
         End If
-        nC = nC + 1
+        nC = nC + 1 ' next client spot
     Loop
+    
+    If bACCEPTED = False Then ' if not accepted
+        log "Connection rejected, clients full." ' log the rejection
+    End If
 End Sub

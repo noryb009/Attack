@@ -47,9 +47,6 @@ Public Sub nextFRAME()
     End If
 End Sub
 
-Public Sub previousFRAME()
-    lCURRENTANIFRAME = lCURRENTANIFRAME - 1
-    If lCURRENTANIFRAME = -1 Then
-        lCURRENTANIFRAME = (arrcMONSTERPICS(intTYPE).numberOfFrames * ticksPerFrame) - 1
-    End If
+Sub moveMONSTER()
+    sngX = sngX + sngMOVESPEED * sngMOVINGH ' add distance
 End Sub

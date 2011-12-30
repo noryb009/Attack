@@ -11,17 +11,26 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-Public strNAME As String
-Public lLEVELSCORE As Long
-Public bREADY As Boolean
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
 
-Public Sub reset()
-    strNAME = ""
-    lLEVELSCORE = 0
-    bREADY = False
+Public strNAME As String ' player name
+Public lLEVELSCORE As Long ' player score for this round
+Public bREADY As Boolean ' if ready to start game
+
+Public Sub reset() ' reset (after user disconnects)
+    strNAME = "" ' empty name
+    lLEVELSCORE = 0 ' no level score
+    bREADY = False ' not ready
 End Sub
 
-Public Sub afterLevelReset()
-    lLEVELSCORE = 0
-    bREADY = False
+Public Sub afterLevelReset() ' reset (after level won/lost)
+    lLEVELSCORE = 0 ' no level score
+    bREADY = False ' not ready
+End Sub
+
+Private Sub Class_Initialize() ' object init
+    reset ' set all vars to default
 End Sub

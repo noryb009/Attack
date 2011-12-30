@@ -1,7 +1,7 @@
 Type=Exe
 Reference=*\G{00025E01-0000-0000-C000-000000000046}#4.0#0#C:\Program Files\Common Files\Microsoft Shared\DAO\DAO350.DLL#Microsoft DAO 3.51 Object Library
 Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\system32\stdole2.tlb#OLE Automation
-Reference=*\G{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0#C:\WINDOWS\system32\MSWINSCK.OCX#Microsoft Winsock Control 6.0
+Reference=*\G{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0#C:\WINDOWS\system32\mswinsck.ocx#Microsoft Winsock Control 6.0
 Form=frmATTACK.frm
 Module=modGLOBAL; modGLOBAL.bas
 Class=clsFLAIL; clsARROW.cls

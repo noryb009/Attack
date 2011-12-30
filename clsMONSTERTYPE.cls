@@ -11,12 +11,17 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = True
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-Public intPOINTCOST As Integer
-Public intMAXHEALTH As Integer
-Public intSTARTINGY As Integer
-Public sngSPEED As Single
-Public intATTACKPOWER As Integer
-Public intMONEYADDEDKILL As Integer
-Public intMONEYADDEDHIT As Integer
-Public lWIDTH As Long
-Public lHEIGHT As Long
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
+Public intPOINTCOST As Integer ' cost in points, used by generateMONSTERS
+Public intMAXHEALTH As Integer ' monster health
+Public intSTARTINGY As Integer ' starting Y location (-1 is standing on the ground)
+Public sngSPEED As Single ' monster speed
+Public intATTACKPOWER As Integer ' amount of health to take away when the monster reaches the castle
+Public intMONEYADDEDKILL As Integer ' money to give user when you kill the monster
+Public intMONEYADDEDHIT As Integer ' money to give user when you hit (but not kill) the monster
+Public lWIDTH As Long ' width of the monster's image
+Public lHEIGHT As Long ' height of the monster's image

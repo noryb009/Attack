@@ -74,78 +74,74 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
 Dim bREADY As Boolean
 
 Sub updatePLAYERLIST()
-    On Error GoTo noPlayers ' UBound(strPLAYERLIST) gives error if no names
     lstPLAYERS.Clear ' clear old names
-    Dim nC As Integer
-    nC = 0
-    Do While nC <= UBound(strPLAYERLIST) ' for each name
-        lstPLAYERS.AddItem strPLAYERLIST(nC) ' add to the listbox
-        nC = nC + 1
-    Loop
-    Exit Sub
-noPlayers:
+    If (Not strPLAYERLIST) = False Then ' if strPLAYERLIST has names
+        Dim nC As Integer
+        nC = 0
+        Do While nC <= UBound(strPLAYERLIST) ' for each name
+            lstPLAYERS.AddItem strPLAYERLIST(nC) ' add to the listbox
+            nC = nC + 1
+        Loop
+    End If
 End Sub
 
 Sub logout()
-    cSERVER(0).disconnect
-    Unload frmLOBBY
-    If currentSTATE = "lobbyShop" Then
-        Unload frmSTORE
+    cSERVER(0).disconnect ' disconnect from server
+    Unload frmLOBBY ' hide this form
+    If currentSTATE = "lobbyShop" Then ' if shop is visible
+        Unload frmSTORE ' hide shop
     End If
 End Sub
 
 Private Sub cmdLOGOUT_Click()
-    logout
-    frmNEWGAME.Show
+    logout ' logout
+    frmNEWGAME.Show ' show new game form
 End Sub
 
 Sub sendMESSAGE()
-    cSERVER(0).sendString "chat", Trim(txtMESSAGE.Text)
-    txtMESSAGE.Text = ""
-    txtMESSAGE.SetFocus
+    If txtMESSAGE.Text <> "" Then ' if not an empty message
+        cSERVER(0).sendString "chat", Trim(txtMESSAGE.Text) ' send message to server
+        txtMESSAGE.Text = "" ' remove message
+        txtMESSAGE.SetFocus ' set focus to message box for next message
+    End If
 End Sub
 
 Private Sub cmdREADY_Click()
-    If lCASTLECURRENTHEALTH = 0 Then
-        If lMONEY >= 10 Then
-            MsgBox "You don't have any health! You can buy more at the store."
-        Else
-            MsgBox "You don't have any health! Here's a few gold coins for you to buy some at the store."
-            lMONEY = 10
-        End If
-        Exit Sub
-    End If
-    
-    If bREADY = True Then
+    If bREADY = True Then ' if was ready, now not
         bREADY = False ' not ready
-        cmdREADY.Caption = "Not ready"
-        cmdREADY.BackColor = vbRed
-    Else
+        cmdREADY.Caption = "Not ready" ' change caption
+        cmdREADY.BackColor = vbRed ' change back colour of ready button
+    Else ' if wasn't ready, now is
         bREADY = True ' ready
-        cmdREADY.Caption = "Ready!"
-        cmdREADY.BackColor = vbGreen
+        cmdREADY.Caption = "Ready!" ' change caption
+        cmdREADY.BackColor = vbGreen ' change back colour of ready button
     End If
     cSERVER(0).sendString "ready", CStr(bREADY) ' send to server that you are ready/not ready
 End Sub
 
 Private Sub cmdSEND_Click()
-    sendMESSAGE
+    sendMESSAGE ' send the message to the server
 End Sub
 
 Private Sub cmdTOSTORE_Click()
-    frmSTORE.Show
+    frmSTORE.Show ' show the store form
 End Sub
 
 Private Sub Form_Terminate()
-    logout
+    logout ' logout from the server
 End Sub
 
 Private Sub txtMESSAGE_KeyPress(KeyAscii As Integer)
     If KeyAscii = vbKeyReturn Then ' pressed enter
-        sendMESSAGE
+        sendMESSAGE ' send the message to the server
     End If
 End Sub
 
@@ -154,7 +150,7 @@ Private Sub Form_Load()
         currentSTATE = "lobby" ' you are in the lobby
     End If
     bREADY = False ' not ready
-    cmdREADY.Caption = "Not ready"
-    cmdREADY.BackColor = vbRed
+    cmdREADY.Caption = "Not ready" ' change caption
+    cmdREADY.BackColor = vbRed ' change back colour of ready button
     updatePLAYERLIST ' update player list
 End Sub

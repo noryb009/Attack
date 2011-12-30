@@ -1,4 +1,9 @@
 Attribute VB_Name = "modREQUESTHANDLER"
+' Attack
+' Luke Lorimer
+' 21 November, 2011
+' Defend your castle!
+
 Sub sckDISCONNECTED(lARRAYID As Long, Optional bMESSAGE As Boolean = True)
     Select Case currentSTATE
         Case "lobby"
