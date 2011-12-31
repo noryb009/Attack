@@ -95,7 +95,7 @@ Section "Attack"
 	SetOutPath "$InstDir"
 	File /a "prjATTACK.exe"
 	File /a "prjATTACKSERVER.exe"
-	File /a "Support\saveFiles.mdb"
+	File /a "Support\saveFiles.mdb" #empty database in Support folder
 
 	#Registry
 	WriteRegStr HKLM "Software\Attack" Version "0.0.0.1a"

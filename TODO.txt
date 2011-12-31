@@ -1,7 +1,5 @@
-- clients always full (not connecting)
-- 2 Stopping game... in log if game started when server on
 - generate monster order for lvl>10
-- sync randomly
 - multiplayer - in game chat
 - endless mode and high score
 - spread left/right
+- turn cannon

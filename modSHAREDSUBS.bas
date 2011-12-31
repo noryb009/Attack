@@ -4,6 +4,8 @@ Attribute VB_Name = "modSHAREDSUBS"
 ' 21 November, 2011
 ' Defend your castle!
 
+Global Const VERSION = "0.0.0.1a" ' version of the game
+
 Global Const numberOfMonsters = 11 ' number of types of monsters
 Public Enum monsterNames ' names of monsters
     greenMonster
@@ -22,6 +24,7 @@ End Enum
 Global Const landHEIGHT = 376 ' height of land
 Global cmontypeMONSTERINFO(0 To numberOfMonsters - 1) As New clsMONSTERTYPE ' holds monster info
 Global Const flailSIZEPX = 14 ' size of flail in pixels
+Global Const ticksPerFrame = 6 ' timer ticks per animation frame
 
 Global intPLAYERS As Integer ' number of current players
 
@@ -41,6 +44,18 @@ Public lMONSTERSPAWNCOOLDOWN As Long ' starts at 0, jumps to n when a monster is
 Public bEXIT As Boolean ' somebody won
 Public bFORCEEXIT As Boolean ' exited program or stopped server
 
+Global arrMONSTERS() As clsMONSTER ' monsters
+Global arrFLAILS() As clsFLAIL ' flails
+
+' upgrades
+Global intFLAILPOWER As Integer ' the attack power of the flails
+Global intFLAILGOTHROUGH As Integer ' the number of monsters a flail can go through
+Global intFLAILAMOUNT As Integer ' the amount of flails thrown
+
+' castle health
+Global lCASTLECURRENTHEALTH As Long ' current castle health
+Global lCASTLEMAXHEALTH As Long ' castle max health
+
 Sub loadMONSTERINFO()
     ' monster info
     ' number in enum, image filename, image width, image height, point cost, health,
@@ -55,7 +70,7 @@ Sub loadMONSTERINFO()
     loadONEMONSTERINFO knightSword, "knight", 21, 51, 5, 10, 20, -1, 0.5, 1, 4
     loadONEMONSTERINFO knightFlail, "knightFlail", 33, 51, 5, 15, 35, -1, 0.5, 1, 6
     loadONEMONSTERINFO knightHorse, "knightHorse", 92, 43, 7, 8, 20, -1, 3, 1, 8
-    loadONEMONSTERINFO dragon, "dragon", 91, 53, 10, 50, 200, 200, 0.3, 0, 10
+    loadONEMONSTERINFO dragon, "dragon", 91, 53, 50, 50, 200, 200, 0.3, 0, 10
     ' note to self: when adding monsters, change numberOfMonsters
 End Sub
 
@@ -64,6 +79,10 @@ Function getMOVESPEED() As Single ' get the movement speed (used by server and o
 End Function
 
 Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long ' add longs without overflows
+    If lNUMBER2 = 0 Then ' if not adding anything
+        safeADDLONG = lNUMBER1 ' return first number
+        Exit Function ' exit
+    End If
     Dim dblOUTPUT As Double ' temp double (can hold more then longs, so no overflow)
     dblOUTPUT = lNUMBER1 ' store first number
     dblOUTPUT = dblOUTPUT + lNUMBER2 ' add second number
@@ -82,8 +101,9 @@ Sub generateMONSTERS(ByRef lLEVELPOINTS As Long) ' generate monsters
     
     Do While lLEVELPOINTS > 0 ' do while you still have points
         intNEWMONSTER = Int(Rnd() * numberOfMonsters) ' random monster
+        intNEWMONSTER = 10
         intSTARTINGMONSTER = intNEWMONSTER ' record starting monster
-        Do While cmontypeMONSTERINFO(intNEWMONSTER).intPOINTCOST > lLEVELPOINTS ' while monsters have too many points
+        Do While cmontypeMONSTERINFO(intNEWMONSTER).intPOINTCOST > lLEVELPOINTS And intCURRENTMON > lCURRENTLEVEL + 1 ' while monsters have too many points, and limit first few levels to first few monsters
             intNEWMONSTER = intNEWMONSTER + 1 ' get the next monster
             If intNEWMONSTER = intSTARTINGMONSTER Then ' if back at starting monster
                 Exit Do ' not enough points to get any monster

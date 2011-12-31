@@ -61,55 +61,56 @@ Private Function makeMASK(lFRAME As Long) As Boolean
     Dim nC As Long
     nC = 0
     
-    Do While nC < UBound(bytesINBITMAP)
+    Do While nC < UBound(bytesINBITMAP) ' for each pixel
+        ' if black (rgb(0,0,0))
         If bytesINBITMAP(nC) = 0 And _
             bytesINBITMAP(nC + 1) = 0 And _
             bytesINBITMAP(nC + 2) = 0 Then
-            CopyMemory bytesINBITMAP(nC), RGB(255, 255, 255), (cbitFRAMES(lFRAME).bitsPERPIXEL \ 8)
-        Else
-            CopyMemory bytesINBITMAP(nC), RGB(0, 0, 0), (cbitFRAMES(lFRAME).bitsPERPIXEL \ 8)
+            CopyMemory bytesINBITMAP(nC), RGB(255, 255, 255), (cbitFRAMES(lFRAME).bitsPERPIXEL \ 8) ' part of background, copy white
+        Else ' not black
+            CopyMemory bytesINBITMAP(nC), RGB(0, 0, 0), (cbitFRAMES(lFRAME).bitsPERPIXEL \ 8) ' part of picture, copy black
         End If
-        nC = nC + (cbitFRAMES(lFRAME).bitsPERPIXEL \ 8)
+        nC = nC + (cbitFRAMES(lFRAME).bitsPERPIXEL \ 8) ' next pixel
     Loop
-    SetBitmapBits cbitFRAMESMASK(lFRAME).hWnd, UBound(bytesINBITMAP), bytesINBITMAP(0)
-    makeMASK = True
+    SetBitmapBits cbitFRAMESMASK(lFRAME).hWnd, UBound(bytesINBITMAP), bytesINBITMAP(0) ' store bytes
+    makeMASK = True ' success
 End Function
 
 Public Function loadFRAMES(strFILE As String, lWIDTH As Long, lHEIGHT As Long, bFLIP As Boolean, bMASK As Boolean) As Boolean
-    loadFRAMES = False
+    loadFRAMES = False ' not successful yet
     
     'TODO: remove 0, use width and height
-    Dim cbitINFO As New clsBITMAP
+    Dim cbitINFO As New clsBITMAP ' make a new bitmap to get info
     
-    If cbitINFO.loadFILE(strFILE) = False Then Exit Function
+    If cbitINFO.loadFILE(strFILE) = False Then Exit Function ' load image, if failure then exit
     
     If cbitINFO.width Mod lWIDTH <> 0 Or cbitINFO.height Mod lHEIGHT <> 0 Then Exit Function ' if can't get equal number of frames, exit
     
-    lNUMBEROFFRAMES = (cbitINFO.width \ lWIDTH) * (cbitINFO.height \ lHEIGHT)
+    lNUMBEROFFRAMES = (cbitINFO.width \ lWIDTH) * (cbitINFO.height \ lHEIGHT) ' get number of frames
     
-    ReDim Preserve cbitFRAMES(0 To lNUMBEROFFRAMES - 1) As clsBITMAP
-    ReDim Preserve cbitFRAMESMASK(0 To lNUMBEROFFRAMES - 1) As clsBITMAP
+    ReDim Preserve cbitFRAMES(0 To lNUMBEROFFRAMES - 1) As clsBITMAP ' make frames array big enough to hold all the frames
+    ReDim Preserve cbitFRAMESMASK(0 To lNUMBEROFFRAMES - 1) As clsBITMAP ' make masks array big enough to hold all the masks
+    
     Dim nC As Integer
     nC = 0
-    Do While nC < lNUMBEROFFRAMES
-        Set cbitFRAMES(nC) = New clsBITMAP
-        'loadFRAMES = cbitFRAMES(nC).loadFILE(strFILE)
+    Do While nC < lNUMBEROFFRAMES ' for each frame
+        Set cbitFRAMES(nC) = New clsBITMAP ' set as new bitmap
         
-        loadFRAMES = cbitFRAMES(nC).createNewImage(lWIDTH, lHEIGHT)
+        loadFRAMES = cbitFRAMES(nC).createNewImage(lWIDTH, lHEIGHT) ' create an image
         
-        If loadFRAMES = False Then Exit Function
+        If loadFRAMES = False Then Exit Function ' if failure then exit
         
-        BitBlt cbitFRAMES(nC).hdc, 0, 0, lWIDTH, lHEIGHT, cbitINFO.hdc, (nC * lWIDTH) Mod cbitINFO.width, ((nC * lWIDTH) \ cbitINFO.width) * lHEIGHT, vbSrcCopy
+        BitBlt cbitFRAMES(nC).hdc, 0, 0, lWIDTH, lHEIGHT, cbitINFO.hdc, (nC * lWIDTH) Mod cbitINFO.width, ((nC * lWIDTH) \ cbitINFO.width) * lHEIGHT, vbSrcCopy ' copy frame from big image to single frame image
         
-        If bFLIP = True Then
-            StretchBlt cbitFRAMES(nC).hdc, cbitFRAMES(nC).width - 1, 0, cbitFRAMES(nC).width * -1, cbitFRAMES(nC).height, cbitFRAMES(nC).hdc, 0, 0, cbitFRAMES(nC).width, cbitFRAMES(nC).height, vbSrcCopy
+        If bFLIP = True Then ' if we should flip the image
+            StretchBlt cbitFRAMES(nC).hdc, cbitFRAMES(nC).width - 1, 0, cbitFRAMES(nC).width * -1, cbitFRAMES(nC).height, cbitFRAMES(nC).hdc, 0, 0, cbitFRAMES(nC).width, cbitFRAMES(nC).height, vbSrcCopy ' flip the image
         End If
         
-        If bMASK = True Then makeMASK (nC)
+        If bMASK = True Then makeMASK (nC) ' if we should make a mask then make the mask
         
-        If loadFRAMES = True Then
-            bLOADED = True
+        If loadFRAMES = True Then ' if loaded OK
+            bLOADED = True ' image has been loaded
         End If
-        nC = nC + 1
+        nC = nC + 1 ' next frame
     Loop
 End Function

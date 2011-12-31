@@ -16,52 +16,112 @@ Attribute VB_Exposed = False
 ' 21 November, 2011
 ' Defend your castle!
 
-Public bACTIVE As Boolean
-Public sngX As Single
-Public sngY As Single
-Public sngMOVINGH As Single
-Public sngMOVINGV As Single
-Public lCURRENTANIFRAME As Long
-Public intGOTHROUGH As Integer
-Dim longWENTTHROUGH() As Integer
+Public bACTIVE As Boolean ' if flail is on screen
+Public lOWNER As Long ' only used in server: who shot the flail
+Public sngX As Single ' X location
+Public sngY As Single ' Y location
+Public sngMOVINGH As Single ' X moving speed
+Public sngMOVINGV As Single ' Y moving speed
+Public intGOTHROUGH As Integer ' number of go through left
+Dim longWENTTHROUGH() As Long ' array of monsters flail has gone through
+Dim lSIZEOFlongWENTTHROUGH As Long ' size of longWENTTHROUGH to not have to call VB functions
 
-Public Sub clearWENTTHROUGH()
-    ReDim longWENTTHROUGH(0 To 0)
+Public Sub clearWENTTHROUGH() ' clear the go through
+    lSIZEOFlongWENTTHROUGH = 0 ' reset the size tracker
 End Sub
 
-Public Function didGOTHROUGH(intCHECK As Integer) As Boolean
+Public Function didGOTHROUGH(intCHECK As Integer) As Boolean ' check if flail went through monster
     Dim nC As Integer
-    nC = 1
-    didGOTHROUGH = False
-    Do While nC <= UBound(longWENTTHROUGH)
-        If longWENTTHROUGH(nC) = intCHECK Then
-            didGOTHROUGH = True
-            Exit Do
+    nC = 1 ' skip first array spot, not used
+    didGOTHROUGH = False ' default: didn't go through
+    Do While nC <= lSIZEOFlongWENTTHROUGH ' while less then size of longWENTTHROUGH
+        If longWENTTHROUGH(nC) = intCHECK Then ' if flail went through this monster
+            didGOTHROUGH = True ' did go through monster
+            Exit Do ' found monster, don't need to keep looking
         End If
-        nC = nC + 1
+        nC = nC + 1 ' next go through
     Loop
 End Function
 
-Public Sub addGOTHROUGH(intNEW As Integer)
-    ReDim Preserve longWENTTHROUGH(0 To UBound(longWENTTHROUGH) + 1)
-    longWENTTHROUGH(UBound(longWENTTHROUGH)) = intNEW
-End Sub
-
-Public Sub nextFRAME()
-    lCURRENTANIFRAME = lCURRENTANIFRAME + 1
-    If lCURRENTANIFRAME = csprFLAIL.numberOfFrames Then
-        lCURRENTANIFRAME = 0
+Public Sub addGOTHROUGH(intNEW As Integer) ' add go through to
+    lSIZEOFlongWENTTHROUGH = lSIZEOFlongWENTTHROUGH + 1 ' add to size tracker
+    If UBound(longWENTTHROUGH) < lSIZEOFlongWENTTHROUGH Then ' if not big enough to hold extra flail
+        ReDim Preserve longWENTTHROUGH(0 To lSIZEOFlongWENTTHROUGH) ' resize array to hold extra flail
     End If
+    longWENTTHROUGH(lSIZEOFlongWENTTHROUGH) = intNEW ' remember new monster
 End Sub
 
-Public Sub previousFRAME()
-    lCURRENTANIFRAME = lCURRENTANIFRAME - 1
-    If lCURRENTANIFRAME = -1 Then
-        lCURRENTANIFRAME = csprFLAIL.numberOfFrames - 1
+Public Function moveFLAIL() As Long ' move the flail
+    moveFLAIL = 0 ' no score added yet
+    
+    Dim intNEWX As Integer ' new X location
+    Dim intNEWY As Integer ' new Y location
+    Dim lDELETEMONSTER As Long ' monster the flail is hitting
+    lDELETEMONSTER = -1 ' don't delete a monster
+    intNEWX = Int(sngX) + sngMOVINGH ' add X distance
+    intNEWY = Int(sngY) + sngMOVINGV ' add Y distance
+    
+    'gravity
+    sngMOVINGV = sngMOVINGV + 0.5 ' go down more next time
+    If sngMOVINGH < 0 Then ' if going left
+        sngMOVINGH = sngMOVINGH + 0.1 ' go a little less left next time
+    ElseIf sngMOVINGH > 0 Then ' if going right
+        sngMOVINGH = sngMOVINGH - 0.1 ' go a little less right next time
     End If
-End Sub
+    
+    'check if hitting monster
+    Dim nC As Integer
+    nC = 0
+    Do While nC <= UBound(arrMONSTERS) ' for each monster
+        If arrMONSTERS(nC).bACTIVE = True Then ' if monster is active
+            ' if at same elevation
+            If (sngY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And intNEWY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT > arrMONSTERS(nC).sngY) Or _
+            (intNEWY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And sngY + flailSIZEPX > arrMONSTERS(nC).sngY) Then
+                ' if same vertical spot
+                If (sngX < arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH And intNEWX + flailSIZEPX > arrMONSTERS(nC).sngX) Or _
+                (intNEWX < arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH And sngX + flailSIZEPX > arrMONSTERS(nC).sngX) Then
+                    If didGOTHROUGH(nC) = False Then ' if you haven't gone through monster yet
+                        lDELETEMONSTER = nC ' attack this monster
+                        Exit Do ' you found a monster, continue
+                    End If
+                End If
+            End If
+        End If
+        nC = nC + 1 ' next monster
+    Loop
+    
+    If lDELETEMONSTER <> -1 Then ' if you found a monster to attack, then attack monster
+        arrMONSTERS(lDELETEMONSTER).intHEALTH = arrMONSTERS(lDELETEMONSTER).intHEALTH - intFLAILPOWER ' take away health from monster
+        If arrMONSTERS(lDELETEMONSTER).intHEALTH < 1 Then ' if monster has no health left
+            arrMONSTERS(lDELETEMONSTER).bACTIVE = False ' disable monster
+            intMONSTERSKILLED = intMONSTERSKILLED + 1 ' add to number of monsters killed
+            moveFLAIL = safeADDLONG(moveFLAIL, cmontypeMONSTERINFO(arrMONSTERS(lDELETEMONSTER).intTYPE).intMONEYADDEDKILL) ' add score for killing the monster
+            
+            If SERVER = True Then ' if server, update clients
+                broadcastMONSTER lDELETEMONSTER
+            End If
+        Else
+            If intFLAILGOTHROUGH > 1 Then ' if flail can go through more monsters after this one
+                addGOTHROUGH CInt(lDELETEMONSTER) ' don't attack this monster again
+            End If
+            moveFLAIL = safeADDLONG(moveFLAIL, cmontypeMONSTERINFO(arrMONSTERS(lDELETEMONSTER).intTYPE).intMONEYADDEDHIT) ' add score for hitting, but not killing the monster
+        End If
+        If intGOTHROUGH > 1 Then ' if go through left
+            intGOTHROUGH = intGOTHROUGH - 1 ' one less monster to go through
+        Else ' no more go through left
+            bACTIVE = False ' flail has gone through all the monsters
+        End If
+    End If
+    
+    sngX = intNEWX ' set new X
+    sngY = intNEWY ' set new Y
+    
+    If sngX + flailSIZEPX < 0 Or sngX > windowX Or sngY < -1000 Or sngY > windowY - 50 - flailSIZEPX Then ' if out of bounds (-1000 lets flail go off top of screen)
+        bACTIVE = False ' disable flail
+    End If
+End Function
 
-Private Sub Class_Initialize()
-    bACTIVE = False
-    ReDim longWENTTHROUGH(0 To 0)
+Private Sub Class_Initialize() ' object init
+    bACTIVE = False ' flail not on screen
+    ReDim longWENTTHROUGH(0 To 10) ' resize longWENTTHROUGH to hold monsters
 End Sub

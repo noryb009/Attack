@@ -9,6 +9,11 @@ Begin VB.Form frmSERVER
    ScaleHeight     =   3090
    ScaleWidth      =   4680
    StartUpPosition =   3  'Windows Default
+   Begin VB.Timer timerSYNC 
+      Interval        =   10000
+      Left            =   3000
+      Top             =   120
+   End
    Begin VB.TextBox txtLOG 
       Height          =   2655
       Left            =   0
@@ -129,7 +134,6 @@ Private Sub cmdSTOP_Click()
 End Sub
 
 Private Sub Form_Load()
-    Randomize ' randomize random numbers
     showSTART ' show the start GUI
     Set sockLISTEN = New Winsock ' make the winsock listener
 End Sub
@@ -163,7 +167,7 @@ Private Sub sockLISTEN_ConnectionRequest(ByVal requestID As Long)
             log "Connection accepted from " & cCLIENTS(nC).ip ' log the accepting
             cCLIENTS(nC).sendString "VERSION" ' ask for version
             bACCEPTED = True ' has accepted the request
-            intplayer = intplayer + 1 ' one more player
+            intPLAYERS = intPLAYERS + 1 ' one more player
             Exit Do ' accepted, don't need to keep looking for empty clients
         End If
         nC = nC + 1 ' next client spot
@@ -171,5 +175,17 @@ Private Sub sockLISTEN_ConnectionRequest(ByVal requestID As Long)
     
     If bACCEPTED = False Then ' if not accepted
         log "Connection rejected, clients full." ' log the rejection
+    End If
+End Sub
+
+Private Sub timerSYNC_Timer()
+    If bPLAYING = True Then ' if playing
+        If timerSYNC.Interval Mod 2 = 0 Then ' every other tick
+            syncMONSTERS ' sync monsters with clients
+            timerSYNC.Interval = timerSYNC.Interval + 1 ' set interval to odd number
+        Else ' every other tick
+            syncFLAILS ' sync flails with clients
+            timerSYNC.Interval = timerSYNC.Interval - 1 ' set interval to even number
+        End If
     End If
 End Sub

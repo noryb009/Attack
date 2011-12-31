@@ -16,37 +16,42 @@ Attribute VB_Exposed = False
 ' 21 November, 2011
 ' Defend your castle!
 
-Public bACTIVE As Boolean
-Public sngX As Single
-Public sngY As Single
-Public sngMOVINGH As Single
-Public intTYPE As Integer
-Public intHEALTH As Integer
-Dim lCURRENTANIFRAME As Long
+Public bACTIVE As Boolean ' if monster is on the screen
+Public sngX As Single ' X location
+Public sngY As Single ' Y location
+Public sngMOVINGH As Single ' moving speed
+Public intTYPE As Integer ' monster type
+Public intHEALTH As Integer ' monster health
+Dim lCURRENTANIFRAME As Long ' current frame in the animation
 
-Public Property Get currentFRAME() As Long
-    currentFRAME = lCURRENTANIFRAME \ ticksPerFrame
+Public Property Get currentFRAME() As Long ' get the current frame
+    currentFRAME = lCURRENTANIFRAME \ ticksPerFrame ' return the current frame / ticks per frame
 End Property
 
-Public Property Let currentFRAME(ByVal newFRAME As Long)
-    If newFRAME > -1 And newFRAME < arrcMONSTERPICS(intTYPE).numberOfFrames * ticksPerFrame Then
-        lCURRENTANIFRAME = newFRAME \ ticksPerFrame
-    Else
-        lCURRENTANIFRAME = 0
+Public Property Let currentFRAME(ByVal newFRAME As Long) ' set the current frame
+    If newFRAME > -1 And newFRAME < cmontypeMONSTERINFO(intTYPE).lFRAMES * ticksPerFrame Then ' if in bounds
+        lCURRENTANIFRAME = newFRAME * ticksPerFrame ' set current frame to newFrame * ticks per frame to start on (frame / ticksPerFrame)
+    Else ' out of bounds
+        lCURRENTANIFRAME = 0 ' set to 0
     End If
 End Property
 
-Private Sub Class_Initialize()
-    bACTIVE = False
+Private Sub Class_Initialize() ' on class init
+    bACTIVE = False ' monster is not active
 End Sub
 
-Public Sub nextFRAME()
-    lCURRENTANIFRAME = lCURRENTANIFRAME + 1
-    If lCURRENTANIFRAME = arrcMONSTERPICS(intTYPE).numberOfFrames * ticksPerFrame Then
-        lCURRENTANIFRAME = 0
+Public Sub nextFRAME() ' go to the next frame
+    lCURRENTANIFRAME = lCURRENTANIFRAME + 1 ' add one frame
+    If lCURRENTANIFRAME = cmontypeMONSTERINFO(intTYPE).lFRAMES * ticksPerFrame Then ' if past last frame
+        lCURRENTANIFRAME = 0 ' go back to first frame
     End If
 End Sub
 
-Sub moveMONSTER()
+Public Sub moveMONSTER() ' move monster
     sngX = sngX + sngMOVESPEED * sngMOVINGH ' add distance
+    If (sngMOVINGH > 0 And sngX + cmontypeMONSTERINFO(intTYPE).lWIDTH > castleWALLLEFT) Or (sngMOVINGH < 0 And sngX < castleWALLRIGHT) Then ' if attacking castle
+        lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH - cmontypeMONSTERINFO(intTYPE).intATTACKPOWER ' take away health
+        intMONSTERSATTACKEDCASTLE = intMONSTERSATTACKEDCASTLE + 1 ' add to the number of monsters which attacked castle
+        bACTIVE = False ' disable monster
+    End If
 End Sub

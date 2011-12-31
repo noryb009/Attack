@@ -82,8 +82,8 @@ Attribute VB_Exposed = False
 Dim bREADY As Boolean
 
 Sub updatePLAYERLIST()
-    lstPLAYERS.Clear ' clear old names
-    If (Not strPLAYERLIST) = False Then ' if strPLAYERLIST has names
+    If Not Not strPLAYERLIST Then ' if strPLAYERLIST has names
+        lstPLAYERS.Clear ' clear old names
         Dim nC As Integer
         nC = 0
         Do While nC <= UBound(strPLAYERLIST) ' for each name

@@ -306,7 +306,6 @@ Private Sub Form_Activate()
 End Sub
 
 Private Sub Form_Load()
-    Randomize ' randomize random numbers
     Set dbSAVEFILES = OpenDatabase(App.Path & "\saveFiles.mdb") ' open database
 End Sub
 

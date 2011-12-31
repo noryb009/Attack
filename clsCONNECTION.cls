@@ -88,7 +88,7 @@ End Sub
 Sub disconnect()
     If bCONNECTED = True Then ' if connected
         bCONNECTED = False ' not connected anymore
-        If IsNull(sockCONNECTION) = False Then ' if sockCONNECTION exists
+        If IsNull(sockCONNECTION) = True Then ' if sockCONNECTION exists - do NOT change to false
             sockCONNECTION.Close ' close connection
         End If
         sckDISCONNECTED lARRAYID ' run event

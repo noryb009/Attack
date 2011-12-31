@@ -4,47 +4,36 @@ Attribute VB_Name = "modGLOBAL"
 ' 21 November, 2011
 ' Defend your castle!
 
-Global Const VERSION = "0.0.0.1a"
-Global Const SERVER = False
-Global onlineMODE As Boolean
+Global Const SERVER = False ' not a server
+Global onlineMODE As Boolean ' if playing singleplayer/multiplayer
 
 Global currentSTATE As String ' used for online mode to see what state the game is at (lobby, playing, buying, etc.)
 
-Global Const ticksPerFrame = 6
+Global cSERVER(0 To 0) As New clsCONNECTION ' connection to server
+Global strPLAYERLIST() As String ' list of players
 
-Global cSERVER(0 To 0) As New clsCONNECTION
-Global strPLAYERLIST() As String
+Global imagePATH As String ' path to images
 
-Global imagePATH As String
+Global arrcMONSTERPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going right
+Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going left
 
-Global arrcMONSTERPICS(0 To numberOfMonsters - 1) As New clsSPRITE
-Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE
+Global csprFLAIL As New clsSPRITE ' flail image
 
-Global arrMONSTERS() As clsMONSTER
-Global arrFLAILS() As clsFLAIL
-
-Global csprFLAIL As New clsSPRITE
-
-Global lCURRENTLEVEL As Long
+Global lCURRENTLEVEL As Long ' current level
 
 'savefile
 Global strNAME As String ' player name
 Global lLEVEL As Long ' max level
 Global lMONEY As Long ' current money
 Global lLEVELMONEY As Long ' money on current level
-Global intFLAILPOWER As Integer ' the attack power of the flails
-Global intFLAILGOTHROUGH As Integer ' the number of monsters a flail can go through
-Global intFLAILAMOUNT As Integer ' the amount of flails thrown
-Global lCASTLECURRENTHEALTH As Long
-Global lCASTLEMAXHEALTH As Long
 
-Public intMONSTERSONLEVEL(0 To numberOfMonsters - 1) As Integer
+Public intMONSTERSONLEVEL(0 To numberOfMonsters - 1) As Integer ' array with number of monsters on level
 
 'hDestDC - destination object, X - destination X axis, Y - destination Y axis
 'nwidth - width to copy, nheight - height to copy,
 'hSrcDC - source object, xSrc - start at xSrc on X axis, ySrc - start at ySrc on Y axis,
 'dwRop - way to copy
-
+' copy part of an image to another
 Public Declare Function BitBlt Lib "gdi32" ( _
     ByVal hDestDC As Long, _
     ByVal x As Long, _
@@ -57,6 +46,7 @@ Public Declare Function BitBlt Lib "gdi32" ( _
     ByVal dwRop As Long _
 ) As Long
 
+' copy part of an image to another and strech
 Public Declare Function StretchBlt Lib "gdi32.dll" ( _
     ByVal hdc As Long, _
     ByVal x As Long, _
@@ -71,6 +61,7 @@ Public Declare Function StretchBlt Lib "gdi32.dll" ( _
     ByVal dwRop As Long _
 ) As Long
 
+' load image from a file
 Public Declare Function LoadImage Lib "user32" Alias "LoadImageA" ( _
     ByVal hInst As Long, _
     ByVal lpsz As String, _
@@ -80,172 +71,144 @@ Public Declare Function LoadImage Lib "user32" Alias "LoadImageA" ( _
     ByVal un2 As Long _
 ) As Long
 
+' get hWnd handle of object
 Public Declare Function GetObjectW Lib "gdi32" ( _
     ByVal hObject As Long, _
     ByVal nCount As Long, _
     lpObject As Any _
 ) As Long
 
+' create a hDC
 Public Declare Function CreateCompatibleDC Lib "gdi32" ( _
     ByVal hdc As Long _
 ) As Long
 
+' create a bitmap
 Public Declare Function CreateCompatibleBitmap Lib "gdi32" ( _
     ByVal hdc As Long, _
     ByVal nWidth As Long, _
     ByVal nHeight As Long _
 ) As Long
 
+' get the hDC of an hWnd
 Public Declare Function GetDC Lib "user32" ( _
     ByVal hWnd As Long _
 ) As Long
 
+' bind an hDC and an object together
 Public Declare Function SelectObject Lib "gdi32.dll" ( _
     ByVal hdc As Long, _
     ByVal hObject As Long _
 ) As Long
 
+' delete an hDC
 Public Declare Function DeleteDC Lib "gdi32" ( _
     ByVal hdc As Long _
 ) As Long
 
+' delete an hWnd
 Public Declare Function DeleteObject Lib "gdi32" ( _
     ByVal hObject As Long _
 ) As Long
 
+' copy bytes from one location to another
 Public Declare Sub CopyMemory Lib "kernel32.dll" Alias "RtlMoveMemory" ( _
     hpvDest As Any, _
     hpvSource As Any, _
     ByVal cbCopy As Long _
 )
 
+' get the image part of a bitmap
 Public Declare Function GetBitmapBits Lib "gdi32" ( _
     ByVal hBitmap As Long, _
     ByVal dwCount As Long, _
     lpBits As Any _
 ) As Long
 
+' set the image part of a bitmap
 Public Declare Function SetBitmapBits Lib "gdi32" ( _
     ByVal hBitmap As Long, _
     ByVal dwCount As Long, _
     lpBits As Any _
 ) As Long
 
+' get the current number of ticks
 Public Declare Function QueryPerformanceCounter Lib "kernel32" ( _
     lpPerformanceCount As Currency _
 ) As Long
 
+' get the frequency of ticks
 Public Declare Function QueryPerformanceFrequency Lib "kernel32" ( _
     lpFrequency As Currency _
 ) As Long
 
+' sleep, don't use CPU
 Public Declare Sub Sleep Lib "kernel32" ( _
     ByVal dwMilliseconds As Long _
 )
 
+' escape ' to use in SQL queries
 Public Function escapeQUOTES(strINPUT As String) As String
     escapeQUOTES = Replace$(strINPUT, "'", "''")
 End Function
 
-Public Function max(intNUM1 As Integer, intNUM2 As Integer) As Integer
-    If intNUM1 < intNUM2 Then
-        max = intNUM2
-    Else
-        max = intNUM1
-    End If
-End Function
-
-Public Function min(intNUM1 As Integer, intNUM2 As Integer) As Integer
-    If intNUM1 > intNUM2 Then
-        min = intNUM2
-    Else
-        min = intNUM1
-    End If
-End Function
-
+' load monster info into cmontypeMONSTERINFO
 Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
-    Dim bSUCCESS As Boolean
-    bSUCCESS = True
+    Dim bSUCCESS As Boolean ' successful
+    bSUCCESS = True ' default: true
     
-    bSUCCESS = bSUCCESS And arrcMONSTERPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, False, True)
-    bSUCCESS = bSUCCESS And arrcMONSTERLPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, True, True)
+    bSUCCESS = bSUCCESS And arrcMONSTERPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, False, True) ' load image
+    bSUCCESS = bSUCCESS And arrcMONSTERLPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, True, True) ' load image looking left
     
-    If bSUCCESS = False Then
-        MsgBox "Error loading images!"
-        End
+    If bSUCCESS = False Then ' if error
+        MsgBox "Error loading images!" ' alert user
+        End ' exit program
     End If
     
-    cmontypeMONSTERINFO(intNUMBER).intPOINTCOST = intPOINTCOST
-    cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH
-    cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER
-    cmontypeMONSTERINFO(intNUMBER).sngSPEED = sngSPEED
+    cmontypeMONSTERINFO(intNUMBER).intPOINTCOST = intPOINTCOST ' load point cost
+    cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH ' load health
+    cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER ' load attack power
+    cmontypeMONSTERINFO(intNUMBER).sngSPEED = sngSPEED ' load speed
     If intSTARTINGY = -1 Then ' default: ground
-        cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = landHEIGHT - arrcMONSTERPICS(intNUMBER).height
-    Else
-        cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = intSTARTINGY
+        cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = landHEIGHT - arrcMONSTERPICS(intNUMBER).height ' Y is land height - image height, so feet are on ground
+    Else ' special Y location
+        cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = intSTARTINGY ' load Y location
     End If
-    cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDHIT = intMONEYONHIT
-    cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDKILL = intMONEYONKILL
-    cmontypeMONSTERINFO(intNUMBER).lWIDTH = lIMAGEWIDTH
-    cmontypeMONSTERINFO(intNUMBER).lHEIGHT = lIMAGEHEIGHT
+    cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDHIT = intMONEYONHIT ' load money on hit
+    cmontypeMONSTERINFO(intNUMBER).intMONEYADDEDKILL = intMONEYONKILL ' load money on kill
+    cmontypeMONSTERINFO(intNUMBER).lWIDTH = lIMAGEWIDTH ' load image width
+    cmontypeMONSTERINFO(intNUMBER).lHEIGHT = lIMAGEHEIGHT ' load image height
+    cmontypeMONSTERINFO(intNUMBER).lFRAMES = arrcMONSTERPICS(intNUMBER).numberOfFrames ' load number of frames
 End Sub
 
 Sub Main()
+    Randomize ' randomize random numbers
+    
+    imagePATH = App.Path & "\images\" ' images are found in the images folder
+    
     ' load monster types
     Dim bSUCCESS As Boolean
-    bSUCCESS = True
+    bSUCCESS = True ' successful so far
     
-    imagePATH = App.Path & "\images\"
+    loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO
     
-    loadMONSTERINFO
+    bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(imagePATH & "flail.bmp", 14, 14, False, True) ' load flail image
     
-'    Dim arrlIMAGESIZES(0 To numberOfMonsters - 1, 0 To 1) As Long
-'
-'    'green monster
-'    arrlIMAGESIZES(0, 0) = 9
-'    arrlIMAGESIZES(0, 1) = 25
-'    arrlIMAGESIZES(1, 0) = 9
-'    arrlIMAGESIZES(1, 1) = 25
-'    arrlIMAGESIZES(2, 0) = 10
-'    arrlIMAGESIZES(2, 1) = 11
-'    arrlIMAGESIZES(3, 0) = 26
-'    arrlIMAGESIZES(3, 1) = 50
-'    arrlIMAGESIZES(4, 0) = 43
-'    arrlIMAGESIZES(4, 1) = 28
-'    arrlIMAGESIZES(5, 0) = 17
-'    arrlIMAGESIZES(5, 1) = 34
-'    arrlIMAGESIZES(6, 0) = 13
-'    arrlIMAGESIZES(6, 1) = 7
-'
-'    Dim nC As Integer
-'    nC = 0
-'    Do While nC < numberOfMonsters
-'        bSUCCESS = bSUCCESS And arrcMONSTERPICS(nC).loadFRAMES(imagePATH & "monster" & nC & ".bmp", arrlIMAGESIZES(nC, 0), arrlIMAGESIZES(nC, 1), False, True)
-'        bSUCCESS = bSUCCESS And arrcMONSTERLPICS(nC).loadFRAMES(imagePATH & "monster" & nC & ".bmp", arrlIMAGESIZES(nC, 0), arrlIMAGESIZES(nC, 1), True, True)
-'        nC = nC + 1
-'    Loop
-'
-    ' load flail
-    bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(imagePATH & "flail.bmp", 14, 14, False, True)
-    
-    If bSUCCESS = False Then
-        MsgBox "Error loading images!"
-        End
+    If bSUCCESS = False Then ' if error
+        MsgBox "Error loading images!" ' alert user
+        End ' exit program
     End If
     
-    ' server connection setup
-    'cSERVER.arrayID = 0
-    
-    frmNEWGAME.Show
+    frmNEWGAME.Show ' show new game form
 End Sub
 
 Public Sub log(strNEWLINE As String)
-    ' empty sub to allow server to share clsCONNECTION
+    ' empty sub to allow server to share subs
 End Sub
 
 Public Sub broadcastMONSTER(lMONSTERNUMBER As Long)
-    ' empty sub to allow server to share moveEVERYTHING
+    ' empty sub to allow server to share subs
 End Sub
 Public Sub broadcastFLAIL(lFLAILNUMBER As Long, bCLEARGOTHROUGH As Boolean)
-    ' empty sub to allow server to share moveEVERYTHING
+    ' empty sub to allow server to share subs
 End Sub
