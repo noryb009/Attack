@@ -71,6 +71,10 @@ Sub updateFLAIL(strSTATS As String) ' flail update from server
     Dim arrstrSTATS() As String
     arrstrSTATS = Split(strSTATS, "~") ' get different data parts
     
+    If UBound(arrstrSTATS) <> 8 Then ' bad command
+        Exit Sub ' exit
+    End If
+    
     Dim lSPOT As Long
     lSPOT = CLng(arrstrSTATS(0)) ' get flail spot in arrFLAILS
     
@@ -81,12 +85,13 @@ Sub updateFLAIL(strSTATS As String) ' flail update from server
     
     ' copy new values
     arrFLAILS(lSPOT).bACTIVE = CBool(arrstrSTATS(1))
-    arrFLAILS(lSPOT).sngX = CSng(arrstrSTATS(2))
-    arrFLAILS(lSPOT).sngY = CSng(arrstrSTATS(3))
-    arrFLAILS(lSPOT).sngMOVINGV = CSng(arrstrSTATS(4))
-    arrFLAILS(lSPOT).sngMOVINGH = CSng(arrstrSTATS(5))
-    arrFLAILS(lSPOT).intGOTHROUGH = CInt(arrstrSTATS(6))
-    If CBool(arrstrSTATS(7)) = True Then ' if we should clear go through
+    arrFLAILS(lSPOT).lOWNER = CInt(arrstrSTATS(2))
+    arrFLAILS(lSPOT).sngX = CSng(arrstrSTATS(3))
+    arrFLAILS(lSPOT).sngY = CSng(arrstrSTATS(4))
+    arrFLAILS(lSPOT).sngMOVINGV = CSng(arrstrSTATS(5))
+    arrFLAILS(lSPOT).sngMOVINGH = CSng(arrstrSTATS(6))
+    arrFLAILS(lSPOT).intGOTHROUGH = CInt(arrstrSTATS(7))
+    If CBool(arrstrSTATS(8)) = True Then ' if we should clear go through
         arrFLAILS(lSPOT).clearWENTTHROUGH ' clear go through
     End If
 End Sub

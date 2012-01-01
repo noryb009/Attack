@@ -184,6 +184,8 @@ Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As 
                         arrFLAILS(nC).sngMOVINGV = arrFLAILS(nC).sngMOVINGV + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 4) ' spread flails if multiple
                         'arrFLAILS(nC).sngMOVINGH = arrFLAILS(nC).sngMOVINGH + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 2)
                         
+                        arrFLAILS(nC).lOWNER = 0 ' default flail colour
+                        
                         arrFLAILS(nC).intGOTHROUGH = intFLAILGOTHROUGH ' set go through left
                         arrFLAILS(nC).clearWENTTHROUGH ' clear the list of monsters that flail went through
                         Exit Do ' found a flail spot
@@ -369,8 +371,8 @@ Sub drawEVERYTHING() ' draw everything to the screen
         nCMAX = UBound(arrFLAILS) ' get size of arrFLAILS
         Do While nC <= nCMAX ' for each flail
             If arrFLAILS(nC).bACTIVE = True Then ' if flail is active
-                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(0), 0, 0, vbSrcAnd ' draw flail mask
-                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(0), 0, 0, vbSrcPaint ' draw flail
+                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lOWNER), 0, 0, vbSrcAnd ' draw flail mask
+                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lOWNER), 0, 0, vbSrcPaint ' draw flail
             End If
             nC = nC + 1 ' next flail
         Loop

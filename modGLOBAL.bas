@@ -194,6 +194,9 @@ Sub Main()
     loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO
     
     bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(imagePATH & "flail.bmp", 14, 14, False, True) ' load flail image
+    If csprFLAIL.numberOfFrames <> MAXCLIENTS Then ' if wrong number of frames
+        bLOADED = False ' error
+    End If
     
     If bSUCCESS = False Then ' if error
         MsgBox "Error loading images!" ' alert user

@@ -6,7 +6,6 @@ Attribute VB_Name = "modGLOBAL"
 
 Global Const SERVER = True ' is server
 Global Const onlineMODE = False ' used for being able to share subs with client
-Global Const MAXCLIENTS = 4 ' max number of clients
 
 Global cCLIENTS(0 To MAXCLIENTS - 1) As New clsCONNECTION ' client connections
 Global cCLIENTINFO(0 To MAXCLIENTS - 1) As New clsCLIENTINFO ' client info
@@ -330,6 +329,7 @@ Function getFLAILINFO(lFLAILNUMBER As Long, bCLEARGOTHROUGH As Boolean) As Strin
     getFLAILINFO = _
     CStr(lFLAILNUMBER) & "~" & _
     CStr(arrFLAILS(lFLAILNUMBER).bACTIVE) & "~" & _
+    CStr(arrFLAILS(lFLAILNUMBER).lOWNER) & "~" & _
     CStr(arrFLAILS(lFLAILNUMBER).sngX) & "~" & _
     CStr(arrFLAILS(lFLAILNUMBER).sngY) & "~" & _
     CStr(arrFLAILS(lFLAILNUMBER).sngMOVINGV) & "~" & _

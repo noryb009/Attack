@@ -5,6 +5,7 @@ Attribute VB_Name = "modSHAREDSUBS"
 ' Defend your castle!
 
 Global Const VERSION = "0.0.0.1a" ' version of the game
+Global Const MAXCLIENTS = 4 ' max number of clients
 
 Global Const numberOfMonsters = 11 ' number of types of monsters
 Public Enum monsterNames ' names of monsters

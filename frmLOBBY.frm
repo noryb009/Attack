@@ -10,6 +10,14 @@ Begin VB.Form frmLOBBY
    ScaleMode       =   3  'Pixel
    ScaleWidth      =   364
    StartUpPosition =   3  'Windows Default
+   Begin VB.ListBox lstPLAYERS 
+      Height          =   2205
+      Left            =   4320
+      Sorted          =   -1  'True
+      TabIndex        =   6
+      Top             =   0
+      Width           =   1095
+   End
    Begin VB.CommandButton cmdREADY 
       Caption         =   "cmdREADY"
       Height          =   375
@@ -26,14 +34,6 @@ Begin VB.Form frmLOBBY
       TabIndex        =   0
       Top             =   2760
       Width           =   735
-   End
-   Begin VB.ListBox lstPLAYERS 
-      Height          =   2205
-      Left            =   4320
-      Sorted          =   -1  'True
-      TabIndex        =   6
-      Top             =   0
-      Width           =   1095
    End
    Begin VB.CommandButton cmdTOSTORE 
       Caption         =   "Open store"
