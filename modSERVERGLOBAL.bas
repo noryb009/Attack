@@ -8,8 +8,6 @@ Global Const SERVER = True ' is server
 Global Const onlineMODE = False ' used for being able to share subs with client
 Global Const MAXCLIENTS = 4 ' max number of clients
 
-Global lPORT As Long ' port that the server is being hosted on
-
 Global cCLIENTS(0 To MAXCLIENTS - 1) As New clsCONNECTION ' client connections
 Global cCLIENTINFO(0 To MAXCLIENTS - 1) As New clsCLIENTINFO ' client info
 Global lWINNEROFROUND As Long ' winner of last round
@@ -47,7 +45,7 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
         bSPAWN = False ' default: don't spawn
         If intCURRENTMONSTER <= intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) + intPLAYERS Then ' force if less then (level/3) monsters on screen
             bSPAWN = True ' spawn
-        ElseIf Int(Rnd() * 200) < lCURRENTLEVEL * intPLAYERS + intPLAYERS Then ' randomly
+        ElseIf Int(Rnd() * 150) < lCURRENTLEVEL * intPLAYERS + intPLAYERS Then ' randomly
             bSPAWN = True ' spawn
         End If
     
@@ -129,35 +127,7 @@ Public Sub startGAME() ' start the game
     
     bPLAYING = True ' you are playing the game
     
-    broadcast "disableReadyButton", ""
-    
-    log "Starting countdown..." ' log that you are the countdown game
-    broadcast "chat", "Game starting in 5..."
-    doEVENTSANDSLEEP 1000
-    broadcast "chat", "4..."
-    doEVENTSANDSLEEP 1000
-    broadcast "chat", "3..."
-    doEVENTSANDSLEEP 1000
-    broadcast "chat", "2..."
-    doEVENTSANDSLEEP 1000
-    broadcast "chat", "1..."
-    doEVENTSANDSLEEP 1000
-    broadcast "chat", "0..."
-    
-    If intPLAYERS < 1 Then ' if all the players left
-        Exit Sub ' exit
-    End If
-    
-    log "Starting game..." ' log that you are starting game
-    broadcast "game", "start" ' broadcast to clients that the game is starting
-    
-    ' reset ready status
     Dim nC As Integer
-    nC = 0
-    Do While nC < MAXCLIENTS ' for each client
-        cCLIENTINFO(nC).bREADY = False ' not ready
-        nC = nC + 1 ' next client
-    Loop
     
     ' reset level vars
     bEXIT = False
@@ -187,8 +157,38 @@ Public Sub startGAME() ' start the game
         nC = nC + 1 ' next flail spot
     Loop
     
+    broadcast "disableReadyButton", "" '  disable clients' ready button
+    
+    log "Starting countdown..." ' log that you are the countdown game
+    broadcast "chat", "Game starting in 5..." ' broadcast time left
+    doEVENTSANDSLEEP 1000 ' wait for 1 second
+    broadcast "chat", "4..." ' broadcast time left
+    doEVENTSANDSLEEP 1000 ' wait for 1 second
+    broadcast "chat", "3..." ' broadcast time left
+    doEVENTSANDSLEEP 1000 ' wait for 1 second
+    broadcast "chat", "2..." ' broadcast time left
+    doEVENTSANDSLEEP 1000 ' wait for 1 second
+    broadcast "chat", "1..." ' broadcast time left
+    doEVENTSANDSLEEP 1000 ' wait for 1 second
+    broadcast "chat", "0..." ' broadcast time left
+    
+    If bFORCEEXIT = True Then ' if program exited or everyone left during count down
+        bPLAYING = False ' you are not playing the game
+        Exit Sub ' exit
+    End If
+    
+    log "Starting game..." ' log that you are starting game
+    broadcast "game", "start" ' broadcast to clients that the game is starting
+    
+    ' reset ready status
+    nC = 0
+    Do While nC < MAXCLIENTS ' for each client
+        cCLIENTINFO(nC).bREADY = False ' not ready
+        nC = nC + 1 ' next client
+    Loop
+    
     ' generate level monsters
-    generateMONSTERS (lCURRENTLEVEL * 20) + 10 ' generate monsters
+    generateMONSTERS (lCURRENTLEVEL * 20) + 30 ' generate monsters
     
     frmSERVER.timerSYNC.Enabled = True ' sync with clients
     
@@ -242,7 +242,7 @@ Public Sub startGAME() ' start the game
         Do While nC < MAXCLIENTS ' for each client
             If cCLIENTS(nC).connected = True Then ' if connected
                 lMONEY = safeADDLONG(lMONEY, CLng(cCLIENTINFO(nC).lLEVELSCORE / sngMONEYMULTIPLYER)) ' add (half if you lost) client's money to total money
-                If lHIGHESTSCORE < cCLIENTINFO(nC).lLEVELSCORE Or lWINNEROFROUND = -1 Then ' if highest score so far or first client
+                If lHIGHESTSCORE < cCLIENTINFO(nC).lLEVELSCORE Or (lWINNEROFROUND = -1 And cCLIENTINFO(nC).lLEVELSCORE > 0) Then ' if highest score so far or first client
                     lWINNEROFROUND = nC ' you are the current winner of the round
                     lHIGHESTSCORE = cCLIENTINFO(nC).lLEVELSCORE ' remember your score
                 End If
@@ -255,14 +255,19 @@ Public Sub startGAME() ' start the game
         broadcast "nextLevel", CStr(lCURRENTLEVEL) ' broadcast current level
         
         nC = 0
+        
         Do While nC < MAXCLIENTS ' for each client
             If nC = lWINNEROFROUND Then ' if client won
-                cCLIENTS(nC).sendString "game", "stop" & strWINLOOSE & "Shop" ' alert user that they won the round
+                cCLIENTS(nC).sendString "game", "stop" & strWINLOOSE & "Highscore" ' alert user that they won the round
             Else
                 cCLIENTS(nC).sendString "game", "stop" & strWINLOOSE ' alert user that the game has ended
             End If
             nC = nC + 1 ' next client
         Loop
+        
+        If lWINNEROFROUND <> -1 Then ' if found a winner
+            broadcast "chat", cCLIENTINFO(lWINNEROFROUND).strNAME & " won the round with a score of " & cCLIENTINFO(lWINNEROFROUND).lLEVELSCORE & "0!" ' broadcast winner of round
+        End If
         
         ' reset client vars
         nC = 0

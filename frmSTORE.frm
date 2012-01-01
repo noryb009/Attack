@@ -201,7 +201,7 @@ Sub updateLABELS()
         End If
         cmdHEAL(nC).Caption = "Heal " & healthDISPLAYAMOUNT(nC) & " - $" & healCOST(nC) & "0" ' display health amount and cost
         
-        If healthAMOUNT(nC) <= lMONEY And lCASTLEMAXHEALTH + healthAMOUNT(nC) <= 10000 Then ' if you have enough money to buy morehealth
+        If moreHEALTHCOST(nC) <= lMONEY And lCASTLEMAXHEALTH + healthAMOUNT(nC) <= 10000 Then ' if you have enough money to buy morehealth
             cmdMOREHEALTH(nC).Enabled = True ' you can buy this much morehealth
         Else
             cmdMOREHEALTH(nC).Enabled = False ' you can't buy this much morehealth

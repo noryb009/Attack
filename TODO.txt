@@ -1,6 +1,6 @@
+- flying monsters move down to attack castle
 - don't highlight name in lobby or profiles
-- coloured players (flails, name, score, profile, ...)
-- lost background image?
+- coloured flails
 - endless mode and high score
 - turn cannon
 - spread left/right

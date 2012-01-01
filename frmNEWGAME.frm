@@ -4,10 +4,10 @@ Begin VB.Form frmNEWGAME
    ClientHeight    =   2940
    ClientLeft      =   60
    ClientTop       =   450
-   ClientWidth     =   5265
+   ClientWidth     =   4215
    LinkTopic       =   "Form1"
    ScaleHeight     =   2940
-   ScaleWidth      =   5265
+   ScaleWidth      =   4215
    StartUpPosition =   3  'Windows Default
    Begin VB.CommandButton cmdMULTI 
       Caption         =   "Multi player"
@@ -46,7 +46,7 @@ Begin VB.Form frmNEWGAME
    Begin VB.CommandButton cmdDELETE 
       Caption         =   "Delete"
       Height          =   255
-      Left            =   3720
+      Left            =   3480
       TabIndex        =   6
       Top             =   2520
       Width           =   615
@@ -54,7 +54,7 @@ Begin VB.Form frmNEWGAME
    Begin VB.CommandButton cmdLOAD 
       Caption         =   "Load a saved game"
       Height          =   375
-      Left            =   3120
+      Left            =   2280
       TabIndex        =   4
       Top             =   1920
       Width           =   1815
@@ -62,10 +62,10 @@ Begin VB.Form frmNEWGAME
    Begin VB.TextBox txtNAME 
       Height          =   375
       Left            =   120
-      MaxLength       =   25
+      MaxLength       =   15
       TabIndex        =   2
       Top             =   960
-      Width           =   1695
+      Width           =   1935
    End
    Begin VB.CommandButton cmdNEWSPGAME 
       Caption         =   "Start a new game"
@@ -80,7 +80,7 @@ Begin VB.Form frmNEWGAME
       Left            =   120
       TabIndex        =   5
       Top             =   1680
-      Width           =   2895
+      Width           =   1935
    End
    Begin VB.Label lblIP 
       Caption         =   "IP:"

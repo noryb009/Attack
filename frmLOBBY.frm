@@ -96,10 +96,6 @@ End Sub
 
 Sub logout()
     cSERVER(0).disconnect ' disconnect from server
-    Unload frmLOBBY ' hide this form
-    If currentSTATE = "lobbyShop" Then ' if shop is visible
-        Unload frmSTORE ' hide shop
-    End If
 End Sub
 
 Private Sub cmdLOGOUT_Click()
@@ -163,11 +159,12 @@ Private Sub Form_Resize()
 End Sub
 
 Private Sub Form_Terminate()
-    If currentSTATE = "lobbyShop" Then  ' if in shop
-        Unload frmSTORE ' unload shop form
-    End If
     logout ' logout from the server
-    currentSTATE = "" ' not in anywhere
+End Sub
+
+Private Sub txtCHATLOG_Change()
+    frmLOBBY.txtCHATLOG.SelStart = Len(frmLOBBY.txtCHATLOG.Text) ' scroll textbox to show new message
+    frmLOBBY.txtCHATLOG.SelLength = 0 ' don't select anything
 End Sub
 
 Private Sub txtMESSAGE_KeyPress(KeyAscii As Integer)

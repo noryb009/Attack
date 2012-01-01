@@ -90,6 +90,7 @@ Sub showSTOP()
 End Sub
 
 Private Sub cmdSTART_Click() ' start the server
+    Dim lPORT As Long
     lPORT = Val(txtPORT.Text) ' get the port
     If lPORT < 1024 Or lPORT > 65535 Then ' if out of bounds
         MsgBox "Please input a port between 1024 and 65535" ' alert user

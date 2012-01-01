@@ -14,10 +14,11 @@ Sub sckDISCONNECTED(lARRAYID As Long, Optional bMESSAGE As Boolean = True) ' som
         Case "playing" ' if playing
             Unload frmATTACK ' unload playing form
     End Select
-    If onlineMODE = False Then ' if already messaged
+    If onlineMODE = True Then ' if not already messaged
         If bMESSAGE = True Then MsgBox "Disconnected from host!" ' message that you disconnected
         onlineMODE = False ' not online anymore
     End If
+    frmNEWGAME.Show ' show new game form
 End Sub
 
 Sub handleError(lARRAYID As Long, strDESCRIPTION As String) ' handle error from clsCONNECTION
@@ -161,7 +162,9 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             If strDESCRIPTION = "start" Then ' if starting game
                 frmATTACK.Show ' show game form
                 Unload frmLOBBY ' hide lobby screen
-                Unload frmSTORE ' hide store screen
+                If currentSTATE = "lobbyShop" Then ' if shop is open
+                    Unload frmSTORE ' hide shop form
+                End If
                 currentSTATE = "playing" ' currently playing
                 ' clear game chat
                 Do While nC <= UBound(strCHATLOG) ' for each chat log place
@@ -172,30 +175,28 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                 If strDESCRIPTION = "stopLoose" Or strDESCRIPTION = "stopLooseShop" Then ' lost game
                     bEXIT = True ' stop playing game
                     If strDESCRIPTION = "stopLoose" Then ' didn't have highest score in round
-                        MsgBox "You lost!" ' alert user that they lost
                         frmLOBBY.Show ' show lobby
                         currentSTATE = "lobby" ' currently in lobby
                         frmLOBBY.cmdTOSTORE.Visible = False ' can't see "To shop" button
                     Else ' user lost, but got highest score for the round
-                        MsgBox "You lost!" & vbCrLf & "You got the round high score, so you get to visit the shop!" ' alert user
                         frmLOBBY.Show ' show the lobby
                         frmLOBBY.cmdTOSTORE.Visible = True ' show the "To Shop" button in the lobby
                         frmSTORE.Show ' show the shop
                         currentSTATE = "lobbyShop" ' currently in lobby and shop
                     End If
+                    frmLOBBY.txtCHATLOG.Text = "You lost the level!" ' alert user that they lost
                 Else ' won game
                     bEXIT = True ' stop playing game
                     If strDESCRIPTION = "stopWin" Then ' didn't have highest score in round
-                        MsgBox "You won!" ' alert user that they won
                         frmLOBBY.Show ' show the lobby
                         currentSTATE = "lobby" ' currently in lobby
                     Else
-                        MsgBox "You won!" & vbCrLf & "You got the round high score, so you get to visit the shop!" ' alert user
                         frmLOBBY.Show ' show the lobby
                         frmLOBBY.cmdTOSTORE.Visible = True ' show the "To Shop" button in the lobby
                         frmSTORE.Show ' show the shop
                         currentSTATE = "lobbyShop" ' currently in lobby and shop
                     End If
+                    frmLOBBY.txtCHATLOG.Text = "You won the level!" ' alert user that they lost
                 End If
                 Unload frmATTACK ' hide game form
             End If
@@ -206,12 +207,18 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                     frmSTORE.updateLABELS ' update the shop labels
                 End If
             End If
+            If currentSTATE = "lobbyShop" Then ' if in the shop
+                frmSTORE.updateLABELS ' update labels inside the store
+            End If
         Case "health" ' health update
             If strDESCRIPTION <> "" Then ' if not bad command
                 lCASTLECURRENTHEALTH = CLng(strDESCRIPTION) ' get new health
                 If currentSTATE = "lobbyShop" Then ' if in the shop
                     frmSTORE.updateLABELS ' update the shop labels
                 End If
+            End If
+            If currentSTATE = "lobbyShop" Then ' if in the shop
+                frmSTORE.updateLABELS ' update labels inside the store
             End If
         Case "moneyLevel" ' level money update
             If strDESCRIPTION <> "" Then ' if not bad command
@@ -224,12 +231,18 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                     frmSTORE.updateLABELS ' update shop labels
                 End If
             End If
+            If currentSTATE = "lobbyShop" Then ' if in the shop
+                frmSTORE.updateLABELS ' update labels inside the store
+            End If
         Case "flaPower" ' flail power update
             If strDESCRIPTION <> "" Then ' if not bad command
                 intFLAILPOWER = CInt(strDESCRIPTION) ' update flail power
                 If currentSTATE = "lobbyShop" Then ' if in shop
                     frmSTORE.updateLABELS ' update shop labels
                 End If
+            End If
+            If currentSTATE = "lobbyShop" Then ' if in the shop
+                frmSTORE.updateLABELS ' update labels inside the store
             End If
         Case "flaGoThrough" ' flail go through update
             If strDESCRIPTION <> "" Then ' if not bad command
@@ -238,12 +251,18 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                     frmSTORE.updateLABELS ' update shop labels
                 End If
             End If
+            If currentSTATE = "lobbyShop" Then ' if in the shop
+                frmSTORE.updateLABELS ' update labels inside the store
+            End If
         Case "flaAmount" ' flail amount update
             If strDESCRIPTION <> "" Then ' if not bad command
                 intFLAILAMOUNT = CInt(strDESCRIPTION) ' update flail amount
                 If currentSTATE = "lobbyShop" Then ' if in shop
                     frmSTORE.updateLABELS ' update shop labels
                 End If
+            End If
+            If currentSTATE = "lobbyShop" Then ' if in the shop
+                frmSTORE.updateLABELS ' update labels inside the store
             End If
         Case "nextLevel" ' current level update (next level user will go on)
             If strDESCRIPTION <> "" Then ' if not bad command
@@ -253,8 +272,6 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             If currentSTATE = "lobby" Or currentSTATE = "lobbyShop" Then ' in lobby
                 If frmLOBBY.txtCHATLOG <> "" Then frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & vbCrLf ' add newline if not empty
                 frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & strDESCRIPTION ' add to chat log
-                frmLOBBY.txtCHATLOG.SelStart = Len(frmLOBBY.txtCHATLOG.Text) ' scroll textbox to show new message
-                frmLOBBY.txtCHATLOG.SelLength = 0 ' don't select anything
             ElseIf currentSTATE = "playing" Then ' if playing
                 ' bump old messages in chat log
                 Do While nC < UBound(strCHATLOG) ' for each (not last) chat log place

@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin VB.Form frmLEVELSELECT 
-   Caption         =   "Form1"
+   Caption         =   "Level Select"
    ClientHeight    =   2565
    ClientLeft      =   60
    ClientTop       =   360

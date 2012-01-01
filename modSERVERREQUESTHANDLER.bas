@@ -81,7 +81,6 @@ Public Sub checkIFEVERYONEREADY()
         If bSHOULDSYNC = True Then ' if client was added, should sync
             syncMONSTERS ' sync monsters with everybody
             syncFLAILS ' sync flails with everybody
-            log "Sync!!!!!!!!!!"
         End If
         Exit Sub
     End If
@@ -135,7 +134,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                 cCLIENTS(lARRAYID).connected = False ' not connected anymore
             End If
         Case "login" ' user is logging in
-            If strDESCRIPTION = "" Or Len(strDESCRIPTION) > 25 Then ' invalid username
+            If strDESCRIPTION = "" Or Len(strDESCRIPTION) > 15 Then ' invalid username
                 log cCLIENTS(lARRAYID).ip & " tried to log in as " & strNAME ' log invalid login
                 cCLIENTS(lARRAYID).sendString "DISCONNECT", "invalid name" ' alert user that the name is invalid
                 cCLIENTS(lARRAYID).connected = False ' not connected anymore
@@ -203,12 +202,10 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             If UBound(strHEALPARTS) = 1 Then ' if enough parts
                 If lMONEY - CLng(strHEALPARTS(0)) >= 0 Then ' if you have enough money
                     lMONEY = lMONEY - CLng(strHEALPARTS(0)) ' take away money
-                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
                     lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strHEALPARTS(1)) ' heal
-                    broadcast "health", CLng(lCASTLECURRENTHEALTH) ' update other clients with new health
-                Else
-                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast money to sync
                 End If
+                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+                broadcast "health", CLng(lCASTLECURRENTHEALTH) ' update other clients with new health
             Else ' bad command
                 log "Bad 'heal' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log the bad command
             End If
@@ -218,14 +215,12 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             If UBound(strADDHEALTHPARTS) = 1 Then ' if enough parts
                 If lMONEY - CLng(strADDHEALTHPARTS(0)) >= 0 Then ' if you have enough money
                     lMONEY = lMONEY - CLng(strADDHEALTHPARTS(0)) ' cost
-                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
                     lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + CLng(strADDHEALTHPARTS(1)) ' more health
-                    broadcast "maxHealth", CLng(lCASTLEMAXHEALTH) ' broadcast new max health
                     lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strADDHEALTHPARTS(1)) ' heal
-                    broadcast "health", CLng(lCASTLECURRENTHEALTH) ' broadcast new health
-                Else
-                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast money to sync
                 End If
+                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+                broadcast "maxHealth", CLng(lCASTLEMAXHEALTH) ' broadcast new max health
+                broadcast "health", CLng(lCASTLECURRENTHEALTH) ' broadcast new health
             Else ' bad command
                 log "Bad 'addHealth' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log bad command
             End If
@@ -245,10 +240,12 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                         broadcast "flaAmount", CStr(intFLAILAMOUNT) ' broadcast amount
                     End If
                     lMONEY = lMONEY - CLng(strBUYPARTS(1)) ' money spent
-                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
                 Else
-                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast money to sync
+                    broadcast "flaPower", CStr(intFLAILPOWER) ' broadcast new power
+                    broadcast "flaGoThrough", CStr(intFLAILGOTHROUGH) ' broadcast go through
+                    broadcast "flaAmount", CStr(intFLAILAMOUNT) ' broadcast amount
                 End If
+                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
             Else ' bad command
                 log "Bad 'buy' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log bad command
             End If
