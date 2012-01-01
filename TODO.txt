@@ -1,5 +1,6 @@
-- generate monster order for lvl>10
-- multiplayer - in game chat
+- don't highlight name in lobby or profiles
+- coloured players (flails, name, score, profile, ...)
+- lost background image?
 - endless mode and high score
-- spread left/right
 - turn cannon
+- spread left/right

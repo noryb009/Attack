@@ -86,11 +86,12 @@ Sub acceptCONNECTION(requestID As Long)
 End Sub
 
 Sub disconnect()
+    On Error Resume Next ' if there is an error with closing the socket, ignore it
+    sockCONNECTION.Close ' close connection
+    On Error GoTo 0 ' return to VB6 error handling
+    
     If bCONNECTED = True Then ' if connected
         bCONNECTED = False ' not connected anymore
-        If IsNull(sockCONNECTION) = True Then ' if sockCONNECTION exists - do NOT change to false
-            sockCONNECTION.Close ' close connection
-        End If
         sckDISCONNECTED lARRAYID ' run event
     End If
 End Sub

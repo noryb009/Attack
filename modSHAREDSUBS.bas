@@ -33,6 +33,7 @@ Global Const windowX = 700 ' width of frmATTACK window
 Global Const windowY = 500 ' height of frmATTACK window
 Global Const castleWALLLEFT = 321 ' left wall
 Global Const castleWALLRIGHT = 377 ' right wall
+Global Const maxLENGTHOFMSGINGAME = 30 ' length of a message to show while in game
 
 ' level vars
 Public sngMOVESPEED As Single ' speed of monsters
@@ -100,15 +101,20 @@ Sub generateMONSTERS(ByRef lLEVELPOINTS As Long) ' generate monsters
     intCURRENTMON = -1 ' starts with -1 monsters, adds one, and starts at 0
     
     Do While lLEVELPOINTS > 0 ' do while you still have points
-        intNEWMONSTER = Int(Rnd() * numberOfMonsters) ' random monster
-        intNEWMONSTER = 10
+        If numberOfMonsters < (lCURRENTLEVEL + 1) Then ' if you have unlocked all the monsters
+            intNEWMONSTER = Int(Rnd() * numberOfMonsters) ' random monster
+        Else ' you haven't unlocked all the monsters yet
+            intNEWMONSTER = Int(Rnd() * (lCURRENTLEVEL + 1)) ' random monster from the monsters unlocked so far
+        End If
+        
         intSTARTINGMONSTER = intNEWMONSTER ' record starting monster
-        Do While cmontypeMONSTERINFO(intNEWMONSTER).intPOINTCOST > lLEVELPOINTS And intCURRENTMON > lCURRENTLEVEL + 1 ' while monsters have too many points, and limit first few levels to first few monsters
+        
+        Do While cmontypeMONSTERINFO(intNEWMONSTER).intPOINTCOST > lLEVELPOINTS ' while monsters have too many points
             intNEWMONSTER = intNEWMONSTER + 1 ' get the next monster
             If intNEWMONSTER = intSTARTINGMONSTER Then ' if back at starting monster
                 Exit Do ' not enough points to get any monster
             End If
-            If intNEWMONSTER = numberOfMonsters Then ' reached upper bound of monsters
+            If intNEWMONSTER = numberOfMonsters Or intNEWMONSTER = (lCURRENTLEVEL + 1) Then ' reached upper bound of monsters, or reached max monster for current level
                 intNEWMONSTER = 0 ' set to bottom of monsters
             End If
         Loop

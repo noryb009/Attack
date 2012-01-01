@@ -111,6 +111,9 @@ Sub syncFLAILS(strALLFLAINFO As String) ' sync all the flails from the server
 End Sub
 
 Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION As String)
+    Dim nC As Integer ' counter to use in select
+    nC = 0
+    
     Select Case strCOMMAND
         Case "DISCONNECT" ' disconnect
             If strDESCRIPTION = "" Then
@@ -145,12 +148,26 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                     frmLOBBY.updatePLAYERLIST ' update player list in lobby
                 End If
             End If
+        Case "disableReadyButton" ' countdown has started, disable ready button
+            If currentSTATE = "lobbyShop" Then  ' if in shop
+                Unload frmSTORE ' unload shop form
+                currentSTATE = "lobby" ' now in lobby
+            End If
+            If currentSTATE = "lobby" Then  ' if in lobby
+                frmLOBBY.cmdREADY.Enabled = False ' disable ready button
+                frmLOBBY.cmdTOSTORE.Visible = False ' hide open shop button
+            End If
         Case "game" ' game start/stop
             If strDESCRIPTION = "start" Then ' if starting game
                 frmATTACK.Show ' show game form
                 Unload frmLOBBY ' hide lobby screen
                 Unload frmSTORE ' hide store screen
                 currentSTATE = "playing" ' currently playing
+                ' clear game chat
+                Do While nC <= UBound(strCHATLOG) ' for each chat log place
+                    strCHATLOG(nC) = "" ' clear this chat
+                    nC = nC + 1 ' next chat log spot
+                Loop
             Else ' if stopping game
                 If strDESCRIPTION = "stopLoose" Or strDESCRIPTION = "stopLooseShop" Then ' lost game
                     bEXIT = True ' stop playing game
@@ -238,6 +255,18 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                 frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & strDESCRIPTION ' add to chat log
                 frmLOBBY.txtCHATLOG.SelStart = Len(frmLOBBY.txtCHATLOG.Text) ' scroll textbox to show new message
                 frmLOBBY.txtCHATLOG.SelLength = 0 ' don't select anything
+            ElseIf currentSTATE = "playing" Then ' if playing
+                ' bump old messages in chat log
+                Do While nC < UBound(strCHATLOG) ' for each (not last) chat log place
+                    strCHATLOG(nC) = strCHATLOG(nC + 1) ' move message below up
+                    nC = nC + 1 ' next chat log spot
+                Loop
+                ' add new message
+                If Len(strDESCRIPTION) > maxLENGTHOFMSGINGAME Then ' if message is longer then max length for in game
+                    strCHATLOG(UBound(strCHATLOG)) = Left$(strDESCRIPTION, maxLENGTHOFMSGINGAME - 3) & "..." ' cut off message, and add a "..."
+                Else
+                    strCHATLOG(UBound(strCHATLOG)) = strDESCRIPTION ' add full message
+                End If
             End If
         Case "updateMon" ' update monster info (can be new/sync/delete)
             If strDESCRIPTION <> "" Then ' if not bad command

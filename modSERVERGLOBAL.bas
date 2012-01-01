@@ -106,18 +106,48 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
     End If
 End Sub
 
+Sub doEVENTSANDSLEEP(lMILLISECONDS As Long)
+    Dim nC As Long
+    nC = 0
+    Do While (nC < lMILLISECONDS \ 100) ' for each 10th of a second in lMILLISECONDS
+        DoEvents ' do any events that need to be done
+        Sleep 100 ' save CPU and sleep
+        nC = nC + 1 ' next 10th of a second
+    Loop
+    Sleep lMILLISECONDS Mod 100 ' sleep for rest of time
+End Sub
+
 Public Sub startGAME() ' start the game
-    If lCASTLECURRENTHEALTH = 0 Then
-        log "Starting game, but you don't have any health."
-        Exit Sub
+    If lCASTLECURRENTHEALTH = 0 Then ' if you don't have any health
+        lCASTLECURRENTHEALTH = 1 ' give yourself some
+        broadcast "health", "1" ' broadcast health
     End If
     
-    If bPLAYING = True Then
-        log "Major error: Tried to start game, but game already started."
-        Exit Sub
+    If bPLAYING = True Then ' if already playing a game
+        Exit Sub ' exit
     End If
     
     bPLAYING = True ' you are playing the game
+    
+    broadcast "disableReadyButton", ""
+    
+    log "Starting countdown..." ' log that you are the countdown game
+    broadcast "chat", "Game starting in 5..."
+    doEVENTSANDSLEEP 1000
+    broadcast "chat", "4..."
+    doEVENTSANDSLEEP 1000
+    broadcast "chat", "3..."
+    doEVENTSANDSLEEP 1000
+    broadcast "chat", "2..."
+    doEVENTSANDSLEEP 1000
+    broadcast "chat", "1..."
+    doEVENTSANDSLEEP 1000
+    broadcast "chat", "0..."
+    
+    If intPLAYERS < 1 Then ' if all the players left
+        Exit Sub ' exit
+    End If
+    
     log "Starting game..." ' log that you are starting game
     broadcast "game", "start" ' broadcast to clients that the game is starting
     

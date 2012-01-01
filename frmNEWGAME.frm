@@ -138,10 +138,14 @@ Sub showSINGLE()
     
     ' show lstSAVES if there are files, otherwise hide
     If lstSAVES.ListCount > 0 Then
-        frmNEWGAME.height = 3450 ' resize form height
+        If frmNEWGAME.WindowState = vbNormal Then ' if in a window
+            frmNEWGAME.height = 3500 ' resize form height
+        End If
         lstSAVES.Visible = True
     Else
-        frmNEWGAME.height = 1950 ' resize form height
+        If frmNEWGAME.WindowState = vbNormal Then ' if in a window
+            frmNEWGAME.height = 1950 ' resize form height
+        End If
         lstSAVES.Visible = False ' hide listbox
     End If
 End Sub
@@ -165,7 +169,9 @@ Private Sub cmdMULTI_Click()
     cmdMULTI.Visible = False
     
     ' resize form height
-    frmNEWGAME.height = 2865
+    If frmNEWGAME.WindowState = vbNormal Then ' if in a window
+        frmNEWGAME.height = 2865 ' resize form
+    End If
 End Sub
 
 Sub loadNamesToListbox()

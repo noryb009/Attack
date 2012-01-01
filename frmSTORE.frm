@@ -152,14 +152,16 @@ Dim lFLAILUPGRADECOSTS(0 To 9) As Long ' cost to upgrade flail power, go through
 
 Sub loadFLAILUPGRADECOSTS() ' sub to load the cost of flail upgrades
     ' all prices are *10, so $100 will display $1000
-    lFLAILUPGRADECOSTS(0) = 100 '  1 -> 2
-    lFLAILUPGRADECOSTS(1) = 200 '  2 -> 3
-    lFLAILUPGRADECOSTS(2) = 400 '  3 -> 4
-    lFLAILUPGRADECOSTS(3) = 800 '  4 -> 5
-    lFLAILUPGRADECOSTS(4) = 1000 ' 5 -> 6
-    lFLAILUPGRADECOSTS(5) = 1500 ' 6 -> 7
-    lFLAILUPGRADECOSTS(6) = 2000 ' 7 -> 8
-    lFLAILUPGRADECOSTS(7) = 3000 ' 8 -> 9
+    lFLAILUPGRADECOSTS(0) = 0 '  0 -> 1 ' already given
+    lFLAILUPGRADECOSTS(1) = 100 '  1 -> 2
+    lFLAILUPGRADECOSTS(2) = 200 '  2 -> 3
+    lFLAILUPGRADECOSTS(3) = 400 '  3 -> 4
+    lFLAILUPGRADECOSTS(4) = 1000 '  4 -> 5
+    lFLAILUPGRADECOSTS(5) = 2500 ' 5 -> 6
+    lFLAILUPGRADECOSTS(6) = 5000 ' 6 -> 7
+    lFLAILUPGRADECOSTS(7) = 10000 ' 7 -> 8
+    lFLAILUPGRADECOSTS(8) = 50000 ' 8 -> 9
+    lFLAILUPGRADECOSTS(9) = 100000 ' 9 -> 10
 End Sub
 
 Function healthDISPLAYAMOUNT(intINDEX As Integer) As Long ' get display amount from index
@@ -199,7 +201,7 @@ Sub updateLABELS()
         End If
         cmdHEAL(nC).Caption = "Heal " & healthDISPLAYAMOUNT(nC) & " - $" & healCOST(nC) & "0" ' display health amount and cost
         
-        If healthAMOUNT(nC) <= lMONEY Then ' if you have enough money to buy morehealth
+        If healthAMOUNT(nC) <= lMONEY And lCASTLEMAXHEALTH + healthAMOUNT(nC) <= 10000 Then ' if you have enough money to buy morehealth
             cmdMOREHEALTH(nC).Enabled = True ' you can buy this much morehealth
         Else
             cmdMOREHEALTH(nC).Enabled = False ' you can't buy this much morehealth

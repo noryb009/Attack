@@ -11,6 +11,7 @@ Global currentSTATE As String ' used for online mode to see what state the game 
 
 Global cSERVER(0 To 0) As New clsCONNECTION ' connection to server
 Global strPLAYERLIST() As String ' list of players
+Global strCHATLOG(0 To 15) As String ' last few messages
 
 Global imagePATH As String ' path to images
 

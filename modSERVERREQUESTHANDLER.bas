@@ -18,6 +18,9 @@ Sub sckDISCONNECTED(lARRAYID As Long) ' handle client disconnection
     
     If intPLAYERS = 0 Then ' nobody playing
         bFORCEEXIT = True ' stop server
+        If lCASTLECURRENTHEALTH = 0 Then ' if out of health
+             lCASTLECURRENTHEALTH = 1 ' set to 10 health
+        End If
     End If
 End Sub
 
@@ -198,10 +201,14 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             Dim strHEALPARTS() As String
             strHEALPARTS = Split(strDESCRIPTION, "~", 2) ' split into (cost, amount healed)
             If UBound(strHEALPARTS) = 1 Then ' if enough parts
-                lMONEY = lMONEY - CLng(strHEALPARTS(0)) ' take away money
-                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
-                lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strHEALPARTS(1)) ' heal
-                broadcast "health", CLng(lCASTLECURRENTHEALTH) ' update other clients with new health
+                If lMONEY - CLng(strHEALPARTS(0)) >= 0 Then ' if you have enough money
+                    lMONEY = lMONEY - CLng(strHEALPARTS(0)) ' take away money
+                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+                    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strHEALPARTS(1)) ' heal
+                    broadcast "health", CLng(lCASTLECURRENTHEALTH) ' update other clients with new health
+                Else
+                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast money to sync
+                End If
             Else ' bad command
                 log "Bad 'heal' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log the bad command
             End If
@@ -209,12 +216,16 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             Dim strADDHEALTHPARTS() As String
             strADDHEALTHPARTS = Split(strDESCRIPTION, "~", 2) ' split into (cost, amount to raise max health)
             If UBound(strADDHEALTHPARTS) = 1 Then ' if enough parts
-                lMONEY = lMONEY - CLng(strADDHEALTHPARTS(0)) ' cost
-                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
-                lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + CLng(strADDHEALTHPARTS(1)) ' more health
-                broadcast "maxHealth", CLng(lCASTLEMAXHEALTH) ' broadcast new max health
-                lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strADDHEALTHPARTS(1)) ' heal
-                broadcast "health", CLng(lCASTLECURRENTHEALTH) ' broadcast new health
+                If lMONEY - CLng(strADDHEALTHPARTS(0)) >= 0 Then ' if you have enough money
+                    lMONEY = lMONEY - CLng(strADDHEALTHPARTS(0)) ' cost
+                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+                    lCASTLEMAXHEALTH = lCASTLEMAXHEALTH + CLng(strADDHEALTHPARTS(1)) ' more health
+                    broadcast "maxHealth", CLng(lCASTLEMAXHEALTH) ' broadcast new max health
+                    lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH + CLng(strADDHEALTHPARTS(1)) ' heal
+                    broadcast "health", CLng(lCASTLECURRENTHEALTH) ' broadcast new health
+                Else
+                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast money to sync
+                End If
             Else ' bad command
                 log "Bad 'addHealth' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log bad command
             End If
@@ -222,18 +233,22 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             Dim strBUYPARTS() As String
             strBUYPARTS = Split(strDESCRIPTION, "~", 2) ' split into (upgrade what, cost)
             If UBound(strBUYPARTS) = 1 Then ' if enough parts
-                If strBUYPARTS(0) = "power" Then ' if buying power
-                    intFLAILPOWER = intFLAILPOWER + 1 ' increase power
-                    broadcast "flaPower", CStr(intFLAILPOWER) ' broadcast new power
-                ElseIf strBUYPARTS(0) = "goThrough" Then ' if buying go through
-                    intFLAILGOTHROUGH = intFLAILGOTHROUGH + 1 ' increase go through
-                    broadcast "flaGoThrough", CStr(intFLAILGOTHROUGH) ' broadcast go through
-                Else 'If strBUYPARTS(0) = "amount" Then ' if buying amount
-                    intFLAILAMOUNT = intFLAILAMOUNT + 1 ' increase amount
-                    broadcast "flaAmount", CStr(intFLAILAMOUNT) ' broadcast amount
+                If lMONEY - CLng(strBUYPARTS(1)) >= 0 Then ' if you have enough money
+                    If strBUYPARTS(0) = "power" Then ' if buying power
+                        intFLAILPOWER = intFLAILPOWER + 1 ' increase power
+                        broadcast "flaPower", CStr(intFLAILPOWER) ' broadcast new power
+                    ElseIf strBUYPARTS(0) = "goThrough" Then ' if buying go through
+                        intFLAILGOTHROUGH = intFLAILGOTHROUGH + 1 ' increase go through
+                        broadcast "flaGoThrough", CStr(intFLAILGOTHROUGH) ' broadcast go through
+                    Else 'If strBUYPARTS(0) = "amount" Then ' if buying amount
+                        intFLAILAMOUNT = intFLAILAMOUNT + 1 ' increase amount
+                        broadcast "flaAmount", CStr(intFLAILAMOUNT) ' broadcast amount
+                    End If
+                    lMONEY = lMONEY - CLng(strBUYPARTS(1)) ' money spent
+                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
+                Else
+                    broadcast "moneyTotal", CStr(lMONEY) ' broadcast money to sync
                 End If
-                lMONEY = lMONEY - CLng(strBUYPARTS(1)) ' money spent
-                broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
             Else ' bad command
                 log "Bad 'buy' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log bad command
             End If

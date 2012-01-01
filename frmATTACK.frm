@@ -6,34 +6,17 @@ Begin VB.Form frmATTACK
    ClientLeft      =   825
    ClientTop       =   1365
    ClientWidth     =   4170
+   DrawWidth       =   10
    LinkTopic       =   "Form1"
    ScaleHeight     =   92
    ScaleMode       =   3  'Pixel
    ScaleWidth      =   278
    StartUpPosition =   2  'CenterScreen
-   Begin VB.Timer timerMAIN 
+   Begin VB.Timer timerSTART 
       Enabled         =   0   'False
-      Interval        =   40
+      Interval        =   1
       Left            =   960
       Top             =   600
-   End
-   Begin VB.Label lblSCORE 
-      BackStyle       =   0  'Transparent
-      Caption         =   "lblSCORE"
-      BeginProperty Font 
-         Name            =   "Times New Roman"
-         Size            =   12
-         Charset         =   0
-         Weight          =   400
-         Underline       =   0   'False
-         Italic          =   0   'False
-         Strikethrough   =   0   'False
-      EndProperty
-      Height          =   255
-      Left            =   240
-      TabIndex        =   0
-      Top             =   120
-      Width           =   3495
    End
    Begin VB.Line lineAIM 
       Visible         =   0   'False
@@ -57,14 +40,17 @@ Attribute VB_Exposed = False
 Dim cbitBACKGROUND As New clsBITMAP ' static background
 Dim csprCASTLE As New clsSPRITE ' castle with different health ranges
 Dim cbitBUFFER As New clsBITMAP ' buffer
+Dim csprFONT As New clsSPRITE ' font
 Dim cbitHEALTH As New clsBITMAP ' health bar
+
+Dim strNEWCHATMSG As String ' new chat message
 
 Const keepX = 338 ' X location of flail starting point
 Const keepY = 190 ' Y location of flail starting point
 
 Const castleTOPMARGIN = 150 ' space above top of castle image
 
-Private Sub Form_Activate()
+Sub playGAME()
     Dim currSTARTTIME As Currency ' starting time
     Dim currCURRENTTIME As Currency ' current time
     'Dim currFREQUENCY As Currency ' frame frequency
@@ -94,14 +80,16 @@ Private Sub Form_Activate()
         DoEvents ' do any events needed to be done
     Loop
     
-    drawEVERYTHING ' draw everything a final time
+    If lCASTLECURRENTHEALTH <= 0 Then ' if you died
+        lCASTLECURRENTHEALTH = 0 ' reset health
+    End If
     
     If bFORCEEXIT = False And onlineMODE = False Then ' if program not exiting and not online
+        drawEVERYTHING ' draw everything a final time
         lineAIM.Visible = False ' hide aim line
         If lCASTLECURRENTHEALTH <= 0 Then ' if you died
-            lCASTLECURRENTHEALTH = 0 ' reset health
-            If lLEVELMONEY <> 0 Then ' if you have money
-                MsgBox "Your castle has fallen! At least you got to keep half of your loot, $" & lLEVELMONEY \ 2 & "0." ' alert user they keep half of their money
+            If lLEVELMONEY < 2 Then ' if you have money (1\2 rounds down to 0)
+                MsgBox "Your castle has fallen! You keep half of your money for this level, $" & lLEVELMONEY \ 2 & "0." ' alert user they keep half of their money
                 lMONEY = safeADDLONG(lMONEY, lLEVELMONEY \ 2) ' add half your money
             Else ' you don't have any money
                 MsgBox "Your castle has fallen!" ' alert user that they lost
@@ -125,6 +113,29 @@ Private Sub Form_Activate()
     End If
     
     Unload frmATTACK ' hide this form
+End Sub
+
+Private Sub Form_KeyPress(KeyAscii As Integer)
+    If onlineMODE = True Then ' if online
+        If KeyAscii >= vbKeySpace And KeyAscii <= 126 Then ' if in visible ascii key set (" " to "~")
+            If Len(strNAME) + 2 + Len(strNEWCHATMSG) < maxLENGTHOFMSGINGAME Then ' enough room for extra char (2 is for Len(": "))
+                strNEWCHATMSG = strNEWCHATMSG & Chr$(KeyAscii) ' add the char
+            Else ' not enough room for extra char
+                Beep ' error sound
+            End If
+        ElseIf KeyAscii = vbKeyBack Then ' backspace
+            If Len(strNEWCHATMSG) > 1 Then ' if more then 1 char
+                strNEWCHATMSG = Left$(strNEWCHATMSG, Len(strNEWCHATMSG) - 1) ' remove last char
+            Else ' one or less chars
+                strNEWCHATMSG = "" ' remove everything
+            End If
+        ElseIf KeyAscii = vbKeyReturn Then ' user pressed enter, send message
+            If strNEWCHATMSG <> "" Then ' if you have something written
+                cSERVER(0).sendString "chat", strNEWCHATMSG ' send message
+                strNEWCHATMSG = "" ' clear message
+            End If
+        End If
+    End If
 End Sub
 
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
@@ -198,6 +209,37 @@ Sub drawBUFFER() ' draw buffer to screen
     StretchBlt frmATTACK.hdc, 0, 0, frmATTACK.ScaleWidth, frmATTACK.ScaleHeight, cbitBUFFER.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, vbSrcCopy ' copy buffer to screen
     
     frmATTACK.Refresh ' refresh screen
+End Sub
+
+Function widthOFTEXT(ByRef strTEXT) As Long
+    widthOFTEXT = Len(strTEXT) * csprFONT.width
+End Function
+
+Sub writeONIMAGE(ByVal strTEXT As String, lDESTDC As Long, ByVal x As Long, y As Long, lMAXWIDTH As Long)
+    If lMAXWIDTH <> -1 And lMAXWIDTH < Len(strTEXT) Then ' if string can't fit in spot
+        If lMAXWIDTH > 3 Then ' if enough room for "..."
+            strTEXT = Left$(strTEXT, lMAXWIDTH - 3) ' get the most amount of text that can fit in the spot
+            strTEXT = strTEXT + "..." ' add "..." to the end
+        Else ' not enough room for "..."
+            strTEXT = Left(strTEXT, lMAXWIDTH) ' get the most amount of text that can fit in the spot
+        End If
+    End If
+    
+    Dim nC As Integer
+    nC = 0
+    Dim lTEXTLEN As Long ' length of strTEXT
+    lTEXTLEN = Len(strTEXT)
+    Dim intCURRENTCHAR As Integer ' current letter in integer form
+    Do While nC < lTEXTLEN
+        intCURRENTCHAR = Asc(Mid$(strTEXT, nC + 1, 1)) ' get the character number of the current letter
+        If intCURRENTCHAR > 127 Then ' out of ascii key set
+            intCURRENTCHAR = 0 ' set to 0, nothing
+        End If
+        BitBlt lDESTDC, x, y, csprFONT.width, csprFONT.height, csprFONT.frameMaskhDC(intCURRENTCHAR), 0, 0, vbSrcAnd
+        BitBlt lDESTDC, x, y, csprFONT.width, csprFONT.height, csprFONT.framehDC(intCURRENTCHAR), 0, 0, vbSrcPaint
+        x = x + csprFONT.width
+        nC = nC + 1
+    Loop
 End Sub
 
 Sub spawnMONSTER() ' spawn a monster
@@ -293,7 +335,7 @@ Sub drawEVERYTHING() ' draw everything to the screen
     ' draw background
     BitBlt cbitBUFFER.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBACKGROUND.hdc, 0, 0, vbSrcCopy
     
-    'draw castle
+    ' draw castle
     If lCASTLECURRENTHEALTH > 0 Then ' if you still have health
         nC = (csprCASTLE.numberOfFrames - 1) \ (lCASTLEMAXHEALTH / lCASTLECURRENTHEALTH) ' use castle image that is closest to your health level
     Else ' if you are dead
@@ -334,19 +376,46 @@ Sub drawEVERYTHING() ' draw everything to the screen
         Loop
     End If
     
-    'draw health
-    If lCASTLECURRENTHEALTH >= 0 Then ' if you still have health
-        BitBlt cbitBUFFER.hdc, 10, windowY - cbitHEALTH.height - 20, 30 + ((cbitHEALTH.width - 30) * (lCASTLECURRENTHEALTH / lCASTLEMAXHEALTH)), cbitHEALTH.height, cbitHEALTH.hdc, 0, 0, vbSrcCopy ' display health
+    ' draw your username
+    writeONIMAGE strNAME, cbitBUFFER.hdc, 10, 455, -1
+    
+    ' draw health
+    writeONIMAGE "Health", cbitBUFFER.hdc, 10, 470, -1
+    If lCASTLECURRENTHEALTH > 0 Then ' if you still have health
+        BitBlt cbitBUFFER.hdc, 60, 470, cbitHEALTH.width * (lCASTLECURRENTHEALTH / lCASTLEMAXHEALTH), cbitHEALTH.height, cbitHEALTH.hdc, 0, 0, vbSrcCopy ' display health
+        'writeONIMAGE lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX - 10 - widthOFTEXT(lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0"), 475, -1
+        writeONIMAGE lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, (windowX - widthOFTEXT(lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0")) \ 2, 485, -1
     Else
-        BitBlt cbitBUFFER.hdc, 10, windowY - cbitHEALTH.height - 20, 30, cbitHEALTH.height, cbitHEALTH.hdc, 0, 0, vbSrcCopy ' display empty health bar
+        writeONIMAGE "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX - 10 - widthOFTEXT("0/" & lCASTLEMAXHEALTH & "0"), 485, -1
+    End If
+    
+    ' draw score
+    If lLEVELMONEY <> 0 Then ' if you have score
+        writeONIMAGE "Score: " & lLEVELMONEY & "0", cbitBUFFER.hdc, windowX - widthOFTEXT("Score: " & lLEVELMONEY & "0") - 10, 455, -1 ' display score
+    Else
+        writeONIMAGE "Score: 0", cbitBUFFER.hdc, windowX - widthOFTEXT("Score: 0") - 10, 455, -1 ' display your score (0, not 00)
+    End If
+    
+    If onlineMODE = True Then ' if online
+        ' draw chat log
+        If strNEWCHATMSG <> "" Then ' if typing
+            nC = 0 ' show all messages in the chat log
+        Else ' not typing
+            nC = UBound(strCHATLOG) - 2 ' show last 3 messages in chat log
+        End If
+        Do While nC <= UBound(strCHATLOG)
+            If strCHATLOG(nC) <> "" Then ' if not empty
+                writeONIMAGE strCHATLOG(nC), cbitBUFFER.hdc, 5, 200 + (nC * csprFONT.height), maxLENGTHOFMSGINGAME ' write message to screen
+            End If
+            nC = nC + 1
+        Loop
+        ' draw message you are currently editing
+        If strNEWCHATMSG <> "" Then
+            writeONIMAGE strNAME & ": " & strNEWCHATMSG, cbitBUFFER.hdc, 5, 200 + (UBound(strCHATLOG) * csprFONT.height) + csprFONT.height, -1 ' write new message to screen
+        End If
     End If
     
     drawBUFFER ' draw buffer to the screen
-    If lLEVELMONEY <> 0 Then ' if you have score
-        lblSCORE.Caption = "Score: " & lLEVELMONEY & "0" ' display score
-    Else
-        lblSCORE.Caption = "Score: 0" ' display your score (0, not 00)
-    End If
 End Sub
 
 Private Sub Form_Load()
@@ -358,6 +427,11 @@ Private Sub Form_Load()
     bLOADED = bLOADED And csprCASTLE.loadFRAMES(imagePATH & "castle.bmp", 211, 226, False, True)
     
     bLOADED = bLOADED And cbitHEALTH.loadFILE(imagePATH & "health.bmp")
+    
+    bLOADED = bLOADED And csprFONT.loadFRAMES(imagePATH & "font.bmp", 7, 14, False, True)
+    If csprFONT.numberOfFrames <> 128 Then ' if wrong number of frames
+        bLOADED = False ' error
+    End If
     
     bLOADED = bLOADED And cbitBUFFER.createNewImage(windowX, windowY)
     
@@ -375,6 +449,7 @@ Private Sub Form_Load()
     intMONSTERSATTACKEDCASTLE = 0
     intCURRENTMONSTER = 0
     lMONSTERSPAWNCOOLDOWN = 0
+    strNEWCHATMSG = ""
     ReDim arrTOBEMONSTERS(0 To 0)
     If onlineMODE = False Then ' single player
         sngMOVESPEED = 1 + (lCURRENTLEVEL / 10)
@@ -431,9 +506,14 @@ Private Sub Form_Load()
     frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border
     frmATTACK.height = (windowY + (frmATTACK.height / Screen.TwipsPerPixelY) - frmATTACK.ScaleHeight) * Screen.TwipsPerPixelY ' height = height + border
     
-    'timerMAIN.Enabled = True
+    timerSTART.Enabled = True ' start game after timer ticks
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer) ' on form close
     bFORCEEXIT = True ' stop game loop if still running
+End Sub
+
+Private Sub timerSTART_Timer()
+    timerSTART.Enabled = False ' disable timer
+    playGAME ' play the game
 End Sub
