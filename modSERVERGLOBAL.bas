@@ -89,7 +89,8 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
             lADDTOSCORE = arrFLAILS(nC).moveFLAIL ' move flail and get score to add
             If lADDTOSCORE <> 0 Then ' if flail hit something
                 cCLIENTINFO(arrFLAILS(nC).lOWNER).lLEVELSCORE = safeADDLONG(cCLIENTINFO(arrFLAILS(nC).lOWNER).lLEVELSCORE, lADDTOSCORE) ' add score
-                cCLIENTS(arrFLAILS(nC).lOWNER).sendString "moneyLevel", CStr(cCLIENTINFO(arrFLAILS(nC).lOWNER).lLEVELSCORE) ' alert owner of new current score
+                'cCLIENTS(arrFLAILS(nC).lOWNER).sendString "moneyLevel", CStr(cCLIENTINFO(arrFLAILS(nC).lOWNER).lLEVELSCORE) ' alert owner of new current score
+                broadcast "playerScore", CStr(arrFLAILS(nC).lOWNER) & "\" & CStr(cCLIENTINFO(arrFLAILS(nC).lOWNER).lLEVELSCORE)
             End If
             If arrFLAILS(nC).bACTIVE = False Then ' if flail got deactivated
                 broadcastFLAIL nC, False ' broadcast that flail is no longer active
@@ -265,7 +266,7 @@ Public Sub startGAME() ' start the game
         Loop
         
         If lWINNEROFROUND <> -1 Then ' if found a winner
-            broadcast "chat", cCLIENTINFO(lWINNEROFROUND).strNAME & " won the round with a score of " & cCLIENTINFO(lWINNEROFROUND).lLEVELSCORE & "0!" ' broadcast winner of round
+            broadcast "chat", formatCHATMSG(cCLIENTINFO(lWINNEROFROUND).strNAME, lPLAYERCOLOURS(lWINNEROFROUND)) & formatCHATMSG(" won the round with a score of " & cCLIENTINFO(lWINNEROFROUND).lLEVELSCORE & "0!") ' broadcast winner of round
         End If
         
         ' reset client vars
@@ -358,6 +359,18 @@ Sub broadcastFLAIL(lFLAILNUMBER As Long, bCLEARGOTHROUGH As Boolean) ' send one 
     broadcast "updateFlail", getFLAILINFO(lFLAILNUMBER, bCLEARGOTHROUGH) ' send flail info
 End Sub
 
+Function formatCHATMSG(ByVal strMESSAGE As String, Optional lCOLOUR As Long = vbBlack, Optional lBOLD As Long = -1) As String
+    strMESSAGE = Replace(strMESSAGE, "&", "&amp;") ' escape &
+    strMESSAGE = Replace(strMESSAGE, "\", "&bslash;") ' escape \
+    strMESSAGE = Replace(strMESSAGE, "~", "&tide;") ' escape ~
+    
+    If (lBOLD = -1 And lCOLOUR <> vbBlack) Or lBOLD = 1 Then ' if force bold or (detect bold mode and message is coloured)
+        formatCHATMSG = CStr(lCOLOUR) & "\" & CStr(True) & "\" & strMESSAGE & "~" ' colour\bold\message~colour\message~...
+    Else ' if force not bold or (detect bold mode and message is not coloured)
+        formatCHATMSG = CStr(lCOLOUR) & "\" & CStr(False) & "\" & strMESSAGE & "~" ' colour\bold\message~colour\message~...
+    End If
+End Function
+
 Public Sub spawnMONSTER() ' spawn a monster
     Dim nC As Long
     nC = 0
@@ -369,28 +382,30 @@ Public Sub spawnMONSTER() ' spawn a monster
             arrMONSTERS(nC).sngX = Int(Rnd() * 2) ' randomize starting side
             If arrMONSTERS(nC).sngX = 0 Then ' if on left side
                 arrMONSTERS(nC).sngX = 0 - cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH ' start at left side
-                arrMONSTERS(nC).sngMOVINGH = 1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngSPEED ' go right
+                arrMONSTERS(nC).sngMOVINGH = 1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngXSPEED ' go right
             Else ' if on right side
-                arrMONSTERS(nC).sngX = windowX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH ' start of right side
-                arrMONSTERS(nC).sngMOVINGH = -1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngSPEED ' go left
+                arrMONSTERS(nC).sngX = windowX ' start of right side
+                arrMONSTERS(nC).sngMOVINGH = -1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngXSPEED ' go left
             End If
             arrMONSTERS(nC).sngY = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intSTARTINGY ' start at starting Y location
+            arrMONSTERS(nC).sngMOVINGV = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngYSPEED ' set vertical going down speed
             arrMONSTERS(nC).intHEALTH = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intMAXHEALTH ' set to max health
             
+            intCURRENTMONSTER = intCURRENTMONSTER + 1 ' one more monster placed
+            broadcastMONSTER nC ' broadcast new monster
             Exit Do ' found empty monster spot, continue
         End If
         nC = nC + 1 ' next monster spot
     Loop
-    intCURRENTMONSTER = intCURRENTMONSTER + 1 ' one more monster placed
-    broadcastMONSTER nC ' broadcast new monster
 End Sub
 
 ' load monster info
-Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0)
     cmontypeMONSTERINFO(intNUMBER).intPOINTCOST = intPOINTCOST ' load point cost
     cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH ' load health
     cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER ' load attack power
-    cmontypeMONSTERINFO(intNUMBER).sngSPEED = sngSPEED ' load monster speed
+    cmontypeMONSTERINFO(intNUMBER).sngXSPEED = sngXSPEED ' load vertical speed
+    cmontypeMONSTERINFO(intNUMBER).sngYSPEED = sngYSPEED ' load horizontal speed
     If intSTARTINGY = -1 Then ' default: ground
         cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = landHEIGHT - lIMAGEHEIGHT ' start at land - image height, so feet are on land
     Else ' not on ground
@@ -405,7 +420,8 @@ End Sub
 Sub Main() ' program init
     Randomize ' randomize random numbers
     
-    loadMONSTERINFO ' load monster info int cmontypeMONSTERINFO()
+    loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO()
+    loadPLAYERCOLOURS ' load player colour info into playerCOLOURS()
     
     Dim nC As Integer
     nC = 0

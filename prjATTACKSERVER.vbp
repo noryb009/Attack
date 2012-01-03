@@ -1,6 +1,6 @@
 Type=Exe
-Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\WINDOWS\system32\stdole2.tlb#OLE Automation
-Reference=*\G{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0#C:\WINDOWS\system32\mswinsck.ocx#Microsoft Winsock Control 6.0
+Reference=*\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\Windows\SysWOW64\stdole2.tlb#OLE Automation
+Reference=*\G{248DD890-BB45-11CF-9ABC-0080C7E7B78D}#1.0#0#C:\Windows\SysWow64\mswinsck.ocx#Microsoft Winsock Control 6.0
 Form=frmSERVER.frm
 Class=clsCONNECTION; clsCONNECTION.cls
 Module=modGLOBAL; modSERVERGLOBAL.bas
@@ -15,7 +15,6 @@ Startup="Sub Main"
 HelpFile=""
 Title="prjATTACKSERVER"
 ExeName32="prjATTACKSERVER.exe"
-Path32="\\Vboxsvr\usb\School\Attack"
 Command32=""
 Name="AttackServer"
 HelpContextID="0"

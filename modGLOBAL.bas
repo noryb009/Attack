@@ -10,7 +10,7 @@ Global onlineMODE As Boolean ' if playing singleplayer/multiplayer
 Global currentSTATE As String ' used for online mode to see what state the game is at (lobby, playing, buying, etc.)
 
 Global cSERVER(0 To 0) As New clsCONNECTION ' connection to server
-Global strPLAYERLIST() As String ' list of players
+Global ccinfoPLAYERINFO(0 To MAXCLIENTS - 1) As New clsCLIENTINFO ' list of players
 Global strCHATLOG(0 To 15) As String ' last few messages
 
 Global imagePATH As String ' path to images
@@ -154,7 +154,7 @@ Public Function escapeQUOTES(strINPUT As String) As String
 End Function
 
 ' load monster info into cmontypeMONSTERINFO
-Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer)
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0)
     Dim bSUCCESS As Boolean ' successful
     bSUCCESS = True ' default: true
     
@@ -169,7 +169,8 @@ Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As
     cmontypeMONSTERINFO(intNUMBER).intPOINTCOST = intPOINTCOST ' load point cost
     cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH ' load health
     cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER ' load attack power
-    cmontypeMONSTERINFO(intNUMBER).sngSPEED = sngSPEED ' load speed
+    cmontypeMONSTERINFO(intNUMBER).sngXSPEED = sngXSPEED ' load vertical speed
+    cmontypeMONSTERINFO(intNUMBER).sngYSPEED = sngYSPEED ' load horizontal speed
     If intSTARTINGY = -1 Then ' default: ground
         cmontypeMONSTERINFO(intNUMBER).intSTARTINGY = landHEIGHT - arrcMONSTERPICS(intNUMBER).height ' Y is land height - image height, so feet are on ground
     Else ' special Y location
@@ -191,7 +192,9 @@ Sub Main()
     Dim bSUCCESS As Boolean
     bSUCCESS = True ' successful so far
     
-    loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO
+    
+    loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO()
+    loadPLAYERCOLOURS ' load player colour info into playerCOLOURS()
     
     bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(imagePATH & "flail.bmp", 14, 14, False, True) ' load flail image
     If csprFLAIL.numberOfFrames <> MAXCLIENTS Then ' if wrong number of frames

@@ -1,14 +1,17 @@
 VERSION 5.00
 Begin VB.Form frmNEWGAME 
+   BorderStyle     =   1  'Fixed Single
    Caption         =   "New Game"
    ClientHeight    =   2940
-   ClientLeft      =   60
-   ClientTop       =   450
+   ClientLeft      =   -15
+   ClientTop       =   375
    ClientWidth     =   4215
    LinkTopic       =   "Form1"
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
    ScaleHeight     =   2940
    ScaleWidth      =   4215
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton cmdMULTI 
       Caption         =   "Multi player"
       Height          =   375

@@ -116,6 +116,87 @@ Sub syncFLAILS(strALLFLAINFO As String) ' sync all the flails from the server
     End If
 End Sub
 
+Public Sub handleCHAT(strMESSAGE As String)
+    If currentSTATE <> "lobby" And currentSTATE <> "lobbyShop" And currentSTATE <> "playing" Then ' if not in lobby or game area
+        Exit Sub ' exit
+    End If
+    
+    Dim strMESSAGEPARTS() As String ' message, separated by colour switches ("colour\message")
+    Dim strPARTSOFMESSAGEPART() As String ' strMESSAGEPARTS parts ("colour", "message")
+    Dim lCOLOUR As Long ' colour part of message
+    Dim bBOLD As Boolean ' bold message or not
+    Dim strONEMESSAGEPART As String ' text part of message
+    
+    Dim nC As Integer
+    
+    ' before loop
+    If currentSTATE = "playing" Then ' if playing
+        ' bump old messages in chat log
+        nC = 0
+        Do While nC < UBound(strCHATLOG) ' for each (not last) chat log place
+            strCHATLOG(nC) = strCHATLOG(nC + 1) ' move message below up
+            nC = nC + 1 ' next chat log spot
+        Loop
+        strCHATLOG(UBound(strCHATLOG)) = "" ' clear current chat log place
+    Else ' in lobby
+        If frmLOBBY.rtbCHATLOG.Text <> "" Then ' if not empty
+            frmLOBBY.rtbCHATLOG.SelStart = Len(frmLOBBY.rtbCHATLOG.Text)
+            frmLOBBY.rtbCHATLOG.SelText = vbCrLf ' add newline
+        End If
+    End If
+    
+    strMESSAGEPARTS = Split(strMESSAGE, "~") ' split message into colour and text parts
+    
+    nC = 0
+    Do While nC <= UBound(strMESSAGEPARTS) ' for each message part
+        If nC = UBound(strMESSAGEPARTS) And strMESSAGEPARTS(nC) = "" Then ' if nothing on last message part
+            Exit Do ' exit
+        End If
+        If InStr(strMESSAGEPARTS(nC), "\") <> 0 Then ' if includes colour info
+            strPARTSOFMESSAGEPART = Split(strMESSAGEPARTS(nC), "\", 3) ' strPARTSOFMESSAGEPART="colour", "message"
+            If UBound(strPARTSOFMESSAGEPART) <> 2 Then ' if not enough parts
+                lCOLOUR = vbBlack ' default: black
+                bBOLD = False ' default: not bold
+                strONEMESSAGEPART = strMESSAGEPARTS(nC) ' get the full message
+            Else ' enough parts
+                If strPARTSOFMESSAGEPART(0) = "" Then ' if colour not included
+                    lCOLOUR = vbBlack ' default: black
+                Else ' colour is included
+                    lCOLOUR = CLng(strPARTSOFMESSAGEPART(0)) ' get the colour
+                End If
+                bBOLD = CBool(strPARTSOFMESSAGEPART(1)) ' get the boldness
+                strONEMESSAGEPART = strPARTSOFMESSAGEPART(2) ' get the message
+                strONEMESSAGEPART = Replace(strONEMESSAGEPART, "&tide;", "~") ' unescape ~
+                strONEMESSAGEPART = Replace(strONEMESSAGEPART, "&bslash;", "\") ' unescape \
+                strONEMESSAGEPART = Replace(strONEMESSAGEPART, "&amp;", "&") ' unescape &
+            End If
+        Else
+            lCOLOUR = vbBlack
+            strONEMESSAGEPART = strMESSAGEPARTS(nC)
+        End If
+        If currentSTATE = "playing" Then ' if playing
+            strCHATLOG(UBound(strCHATLOG)) = strCHATLOG(UBound(strCHATLOG)) & strONEMESSAGEPART ' add string without colour info
+        Else ' in lobby
+            frmLOBBY.rtbCHATLOG.SelStart = Len(frmLOBBY.rtbCHATLOG.Text) ' start selection at end of text
+            frmLOBBY.rtbCHATLOG.SelText = strONEMESSAGEPART ' add new message
+            frmLOBBY.rtbCHATLOG.SelStart = Len(frmLOBBY.rtbCHATLOG.Text) - Len(strONEMESSAGEPART) ' start selection at start of new message
+            frmLOBBY.rtbCHATLOG.SelLength = Len(strONEMESSAGEPART) ' select new message
+            frmLOBBY.rtbCHATLOG.SelColor = lCOLOUR ' change colour
+            frmLOBBY.rtbCHATLOG.SelBold = bBOLD ' change boldness
+        End If
+        nC = nC + 1
+    Loop
+    
+    If currentSTATE = "playing" Then ' if playing
+        ' cut off end of message if longer then max chars
+        If Len(strTEXT) > maxLENGTHOFMSGINGAME Then ' if message is longer then max length for in game
+            strCHATLOG(UBound(strCHATLOG)) = Left$(strCHATLOG(UBound(strCHATLOG)), maxLENGTHOFMSGINGAME - 3) & "..." ' cut off message, and add a "..."
+        End If
+    Else ' in lobby
+        frmLOBBY.scrollDOWNCHATLOG ' scroll down chat log to show newest message
+    End If
+End Sub
+
 Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION As String)
     Dim nC As Integer ' counter to use in select
     nC = 0
@@ -141,18 +222,45 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             End If
         Case "playerList" ' player list update
             If strDESCRIPTION <> "" Then ' if received names
-                strPLAYERLIST = Split(strDESCRIPTION, "~") ' split names
-                ' intPLAYERS is used as a counter
+                Dim strPLAYERLIST() As String
+                strPLAYERLIST = Split(strDESCRIPTION, "~") ' split players
+                If UBound(strPLAYERLIST) + 1 <> MAXCLIENTS Then ' bad command
+                    Exit Sub ' exit
+                End If
+                Dim strONEPLAYER() As String ' one player's info, score (long), ready (boolean), "playersnamewithescapedchars: &amp;"
                 intPLAYERS = 0 ' reset number of players
-                Do While intPLAYERS <= UBound(strPLAYERLIST) ' for each player
-                    ' replace special chars
-                    strPLAYERLIST(nC) = Replace(strPLAYERLIST(nC), "&tide;", "~")
-                    strPLAYERLIST(nC) = Replace(strPLAYERLIST(nC), "&amp;", "&")
-                    intPLAYERS = intPLAYERS + 1 ' next player
+                nC = 0
+                Do While nC < MAXCLIENTS ' for each player
+                    strONEPLAYER = Split(strPLAYERLIST(nC), "\", 3) ' separate score, ready state and name
+                    If UBound(strONEPLAYER) = 2 Then ' if player exists
+                        intPLAYERS = intPLAYERS + 1 ' one more player
+                        ccinfoPLAYERINFO(nC).lLEVELSCORE = CLng(strONEPLAYER(0))
+                        ccinfoPLAYERINFO(nC).bREADY = CBool(strONEPLAYER(1))
+                        ccinfoPLAYERINFO(nC).strNAME = Replace(strONEPLAYER(2), "&tide;", "~") ' unescape ~
+                        ccinfoPLAYERINFO(nC).strNAME = Replace(ccinfoPLAYERINFO(nC).strNAME, "&amp;", "&") ' unescape &
+                    Else ' player doesn't exist
+                        ccinfoPLAYERINFO(nC).reset
+                    End If
+                    nC = nC + 1 ' next player
                 Loop
                 If currentSTATE = "lobby" Or currentSTATE = "lobbyShop" Then ' if in lobby
                     frmLOBBY.updatePLAYERLIST ' update player list in lobby
                 End If
+            End If
+        Case "readyState" ' update on user's ready state
+            Dim strSTATEPARTS() As String
+            strSTATEPARTS = Split(strDESCRIPTION, "\") ' split description into arrayNumber, readyOrNot
+            If UBound(strSTATEPARTS) = 1 Then ' if enough parts
+                ccinfoPLAYERINFO(CLng(strSTATEPARTS(0))).bREADY = CBool(strSTATEPARTS(1)) ' copy ready state
+            End If
+            If currentSTATE = "lobby" Or currentSTATE = "lobbyShop" Then ' if in lobby
+                frmLOBBY.updatePLAYERLIST ' update player list in lobby
+            End If
+        Case "playerScore" ' update on user's level score
+            Dim strSCOREPARTS() As String
+            strSCOREPARTS = Split(strDESCRIPTION, "\") ' split description into arrayNumber, levelScore
+            If UBound(strSCOREPARTS) = 1 Then ' if enough parts
+                ccinfoPLAYERINFO(CLng(strSCOREPARTS(0))).lLEVELSCORE = CLng(strSCOREPARTS(1)) ' copy level score
             End If
         Case "disableReadyButton" ' countdown has started, disable ready button
             If currentSTATE = "lobbyShop" Then  ' if in shop
@@ -189,7 +297,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                         frmSTORE.Show ' show the shop
                         currentSTATE = "lobbyShop" ' currently in lobby and shop
                     End If
-                    frmLOBBY.txtCHATLOG.Text = "You lost the level!" ' alert user that they lost
+                    frmLOBBY.rtbCHATLOG.Text = "You lost the level!" ' alert user that they lost
                 Else ' won game
                     bEXIT = True ' stop playing game
                     If strDESCRIPTION = "stopWin" Then ' didn't have highest score in round
@@ -201,7 +309,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                         frmSTORE.Show ' show the shop
                         currentSTATE = "lobbyShop" ' currently in lobby and shop
                     End If
-                    frmLOBBY.txtCHATLOG.Text = "You won the level!" ' alert user that they lost
+                    frmLOBBY.rtbCHATLOG.Text = "You won the level!" ' alert user that they lost
                 End If
                 Unload frmATTACK ' hide game form
             End If
@@ -225,10 +333,10 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             If currentSTATE = "lobbyShop" Then ' if in the shop
                 frmSTORE.updateLABELS ' update labels inside the store
             End If
-        Case "moneyLevel" ' level money update
-            If strDESCRIPTION <> "" Then ' if not bad command
-                lLEVELMONEY = CLng(strDESCRIPTION) ' update the money for the current level
-            End If
+        'Case "moneyLevel" ' level money update
+        '    If strDESCRIPTION <> "" Then ' if not bad command
+        '        lLEVELMONEY = CLng(strDESCRIPTION) ' update the money for the current level
+        '    End If
         Case "moneyTotal" ' money update
             If strDESCRIPTION <> "" Then ' if not bad command
                 lMONEY = CLng(strDESCRIPTION) ' update money
@@ -274,22 +382,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                 lCURRENTLEVEL = CLng(strDESCRIPTION) ' update current level
             End If
         Case "chat" ' somebody is talking or message from server
-            If currentSTATE = "lobby" Or currentSTATE = "lobbyShop" Then ' in lobby
-                If frmLOBBY.txtCHATLOG <> "" Then frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & vbCrLf ' add newline if not empty
-                frmLOBBY.txtCHATLOG = frmLOBBY.txtCHATLOG & strDESCRIPTION ' add to chat log
-            ElseIf currentSTATE = "playing" Then ' if playing
-                ' bump old messages in chat log
-                Do While nC < UBound(strCHATLOG) ' for each (not last) chat log place
-                    strCHATLOG(nC) = strCHATLOG(nC + 1) ' move message below up
-                    nC = nC + 1 ' next chat log spot
-                Loop
-                ' add new message
-                If Len(strDESCRIPTION) > maxLENGTHOFMSGINGAME Then ' if message is longer then max length for in game
-                    strCHATLOG(UBound(strCHATLOG)) = Left$(strDESCRIPTION, maxLENGTHOFMSGINGAME - 3) & "..." ' cut off message, and add a "..."
-                Else
-                    strCHATLOG(UBound(strCHATLOG)) = strDESCRIPTION ' add full message
-                End If
-            End If
+            handleCHAT strDESCRIPTION ' handle chat message
         Case "updateMon" ' update monster info (can be new/sync/delete)
             If strDESCRIPTION <> "" Then ' if not bad command
                 If currentSTATE = "playing" Then ' if currently playing

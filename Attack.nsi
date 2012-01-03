@@ -41,8 +41,14 @@ Section "Attack"
 	
 	new_installation:
 	# VB DLLs
+	# http://activex.microsoft.com/controls/vb6/mswinsck.cab
 	!insertmacro InstallLib REGDLL $ALREADY_INSTALLED REBOOT_PROTECTED \
 		"Support\mswinsck.ocx" "$SysDir\mswinsck.ocx" "$SysDir"
+	!insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED \
+		"Support\RICHED32.DLL" "$SysDir\RICHED32.DLL" "$SysDir"
+	# http://activex.microsoft.com/controls/vb6/RichTx32.cab
+	!insertmacro InstallLib REGDLL $ALREADY_INSTALLED REBOOT_PROTECTED \
+		"Support\RICHTX32.OCX" "$SysDir\RICHTX32.OCX" "$SysDir"
 	!insertmacro InstallLib DLL $ALREADY_INSTALLED REBOOT_PROTECTED \
 		"Support\VB5DB.DLL" "$SysDir\VB5DB.DLL" "$SysDir"
 	!insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED \
@@ -141,6 +147,8 @@ Section Uninstall
 	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\MSRD2X35.DLL"
 	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\MSREPL35.DLL"
 	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\VB5DB.DLL"
+	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\RICHTX32.OCX"
+	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\RICHED32.DLL"
 	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\mswinsck.ocx"
 
 	# Delete files

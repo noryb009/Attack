@@ -19,7 +19,8 @@ Attribute VB_Exposed = False
 Public intPOINTCOST As Integer ' cost in points, used by generateMONSTERS
 Public intMAXHEALTH As Integer ' monster health
 Public intSTARTINGY As Integer ' starting Y location (-1 is standing on the ground)
-Public sngSPEED As Single ' monster speed
+Public sngXSPEED As Single ' monster horizontal speed
+Public sngYSPEED As Single ' monster vertical speed
 Public intATTACKPOWER As Integer ' amount of health to take away when the monster reaches the castle
 Public intMONEYADDEDKILL As Integer ' money to give user when you kill the monster
 Public intMONEYADDEDHIT As Integer ' money to give user when you hit (but not kill) the monster

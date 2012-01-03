@@ -6,7 +6,7 @@ Begin VB.Form frmATTACK
    ClientLeft      =   825
    ClientTop       =   1365
    ClientWidth     =   4170
-   DrawWidth       =   10
+   DrawWidth       =   588
    LinkTopic       =   "Form1"
    ScaleHeight     =   92
    ScaleMode       =   3  'Pixel
@@ -88,7 +88,7 @@ Sub playGAME()
         drawEVERYTHING ' draw everything a final time
         lineAIM.Visible = False ' hide aim line
         If lCASTLECURRENTHEALTH <= 0 Then ' if you died
-            If lLEVELMONEY < 2 Then ' if you have money (1\2 rounds down to 0)
+            If lLEVELMONEY > 1 Then ' if you have money (1\2 rounds down to 0)
                 MsgBox "Your castle has fallen! You keep half of your money for this level, $" & lLEVELMONEY \ 2 & "0." ' alert user they keep half of their money
                 lMONEY = safeADDLONG(lMONEY, lLEVELMONEY \ 2) ' add half your money
             Else ' you don't have any money
@@ -130,7 +130,7 @@ Private Sub Form_KeyPress(KeyAscii As Integer)
                 strNEWCHATMSG = "" ' remove everything
             End If
         ElseIf KeyAscii = vbKeyReturn Then ' user pressed enter, send message
-            If strNEWCHATMSG <> "" Then ' if you have something written
+            If Trim(strNEWCHATMSG) <> "" Then ' if you have something written
                 cSERVER(0).sendString "chat", strNEWCHATMSG ' send message
                 strNEWCHATMSG = "" ' clear message
             End If
@@ -217,7 +217,7 @@ Function widthOFTEXT(ByRef strTEXT) As Long
     widthOFTEXT = Len(strTEXT) * csprFONT.width
 End Function
 
-Sub writeONIMAGE(ByVal strTEXT As String, lDESTDC As Long, ByVal x As Long, y As Long, lMAXWIDTH As Long)
+Sub writeONIMAGE(ByVal strTEXT As String, lDESTDC As Long, ByVal x As Long, y As Long, Optional lMAXWIDTH As Long = -1)
     If lMAXWIDTH <> -1 And lMAXWIDTH < Len(strTEXT) Then ' if string can't fit in spot
         If lMAXWIDTH > 3 Then ' if enough room for "..."
             strTEXT = Left$(strTEXT, lMAXWIDTH - 3) ' get the most amount of text that can fit in the spot
@@ -257,19 +257,20 @@ Sub spawnMONSTER() ' spawn a monster
             arrMONSTERS(nC).sngX = Int(Rnd() * 2) ' random starting side
             If arrMONSTERS(nC).sngX = 0 Then ' if on left side
                 arrMONSTERS(nC).sngX = 0 - arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width ' start at left side
-                arrMONSTERS(nC).sngMOVINGH = 1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngSPEED ' go right
+                arrMONSTERS(nC).sngMOVINGH = 1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngXSPEED ' go right
             Else ' on right side
-                arrMONSTERS(nC).sngX = windowX + arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width ' start at right side
-                arrMONSTERS(nC).sngMOVINGH = -1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngSPEED ' go left
+                arrMONSTERS(nC).sngX = windowX ' start at right side
+                arrMONSTERS(nC).sngMOVINGH = -1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngXSPEED ' go left
             End If
             arrMONSTERS(nC).sngY = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intSTARTINGY ' set starting Y location
+            arrMONSTERS(nC).sngMOVINGV = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngYSPEED ' set vertical going down speed
             arrMONSTERS(nC).intHEALTH = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intMAXHEALTH ' set starting health
             
+            intCURRENTMONSTER = intCURRENTMONSTER + 1 ' one more monster
             Exit Do ' found spot, exit
         End If
         nC = nC + 1 ' next monster spot
     Loop
-    intCURRENTMONSTER = intCURRENTMONSTER + 1 ' one more monster
 End Sub
 
 Sub moveEVERYTHING() ' move all the monsters and flails
@@ -379,27 +380,49 @@ Sub drawEVERYTHING() ' draw everything to the screen
     End If
     
     ' draw your username
-    writeONIMAGE strNAME, cbitBUFFER.hdc, 10, 455, -1
+    writeONIMAGE strNAME, cbitBUFFER.hdc, 10, 455
     
     ' draw health
-    writeONIMAGE "Health", cbitBUFFER.hdc, 10, 470, -1
+    writeONIMAGE "Health", cbitBUFFER.hdc, 10, 470
     If lCASTLECURRENTHEALTH > 0 Then ' if you still have health
         BitBlt cbitBUFFER.hdc, 60, 470, cbitHEALTH.width * (lCASTLECURRENTHEALTH / lCASTLEMAXHEALTH), cbitHEALTH.height, cbitHEALTH.hdc, 0, 0, vbSrcCopy ' display health
-        'writeONIMAGE lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX - 10 - widthOFTEXT(lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0"), 475, -1
-        writeONIMAGE lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, (windowX - widthOFTEXT(lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0")) \ 2, 485, -1
+        writeONIMAGE lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, (windowX - widthOFTEXT(lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0")) \ 2, 485
     Else
-        writeONIMAGE "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX - 10 - widthOFTEXT("0/" & lCASTLEMAXHEALTH & "0"), 485, -1
+        writeONIMAGE "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX - 10 - widthOFTEXT("0/" & lCASTLEMAXHEALTH & "0"), 485
+    End If
+    
+    ' draw monsters left
+    If onlineMODE = False Then ' if offline
+        writeONIMAGE "Monsters left: " & CStr((UBound(arrTOBEMONSTERS) + 1) - intMONSTERSKILLED - intMONSTERSATTACKEDCASTLE), cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters left: " & CStr(UBound(arrTOBEMONSTERS) - intMONSTERSKILLED - intMONSTERSATTACKEDCASTLE))) \ 2, 455 ' draw monsters left
     End If
     
     ' draw score
-    If lLEVELMONEY <> 0 Then ' if you have score
-        writeONIMAGE "Score: " & lLEVELMONEY & "0", cbitBUFFER.hdc, windowX - widthOFTEXT("Score: " & lLEVELMONEY & "0") - 10, 455, -1 ' display score
-    Else
-        writeONIMAGE "Score: 0", cbitBUFFER.hdc, windowX - widthOFTEXT("Score: 0") - 10, 455, -1 ' display your score (0, not 00)
+    If onlineMODE = False Then ' if offline
+        If lLEVELMONEY = 0 Then ' if no score
+            writeONIMAGE "Score: 0", cbitBUFFER.hdc, windowX - widthOFTEXT("Score: 0") - 10, 455 ' display your score (0, not 00)
+        Else
+            writeONIMAGE "Score: " & lLEVELMONEY & "0", cbitBUFFER.hdc, windowX - widthOFTEXT("Score: " & lLEVELMONEY & "0") - 10, 455 ' display score
+        End If
+    Else ' online
+        Dim intCURRENTPLAYER As Integer
+        intCURRENTPLAYER = 0
+        nC = 0
+        Do While nC < MAXCLIENTS ' for each clients
+            If ccinfoPLAYERINFO(nC).strNAME <> "" Then ' if player spot is being used
+                writeONIMAGE ccinfoPLAYERINFO(nC).strNAME, cbitBUFFER.hdc, ((windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1)) - (widthOFTEXT(ccinfoPLAYERINFO(nC).strNAME) \ 2), 5, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player name
+                If ccinfoPLAYERINFO(nC).lLEVELSCORE = 0 Then ' if no score
+                    writeONIMAGE "0", cbitBUFFER.hdc, ((windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1)) - (widthOFTEXT("0") \ 2), 19, -1 ' draw player score
+                Else
+                    writeONIMAGE CStr(ccinfoPLAYERINFO(nC).lLEVELSCORE) & "0", cbitBUFFER.hdc, ((windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1)) - (widthOFTEXT(CStr(ccinfoPLAYERINFO(nC).lLEVELSCORE) & "0") \ 2), 19, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player score
+                End If
+                intCURRENTPLAYER = intCURRENTPLAYER + 1 ' found one more player
+            End If
+            nC = nC + 1 ' next client
+        Loop
     End If
     
+    ' draw chat log
     If onlineMODE = True Then ' if online
-        ' draw chat log
         If strNEWCHATMSG <> "" Then ' if typing
             nC = 0 ' show all messages in the chat log
         Else ' not typing

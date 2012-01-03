@@ -1,6 +1,9 @@
-- flying monsters move down to attack castle
-- don't highlight name in lobby or profiles
-- coloured flails
+- join game while playing - end game?
+- invisible monsters
+- flying monsters arc down to attack castle
+- monsters jumping
+- monsters left online
 - endless mode and high score
 - turn cannon
 - spread left/right
+- default online IP -> nothing

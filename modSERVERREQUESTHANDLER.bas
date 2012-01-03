@@ -8,7 +8,7 @@ Sub sckDISCONNECTED(lARRAYID As Long) ' handle client disconnection
     log cCLIENTS(lARRAYID).ip & " (" & cCLIENTINFO(lARRAYID).strNAME & ") disconnected." ' log that the client disconnected
     
     If cCLIENTINFO(lARRAYID).strNAME <> "" Then ' if had name
-        broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " logged out]" ' alert users about logging out
+        broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" logged out]") ' alert users about logging out
     End If
     
     cCLIENTINFO(lARRAYID).reset ' reset client info for next client
@@ -34,17 +34,15 @@ Sub broadcastPLAYERLIST() ' turn the player list into a sendable string, then br
     Dim nC As Integer
     nC = 0
     Do While nC < MAXCLIENTS ' for each client
+        If nC <> 0 Then ' if not first name
+            strTOSEND = strTOSEND & "~" ' add separator
+        End If
         If cCLIENTS(nC).connected = True And cCLIENTINFO(nC).strNAME <> "" Then ' if client is connected
-            If strTOSEND <> "" Then ' if not first name
-                strTOSEND = strTOSEND & "~" ' add separator
-            End If
-            strTOSEND = strTOSEND & Replace(Replace(cCLIENTINFO(nC).strNAME, "&", "&amp;"), "~", "&tide;") ' "&" to "&amp;", "~" to "&tide;", add to strTOSEND
+            strTOSEND = strTOSEND & CStr(cCLIENTINFO(nC).lLEVELSCORE) & "\" & CStr(cCLIENTINFO(nC).bREADY) & "\" & Replace(Replace(cCLIENTINFO(nC).strNAME, "&", "&amp;"), "~", "&tide;")  ' add player score, ready state, and escaped name to strTOSEND
         End If
         nC = nC + 1 ' next client
     Loop
-    If strTOSEND <> "" Then ' if string isn't empty
-        broadcast "playerList", strTOSEND ' send player list to clients
-    End If
+    broadcast "playerList", strTOSEND ' send player list to clients
 End Sub
 
 Public Sub checkIFEVERYONEREADY()
@@ -177,7 +175,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             broadcastPLAYERLIST ' sync player list with all clients
             DoEvents ' after broadcast, run doevents to send to client
             ' broadcast new user
-            broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " logged in]" ' broadcast that a user logged in
+            broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" logged in]") ' broadcast that a user logged in
         Case "newFla" ' user created a flail
             If strDESCRIPTION = "" Then ' if empty
                 log "Empty newFla received from " & cCLIENTS(lARRAYID).ip ' log the bad command
@@ -186,15 +184,15 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             End If
         Case "chat" ' user is talking
             log "Chat: " & cCLIENTINFO(lARRAYID).strNAME & ": " & strDESCRIPTION ' log who said what
-            broadcast "chat", cCLIENTINFO(lARRAYID).strNAME & ": " & strDESCRIPTION ' send message to other clients
+            broadcast "chat", formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(": " & strDESCRIPTION) ' send message to other clients
         Case "ready" ' user is/isn't ready
+            cCLIENTINFO(lARRAYID).bREADY = CBool(strDESCRIPTION) ' set as ready/not ready
+            broadcast "readyState", CStr(lARRAYID) & "\" & CStr(cCLIENTINFO(lARRAYID).bREADY) ' update clients' ready state
             If CBool(strDESCRIPTION) = True Then ' if ready
-                cCLIENTINFO(lARRAYID).bREADY = True ' set as ready
-                broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " is ready]" ' broadcast to clients that player is ready
+                broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" is ready]") ' broadcast to clients that player is ready
                 checkIFEVERYONEREADY ' check if everyone is ready to start game
             Else ' user isn't ready anymore
-                broadcast "chat", "[" & cCLIENTINFO(lARRAYID).strNAME & " is no longer ready]" ' broadcast to clients that player isn't ready
-                cCLIENTINFO(lARRAYID).bREADY = False ' set as not ready
+                broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" is no longer ready]") ' broadcast to clients that player isn't ready
             End If
         Case "heal" ' user is buying heal
             Dim strHEALPARTS() As String

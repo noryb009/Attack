@@ -1,15 +1,19 @@
 VERSION 5.00
 Begin VB.Form frmLEVELSELECT 
+   BorderStyle     =   1  'Fixed Single
    Caption         =   "Level Select"
    ClientHeight    =   2565
-   ClientLeft      =   60
-   ClientTop       =   360
+   ClientLeft      =   -15
+   ClientTop       =   285
    ClientWidth     =   4545
+   DrawWidth       =   588
    LinkTopic       =   "Form1"
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
    ScaleHeight     =   171
    ScaleMode       =   3  'Pixel
    ScaleWidth      =   303
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "10"
       Height          =   375
@@ -85,6 +89,7 @@ Begin VB.Form frmLEVELSELECT
       Height          =   375
       Left            =   3360
       TabIndex        =   7
+      TabStop         =   0   'False
       Top             =   0
       Width           =   975
    End
@@ -186,7 +191,8 @@ Private Sub cmdLEVEL_Click(Index As Integer)
     
     Select Case lCURRENTLEVEL ' monsters on current level
         Case 1 ' on level 1
-            intMONSTERSONLEVEL(greenMonster) = 10 ' there are 10 green monsters
+            intMONSTERSONLEVEL(cloud) = 19
+            'intMONSTERSONLEVEL(greenMonster) = 10 ' there are 10 green monsters
         Case 2
             intMONSTERSONLEVEL(greenMonster) = 20
             intMONSTERSONLEVEL(blackMonster) = 5

@@ -1,14 +1,25 @@
 VERSION 5.00
 Begin VB.Form frmSTORE 
+   BorderStyle     =   1  'Fixed Single
    Caption         =   "Store"
-   ClientHeight    =   3570
-   ClientLeft      =   60
-   ClientTop       =   360
-   ClientWidth     =   7005
+   ClientHeight    =   3165
+   ClientLeft      =   -15
+   ClientTop       =   285
+   ClientWidth     =   6945
    LinkTopic       =   "Form1"
-   ScaleHeight     =   3570
-   ScaleWidth      =   7005
-   StartUpPosition =   3  'Windows Default
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
+   ScaleHeight     =   3165
+   ScaleWidth      =   6945
+   StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton cmdCLOSE 
+      Caption         =   "Close"
+      Height          =   375
+      Left            =   5520
+      TabIndex        =   15
+      Top             =   2640
+      Width           =   1095
+   End
    Begin VB.CommandButton cmdFLAILAMOUNT 
       Caption         =   "cmdFLAILAMOUNT"
       Height          =   735
@@ -259,6 +270,13 @@ Private Sub cmdBACK_Click()
     Unload frmSTORE ' hide this form
 End Sub
 
+Private Sub cmdCLOSE_Click()
+    If currentSTATE = "lobbyShop" Then ' if currently in lobby and shop
+        currentSTATE = "lobby" ' only in lobby
+    End If
+    Unload frmSTORE ' hide this form
+End Sub
+
 Private Sub cmdFLAILPOWER_Click()
     If onlineMODE = True Then ' if playing multiplayer
         cSERVER(0).sendString "buy", "power~" & lFLAILUPGRADECOSTS(intFLAILPOWER) ' update server
@@ -291,7 +309,7 @@ Private Sub cmdHEALALL_Click()
         If onlineMODE = True Then ' if playing multiplayer
             cSERVER(0).sendString "heal", CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) & "~" & CStr(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) ' update server
         End If
-        lMONEY = lMONEY - healCOST(lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) ' take away money
+        lMONEY = lMONEY - (lCASTLEMAXHEALTH - lCASTLECURRENTHEALTH) ' take away money
         lCASTLECURRENTHEALTH = lCASTLEMAXHEALTH ' add health
     Else ' more missing health then money
         If onlineMODE = True Then ' if playing multiplayer
@@ -327,6 +345,8 @@ Private Sub Form_Load()
     loadFLAILUPGRADECOSTS ' load the cost of flail upgrades into lFLAILUPGRADECOSTS()
     If onlineMODE = True Then ' if multiplayer
         cmdBACK.Visible = False ' can't go to level select form
+    Else ' offline
+        cmdCLOSE.Visible = False ' don't show close button
     End If
     updateLABELS
 End Sub

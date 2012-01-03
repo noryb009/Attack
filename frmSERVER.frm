@@ -8,7 +8,7 @@ Begin VB.Form frmSERVER
    LinkTopic       =   "Form1"
    ScaleHeight     =   3090
    ScaleWidth      =   4680
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.Timer timerSYNC 
       Interval        =   10000
       Left            =   3000

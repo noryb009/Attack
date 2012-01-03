@@ -22,6 +22,8 @@ Public Enum monsterNames ' names of monsters
     dragon
 End Enum
 
+Global lPLAYERCOLOURS(0 To MAXCLIENTS - 1) As Long
+
 Global Const landHEIGHT = 376 ' height of land
 Global cmontypeMONSTERINFO(0 To numberOfMonsters - 1) As New clsMONSTERTYPE ' holds monster info
 Global Const flailSIZEPX = 14 ' size of flail in pixels
@@ -61,12 +63,13 @@ Global lCASTLEMAXHEALTH As Long ' castle max health
 Sub loadMONSTERINFO()
     ' monster info
     ' number in enum, image filename, image width, image height, point cost, health,
-    '   attack power, Y location (-1 is ground), speed, money given when hit, money given when killed
+    '   attack power, Y location (-1 is ground), X speed, money given when hit,
+    '   money given when killed[, Y speed]
     loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 1, 2, -1, 1, 0, 2
     loadONEMONSTERINFO blackMonster, "monster1", 9, 25, 2, 2, 5, -1, 1, 1, 2
-    loadONEMONSTERINFO bat, "monster2", 10, 11, 2, 1, 3, 150, 1.5, 0, 2
+    loadONEMONSTERINFO bat, "monster2", 10, 11, 2, 1, 3, 150, 1.5, 0, 2, 0.4
     loadONEMONSTERINFO tree, "monster3", 26, 50, 5, 20, 8, -1, 0.4, 1, 5
-    loadONEMONSTERINFO cloud, "monster4", 43, 28, 4, 3, 5, 10, 1, 1, 3
+    loadONEMONSTERINFO cloud, "monster4", 43, 28, 4, 3, 5, 10, 1, 1, 3, 0.65
     loadONEMONSTERINFO rabbit, "monster5", 17, 34, 3, 4, 3, -1, 2, 1, 3
     loadONEMONSTERINFO ladybug, "monster6", 13, 7, 1, 4, 2, -1, 2.5, 1, 2
     loadONEMONSTERINFO knightSword, "knight", 21, 51, 5, 10, 20, -1, 0.5, 1, 4
@@ -74,6 +77,13 @@ Sub loadMONSTERINFO()
     loadONEMONSTERINFO knightHorse, "knightHorse", 92, 43, 7, 8, 20, -1, 3, 1, 8
     loadONEMONSTERINFO dragon, "dragon", 91, 53, 50, 50, 200, 200, 0.3, 0, 10
     ' note to self: when adding monsters, change numberOfMonsters
+End Sub
+
+Sub loadPLAYERCOLOURS()
+    lPLAYERCOLOURS(0) = RGB(49, 49, 49)
+    lPLAYERCOLOURS(1) = RGB(96, 0, 0)
+    lPLAYERCOLOURS(2) = RGB(0, 0, 255)
+    lPLAYERCOLOURS(3) = RGB(0, 96, 0)
 End Sub
 
 Function getMOVESPEED() As Single ' get the movement speed (used by server and online client)
