@@ -27,7 +27,6 @@ Public intMONEYADDEDHIT As Integer ' money to give user when you hit (but not ki
 Public lWIDTH As Long ' width of the monster's image
 Public lHEIGHT As Long ' height of the monster's image
 Public lFRAMES As Long ' number of frames
-Public strSPECIAL As String ' special action for each monster
 
 Private Sub Class_Initialize() ' object init
     lFRAMES = 1 ' save server from setting, 1 frame

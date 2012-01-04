@@ -396,7 +396,7 @@ Public Sub spawnMONSTER() ' spawn a monster
 End Sub
 
 ' load monster info
-Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0, Optional strSPECIAL As String = "")
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0)
     cmontypeMONSTERINFO(intNUMBER).intPOINTCOST = intPOINTCOST ' load point cost
     cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH ' load health
     cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER ' load attack power

@@ -22,8 +22,8 @@ Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of 
 Global csprFLAIL As New clsSPRITE ' flail image
 
 Global lCURRENTLEVEL As Long ' current level
-
 Global lHIGHSCORE As Long ' player highscore
+Global lMONSTERSLEFT As Long ' only used in online mode
 
 'savefile
 Global strNAME As String ' player name
@@ -157,7 +157,7 @@ Public Function escapeQUOTES(strINPUT As String) As String
 End Function
 
 ' load monster info into cmontypeMONSTERINFO
-Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0, Optional strSPECIAL As String = "")
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0)
     Dim bSUCCESS As Boolean ' successful
     bSUCCESS = True ' default: true
     

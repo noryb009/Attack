@@ -67,13 +67,13 @@ Sub loadMONSTERINFO()
     ' monster info
     ' number in enum, image filename, image width, image height, point cost, health,
     '   attack power, Y location (-1 is ground), X speed, money given when hit,
-    '   money given when killed[, Y speed][, special traits (separated by ":")]
+    '   money given when killed[, Y speed]
     loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 1, 2, -1, 1, 0, 2
     loadONEMONSTERINFO blackMonster, "monster1", 9, 25, 2, 2, 5, -1, 1, 1, 2
     loadONEMONSTERINFO bat, "monster2", 10, 11, 2, 1, 3, 150, 1.5, 0, 2, 0.4
     loadONEMONSTERINFO tree, "monster3", 26, 50, 5, 20, 8, -1, 0.4, 1, 5
     loadONEMONSTERINFO cloud, "monster4", 43, 28, 4, 6, 5, 10, 1, 1, 3, 0.65
-    loadONEMONSTERINFO rabbit, "monster5", 17, 34, 3, 4, 3, -1, 2, 1, 3, 0, "jump"
+    loadONEMONSTERINFO rabbit, "monster5", 17, 34, 3, 4, 3, -1, 2, 1, 3
     loadONEMONSTERINFO ladybug, "monster6", 13, 7, 1, 4, 2, -1, 2.5, 1, 2
     loadONEMONSTERINFO knightSword, "knight", 21, 51, 5, 10, 20, -1, 0.5, 1, 4
     loadONEMONSTERINFO knightFlail, "knightFlail", 33, 51, 5, 15, 35, -1, 0.5, 1, 6
