@@ -13,7 +13,8 @@ Global cSERVER(0 To 0) As New clsCONNECTION ' connection to server
 Global ccinfoPLAYERINFO(0 To MAXCLIENTS - 1) As New clsCLIENTINFO ' list of players
 Global strCHATLOG(0 To 15) As String ' last few messages
 
-Global imagePATH As String ' path to images
+Global strIMAGEPATH As String ' path to images
+Global strDATABASEPATH As String ' path to data base
 
 Global arrcMONSTERPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going right
 Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going left
@@ -21,6 +22,8 @@ Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of 
 Global csprFLAIL As New clsSPRITE ' flail image
 
 Global lCURRENTLEVEL As Long ' current level
+
+Global lHIGHSCORE As Long ' player highscore
 
 'savefile
 Global strNAME As String ' player name
@@ -154,12 +157,12 @@ Public Function escapeQUOTES(strINPUT As String) As String
 End Function
 
 ' load monster info into cmontypeMONSTERINFO
-Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0)
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0, Optional strSPECIAL As String = "")
     Dim bSUCCESS As Boolean ' successful
     bSUCCESS = True ' default: true
     
-    bSUCCESS = bSUCCESS And arrcMONSTERPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, False, True) ' load image
-    bSUCCESS = bSUCCESS And arrcMONSTERLPICS(intNUMBER).loadFRAMES(imagePATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, True, True) ' load image looking left
+    bSUCCESS = bSUCCESS And arrcMONSTERPICS(intNUMBER).loadFRAMES(strIMAGEPATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, False, True) ' load image
+    bSUCCESS = bSUCCESS And arrcMONSTERLPICS(intNUMBER).loadFRAMES(strIMAGEPATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, True, True) ' load image looking left
     
     If bSUCCESS = False Then ' if error
         MsgBox "Error loading images!" ' alert user
@@ -186,7 +189,8 @@ End Sub
 Sub Main()
     Randomize ' randomize random numbers
     
-    imagePATH = App.Path & "\images\" ' images are found in the images folder
+    strIMAGEPATH = App.Path & "\images\" ' images are found in the images folder
+    strDATABASEPATH = App.Path & "\saveFiles.mdb" ' database is in the same folder as the EXE
     
     ' load monster types
     Dim bSUCCESS As Boolean
@@ -196,9 +200,9 @@ Sub Main()
     loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO()
     loadPLAYERCOLOURS ' load player colour info into playerCOLOURS()
     
-    bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(imagePATH & "flail.bmp", 14, 14, False, True) ' load flail image
-    If csprFLAIL.numberOfFrames <> MAXCLIENTS Then ' if wrong number of frames
-        bLOADED = False ' error
+    bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(strIMAGEPATH & "flail.bmp", 14, 14, False, True) ' load flail image
+    If csprFLAIL.numberOfFrames < MAXCLIENTS + 1 Then ' if not enough frames
+        bSUCCESS = False ' error
     End If
     
     If bSUCCESS = False Then ' if error

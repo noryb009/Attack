@@ -18,7 +18,9 @@ Sub sckDISCONNECTED(lARRAYID As Long, Optional bMESSAGE As Boolean = True) ' som
         If bMESSAGE = True Then MsgBox "Disconnected from host!" ' message that you disconnected
         onlineMODE = False ' not online anymore
     End If
-    frmNEWGAME.Show ' show new game form
+    If currentSTATE <> "" Then ' if not already in new game form
+        frmNEWGAME.Show ' show new game form
+    End If
 End Sub
 
 Sub handleError(lARRAYID As Long, strDESCRIPTION As String) ' handle error from clsCONNECTION
@@ -32,9 +34,8 @@ Sub updateMONSTER(strSTATS As String) ' monster update from server
     Dim lSPOT As Long
     lSPOT = CLng(arrstrSTATS(0)) ' get monster spot in arrMONSTERS
     
-    Do While lSPOT > UBound(arrMONSTERS) ' if bigger then current array size
-        ReDim Preserve arrMONSTERS(0 To UBound(arrMONSTERS) + 1) ' make current array bigger
-        Set arrMONSTERS(UBound(arrMONSTERS)) = New clsMONSTER ' set as new monster
+    Do While lSPOT >= lMONSTERARRAYSIZE ' if bigger then array size
+        Exit Sub ' exit
     Loop
     
     ' copy new values
@@ -51,7 +52,7 @@ Sub syncMONSTERS(strALLMONINFO As String) ' sync all the monsters
     Dim nC As Integer
     nC = 0
     ' deactivate all monsters
-    Do While nC <= UBound(arrMONSTERS) ' for each monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster
         arrMONSTERS(nC).bACTIVE = False ' not active
         nC = nC + 1 ' next monster
     Loop
@@ -78,9 +79,8 @@ Sub updateFLAIL(strSTATS As String) ' flail update from server
     Dim lSPOT As Long
     lSPOT = CLng(arrstrSTATS(0)) ' get flail spot in arrFLAILS
     
-    Do While lSPOT > UBound(arrFLAILS) ' if bigger then current array size
-        ReDim Preserve arrFLAILS(0 To UBound(arrFLAILS) + 1) ' make current array bigger
-        Set arrFLAILS(UBound(arrFLAILS)) = New clsFLAIL ' set as a new flail
+    Do While lSPOT >= lFLAILARRAYSIZE ' if bigger then current array size
+        Exit Sub ' exit
     Loop
     
     ' copy new values
@@ -100,7 +100,7 @@ Sub syncFLAILS(strALLFLAINFO As String) ' sync all the flails from the server
     Dim nC As Integer
     nC = 0
     ' deactivate all flails
-    Do While nC <= UBound(arrFLAILS) ' for each flail
+    Do While nC < lFLAILARRAYSIZE ' for each flail
         arrFLAILS(nC).bACTIVE = False ' deactivate flail
         nC = nC + 1 ' next flail
     Loop

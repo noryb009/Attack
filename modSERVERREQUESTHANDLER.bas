@@ -25,7 +25,7 @@ Sub sckDISCONNECTED(lARRAYID As Long) ' handle client disconnection
 End Sub
 
 Sub handleError(lARRAYID As Long, strDESCRIPTION As String) ' handle an error from clsCONNECTION
-    log "Error from " & lARRAYID & ":" & strDESCRIPTION ' log error
+    log "Error from " & lARRAYID & ": " & strDESCRIPTION ' log error
 End Sub
 
 Sub broadcastPLAYERLIST() ' turn the player list into a sendable string, then broadcast it
@@ -91,7 +91,7 @@ Sub spawnFLAIL(lARRAYID As Long, strSTATS As String)
     Dim lFLAILSPOT As Long
     lFLAILSPOT = -1 ' flail spot in array to put data
     Dim nC As Integer
-    Do While nC <= UBound(arrFLAILS) ' for each flail spot in array
+    Do While nC < lFLAILARRAYSIZE ' for each flail spot in array
         If arrFLAILS(nC).bACTIVE = False Then ' if not active
             lFLAILSPOT = nC ' remember number
             Exit Do ' found empty spot, continue
@@ -100,9 +100,7 @@ Sub spawnFLAIL(lARRAYID As Long, strSTATS As String)
     Loop
     
     If lFLAILSPOT = -1 Then ' no room left in flail array
-        ReDim Preserve arrFLAILS(0 To UBound(arrFLAILS) + 1) ' make array 1 bigger
-        Set arrFLAILS(UBound(arrFLAILS)) = New clsFLAIL ' init new flail spot
-        lFLAILSPOT = UBound(arrFLAILS) ' found empty flail spot
+        Exit Sub ' exit
     End If
     
     arrFLAILS(lFLAILSPOT).lOWNER = lARRAYID ' store owner

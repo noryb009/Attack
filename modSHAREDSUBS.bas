@@ -29,6 +29,9 @@ Global cmontypeMONSTERINFO(0 To numberOfMonsters - 1) As New clsMONSTERTYPE ' ho
 Global Const flailSIZEPX = 14 ' size of flail in pixels
 Global Const ticksPerFrame = 6 ' timer ticks per animation frame
 
+Global Const lMONSTERARRAYSIZE As Long = 100
+Global Const lFLAILARRAYSIZE As Long = 100
+
 Global intPLAYERS As Integer ' number of current players
 
 Global Const FPS = 60 ' frames per second
@@ -41,15 +44,15 @@ Global Const maxLENGTHOFMSGINGAME = 30 ' length of a message to show while in ga
 ' level vars
 Public sngMOVESPEED As Single ' speed of monsters
 Global arrTOBEMONSTERS() As Integer ' array of to-be monsters
-Public intCURRENTMONSTER As Integer ' current monster in the lineup
-Public intMONSTERSKILLED As Integer ' number of monsters player has killed
-Public intMONSTERSATTACKEDCASTLE As Integer ' number of monsters which have attacked the castle
+Public lCURRENTMONSTER As Long ' current monster in the lineup
+Public lMONSTERSKILLED As Long ' number of monsters player has killed
+Public lMONSTERSATTACKEDCASTLE As Long ' number of monsters which have attacked the castle
 Public lMONSTERSPAWNCOOLDOWN As Long ' starts at 0, jumps to n when a monster is spawned, -1 each tick, monsters can't spawn if >0
 Public bEXIT As Boolean ' somebody won
 Public bFORCEEXIT As Boolean ' exited program or stopped server
 
-Global arrMONSTERS() As clsMONSTER ' monsters
-Global arrFLAILS() As clsFLAIL ' flails
+Global arrMONSTERS(0 To lMONSTERARRAYSIZE - 1) As New clsMONSTER ' monsters
+Global arrFLAILS(0 To lFLAILARRAYSIZE - 1) As New clsFLAIL ' flails
 
 ' upgrades
 Global intFLAILPOWER As Integer ' the attack power of the flails
@@ -64,26 +67,26 @@ Sub loadMONSTERINFO()
     ' monster info
     ' number in enum, image filename, image width, image height, point cost, health,
     '   attack power, Y location (-1 is ground), X speed, money given when hit,
-    '   money given when killed[, Y speed]
+    '   money given when killed[, Y speed][, special traits (separated by ":")]
     loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 1, 2, -1, 1, 0, 2
     loadONEMONSTERINFO blackMonster, "monster1", 9, 25, 2, 2, 5, -1, 1, 1, 2
     loadONEMONSTERINFO bat, "monster2", 10, 11, 2, 1, 3, 150, 1.5, 0, 2, 0.4
     loadONEMONSTERINFO tree, "monster3", 26, 50, 5, 20, 8, -1, 0.4, 1, 5
-    loadONEMONSTERINFO cloud, "monster4", 43, 28, 4, 3, 5, 10, 1, 1, 3, 0.65
-    loadONEMONSTERINFO rabbit, "monster5", 17, 34, 3, 4, 3, -1, 2, 1, 3
+    loadONEMONSTERINFO cloud, "monster4", 43, 28, 4, 6, 5, 10, 1, 1, 3, 0.65
+    loadONEMONSTERINFO rabbit, "monster5", 17, 34, 3, 4, 3, -1, 2, 1, 3, 0, "jump"
     loadONEMONSTERINFO ladybug, "monster6", 13, 7, 1, 4, 2, -1, 2.5, 1, 2
     loadONEMONSTERINFO knightSword, "knight", 21, 51, 5, 10, 20, -1, 0.5, 1, 4
     loadONEMONSTERINFO knightFlail, "knightFlail", 33, 51, 5, 15, 35, -1, 0.5, 1, 6
     loadONEMONSTERINFO knightHorse, "knightHorse", 92, 43, 7, 8, 20, -1, 3, 1, 8
-    loadONEMONSTERINFO dragon, "dragon", 91, 53, 50, 50, 200, 200, 0.3, 0, 10
+    loadONEMONSTERINFO dragon, "dragon", 91, 53, 50, 50, 200, 200, 1, 0, 10
     ' note to self: when adding monsters, change numberOfMonsters
 End Sub
 
 Sub loadPLAYERCOLOURS()
-    lPLAYERCOLOURS(0) = RGB(49, 49, 49)
-    lPLAYERCOLOURS(1) = RGB(96, 0, 0)
-    lPLAYERCOLOURS(2) = RGB(0, 0, 255)
-    lPLAYERCOLOURS(3) = RGB(0, 96, 0)
+    lPLAYERCOLOURS(0) = RGB(96, 0, 0) ' red
+    lPLAYERCOLOURS(1) = RGB(0, 0, 255) ' blue
+    lPLAYERCOLOURS(2) = RGB(0, 96, 0) ' green
+    lPLAYERCOLOURS(3) = RGB(216, 127, 0) ' orange
 End Sub
 
 Function getMOVESPEED() As Single ' get the movement speed (used by server and online client)

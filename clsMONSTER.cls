@@ -23,6 +23,7 @@ Public sngMOVINGH As Single ' moving speed
 Public sngMOVINGV As Single ' moving speed
 Public intTYPE As Integer ' monster type
 Public intHEALTH As Integer ' monster health
+Public strSPECIAL As String ' special action for each monster
 Dim lCURRENTANIFRAME As Long ' current frame in the animation
 
 Public Property Get currentFRAME() As Long ' get the current frame
@@ -49,11 +50,19 @@ Public Sub nextFRAME() ' go to the next frame
 End Sub
 
 Public Sub moveMONSTER() ' move monster
-    sngX = sngX + sngMOVESPEED * sngMOVINGH ' add horizontal distance
-    sngY = sngY + sngMOVESPEED * sngMOVINGV ' add vertical distance
+    Dim sngMOVEXMUL As Single ' move X multiplier
+    sngMOVEXMUL = 1
+    Dim sngMOVEYMUL As Single ' move Y multiplier
+    sngMOVEYMUL = 1
+    Dim bNEXTFRAME As Boolean
+    bNEXTFRAME = True
+    
+    sngX = sngX + sngMOVESPEED * sngMOVINGH * sngMOVEXMUL ' add horizontal distance
+    sngY = sngY + sngMOVESPEED * sngMOVINGV * sngMOVEYMUL ' add vertical distance
+    
     If (sngMOVINGH > 0 And sngX + cmontypeMONSTERINFO(intTYPE).lWIDTH > castleWALLLEFT) Or (sngMOVINGH < 0 And sngX < castleWALLRIGHT) Then ' if attacking castle
         lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH - cmontypeMONSTERINFO(intTYPE).intATTACKPOWER ' take away health
-        intMONSTERSATTACKEDCASTLE = intMONSTERSATTACKEDCASTLE + 1 ' add to the number of monsters which attacked castle
+        lMONSTERSATTACKEDCASTLE = safeADDLONG(lMONSTERSATTACKEDCASTLE, 1) ' add to the number of monsters which attacked castle
         bACTIVE = False ' disable monster
     End If
 End Sub

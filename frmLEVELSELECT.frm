@@ -2,18 +2,27 @@ VERSION 5.00
 Begin VB.Form frmLEVELSELECT 
    BorderStyle     =   1  'Fixed Single
    Caption         =   "Level Select"
-   ClientHeight    =   2565
+   ClientHeight    =   3000
    ClientLeft      =   -15
    ClientTop       =   285
    ClientWidth     =   4545
-   DrawWidth       =   588
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   171
+   ScaleHeight     =   200
    ScaleMode       =   3  'Pixel
    ScaleWidth      =   303
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton cmdLEVEL 
+      Caption         =   "Endless"
+      Height          =   375
+      Index           =   10
+      Left            =   1200
+      Style           =   1  'Graphical
+      TabIndex        =   15
+      Top             =   1800
+      Width           =   1815
+   End
    Begin VB.CommandButton cmdLEVEL 
       Caption         =   "10"
       Height          =   375
@@ -98,7 +107,7 @@ Begin VB.Form frmLEVELSELECT
       Height          =   375
       Left            =   2640
       TabIndex        =   5
-      Top             =   1920
+      Top             =   2400
       Width           =   1695
    End
    Begin VB.CommandButton cmdLEVEL 
@@ -116,7 +125,7 @@ Begin VB.Form frmLEVELSELECT
       Height          =   375
       Left            =   240
       TabIndex        =   3
-      Top             =   1920
+      Top             =   2400
       Width           =   2055
    End
    Begin VB.CommandButton cmdLEVEL 
@@ -191,8 +200,7 @@ Private Sub cmdLEVEL_Click(Index As Integer)
     
     Select Case lCURRENTLEVEL ' monsters on current level
         Case 1 ' on level 1
-            intMONSTERSONLEVEL(cloud) = 19
-            'intMONSTERSONLEVEL(greenMonster) = 10 ' there are 10 green monsters
+            intMONSTERSONLEVEL(greenMonster) = 10 ' there are 10 green monsters
         Case 2
             intMONSTERSONLEVEL(greenMonster) = 20
             intMONSTERSONLEVEL(blackMonster) = 5
@@ -249,17 +257,16 @@ Sub saveGAME()
     Dim dbSAVEFILES As Database ' database link
     Dim recsetSAVES As Recordset ' record set
     
-    ' open database
-    Set dbSAVEFILES = OpenDatabase(App.Path & "\saveFiles.mdb") ' open database
+    Set dbSAVEFILES = OpenDatabase(strDATABASEPATH) ' open database
     
-    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(strNAME) & "'") ' get all rows with current username
+    Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT `Name` FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(strNAME) & "'") ' get all rows with current username
     
     If recsetSAVES.RecordCount = 0 Then ' if not inserted yet
         ' insert new save row into the database
-        dbSAVEFILES.Execute "INSERT INTO `SaveGames` (`Name`, `Level`, `MaxHealth`, `CurrentHealth`, `Money`, `FlailGoThrough`, `FlailPower`, `FlailAmount`) VALUES('" & escapeQUOTES(strNAME) & "', '" & lLEVEL & "', '" & lCASTLEMAXHEALTH & "', '" & lCASTLECURRENTHEALTH & "', '" & lMONEY & "', '" & intFLAILGOTHROUGH & "', '" & intFLAILPOWER & "', '" & intFLAILAMOUNT & "')"
+        dbSAVEFILES.Execute "INSERT INTO `SaveGames` (`Name`, `Level`, `MaxHealth`, `CurrentHealth`, `Money`, `FlailGoThrough`, `FlailPower`, `FlailAmount`, `Highscore`) VALUES('" & escapeQUOTES(strNAME) & "', '" & lLEVEL & "', '" & lCASTLEMAXHEALTH & "', '" & lCASTLECURRENTHEALTH & "', '" & lMONEY & "', '" & intFLAILGOTHROUGH & "', '" & intFLAILPOWER & "', '" & intFLAILAMOUNT & "', '" & lHIGHSCORE & "')"
     Else
         ' update the save row
-        dbSAVEFILES.Execute "UPDATE `SaveGames` SET `Level`=" & lLEVEL & ", `MaxHealth`=" & lCASTLEMAXHEALTH & ", `CurrentHealth`=" & lCASTLECURRENTHEALTH & ", `Money`=" & lMONEY & ", `FlailGoThrough`=" & intFLAILGOTHROUGH & ", `FlailPower`=" & intFLAILPOWER & ", `FlailAmount`=" & intFLAILAMOUNT & " WHERE `Name`='" & escapeQUOTES(strNAME) & "'"
+        dbSAVEFILES.Execute "UPDATE `SaveGames` SET `Level`=" & lLEVEL & ", `MaxHealth`=" & lCASTLEMAXHEALTH & ", `CurrentHealth`=" & lCASTLECURRENTHEALTH & ", `Money`=" & lMONEY & ", `FlailGoThrough`=" & intFLAILGOTHROUGH & ", `FlailPower`=" & intFLAILPOWER & ", `FlailAmount`=" & intFLAILAMOUNT & ", `Highscore`=" & lHIGHSCORE & " WHERE `Name`='" & escapeQUOTES(strNAME) & "'"
     End If
     
     Set recsetSAVES = Nothing ' close the recordset
@@ -287,9 +294,6 @@ Private Sub Form_Load()
     Dim nC As Integer
     nC = 0
     Do While nC < cmdLEVEL.Count ' for each level button
-        If cmdLEVEL(nC).Caption <> CStr(nC + 1) Then ' if caption isn't the same as the level
-            MsgBox "Button mismatch:" & vbCrLf & "Index: " & CStr(nC) & vbCrLf & "Caption: " & cmdLEVEL(nC).Caption & vbCrLf & "Should be: " & CStr(Index + 1) ' alert the user
-        End If
         If nC < lLEVEL Then ' if user has beaten level
             cmdLEVEL(nC).Visible = True ' show button
             If nC = lLEVEL - 1 Then ' if not beaten yet

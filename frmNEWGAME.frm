@@ -5,17 +5,25 @@ Begin VB.Form frmNEWGAME
    ClientHeight    =   2940
    ClientLeft      =   -15
    ClientTop       =   375
-   ClientWidth     =   4215
+   ClientWidth     =   4800
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
    ScaleHeight     =   2940
-   ScaleWidth      =   4215
+   ScaleWidth      =   4800
    StartUpPosition =   2  'CenterScreen
+   Begin VB.CommandButton cmdHIGHSCORES 
+      Caption         =   "Highscores"
+      Height          =   375
+      Left            =   240
+      TabIndex        =   12
+      Top             =   120
+      Width           =   1335
+   End
    Begin VB.CommandButton cmdMULTI 
       Caption         =   "Multi player"
       Height          =   375
-      Left            =   2760
+      Left            =   3360
       TabIndex        =   11
       Top             =   120
       Width           =   1335
@@ -23,7 +31,7 @@ Begin VB.Form frmNEWGAME
    Begin VB.CommandButton cmdSINGLE 
       Caption         =   "Single player"
       Height          =   375
-      Left            =   2760
+      Left            =   3360
       TabIndex        =   10
       Top             =   120
       Width           =   1335
@@ -35,31 +43,31 @@ Begin VB.Form frmNEWGAME
       Text            =   "127.0.0.1"
       Top             =   1800
       Visible         =   0   'False
-      Width           =   1695
+      Width           =   2415
    End
    Begin VB.CommandButton cmdNEWMPGAME 
       Caption         =   "Join a multiplayer game"
       Height          =   495
-      Left            =   2160
+      Left            =   2640
       TabIndex        =   7
-      Top             =   1320
+      Top             =   1440
       Visible         =   0   'False
       Width           =   1815
    End
    Begin VB.CommandButton cmdDELETE 
       Caption         =   "Delete"
       Height          =   255
-      Left            =   3480
+      Left            =   3960
       TabIndex        =   6
-      Top             =   2520
+      Top             =   2640
       Width           =   615
    End
    Begin VB.CommandButton cmdLOAD 
       Caption         =   "Load a saved game"
       Height          =   375
-      Left            =   2280
+      Left            =   2760
       TabIndex        =   4
-      Top             =   1920
+      Top             =   2040
       Width           =   1815
    End
    Begin VB.TextBox txtNAME 
@@ -67,15 +75,15 @@ Begin VB.Form frmNEWGAME
       Left            =   120
       MaxLength       =   15
       TabIndex        =   2
-      Top             =   960
-      Width           =   1935
+      Top             =   1080
+      Width           =   2415
    End
    Begin VB.CommandButton cmdNEWSPGAME 
       Caption         =   "Start a new game"
       Height          =   495
-      Left            =   2280
+      Left            =   2760
       TabIndex        =   0
-      Top             =   840
+      Top             =   1080
       Width           =   1815
    End
    Begin VB.ListBox lstSAVES 
@@ -83,14 +91,14 @@ Begin VB.Form frmNEWGAME
       Left            =   120
       TabIndex        =   5
       Top             =   1680
-      Width           =   1935
+      Width           =   2415
    End
    Begin VB.Label lblIP 
       Caption         =   "IP:"
       Height          =   255
       Left            =   240
       TabIndex        =   9
-      Top             =   1440
+      Top             =   1560
       Visible         =   0   'False
       Width           =   735
    End
@@ -99,16 +107,25 @@ Begin VB.Form frmNEWGAME
       Height          =   255
       Left            =   240
       TabIndex        =   3
-      Top             =   600
+      Top             =   720
       Width           =   975
    End
    Begin VB.Label lblATTACK 
       Caption         =   "Attack"
-      Height          =   255
-      Left            =   2040
+      BeginProperty Font 
+         Name            =   "MS Sans Serif"
+         Size            =   24
+         Charset         =   0
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   615
+      Left            =   1680
       TabIndex        =   1
       Top             =   120
-      Width           =   495
+      Width           =   1455
    End
 End
 Attribute VB_Name = "frmNEWGAME"
@@ -152,6 +169,13 @@ Sub showSINGLE()
         lstSAVES.Visible = False ' hide listbox
     End If
 End Sub
+
+Private Sub cmdHIGHSCORES_Click()
+    frmHIGHSCORES.Show ' show high scores form
+    frmHIGHSCORES.strWHEREISBACK = "newGame"
+    Unload frmNEWGAME ' hide this form
+End Sub
+
 Private Sub cmdSINGLE_Click()
     showSINGLE ' show single player GUI
 End Sub
@@ -231,6 +255,7 @@ Private Sub cmdLOAD_Click()
     intFLAILPOWER = recsetSAVES.Fields("FlailPower")
     intFLAILGOTHROUGH = recsetSAVES.Fields("FlailGoThrough")
     intFLAILAMOUNT = recsetSAVES.Fields("FlailAmount")
+    lHIGHSCORE = recsetSAVES.Fields("Highscore")
     
     frmLEVELSELECT.Show ' show level select form
     Unload frmNEWGAME ' hide this form
@@ -265,6 +290,7 @@ Sub newGAME()
     intFLAILPOWER = 1 ' starting flail power
     intFLAILGOTHROUGH = 1 ' starting flail go through
     intFLAILAMOUNT = 1 ' starting flail amount
+    lHIGHSCORE = 0 ' starting high score
     
     frmLEVELSELECT.Show ' show the level select form
     frmLEVELSELECT.saveGAME ' save the game
@@ -290,6 +316,7 @@ Private Sub cmdNEWMPGAME_Click()
     intFLAILPOWER = 1 ' starting flail power
     intFLAILGOTHROUGH = 1 ' starting flail go through
     intFLAILAMOUNT = 1 ' starting flail amount
+    lHIGHSCORE = 0 ' starting high score
     
     Set cSERVER(0) = New clsCONNECTION ' make a new clsCONNECTION, will be able to connect to the server
     cSERVER(0).arrayID = 0 ' array spot 0
@@ -315,10 +342,10 @@ Private Sub Form_Activate()
 End Sub
 
 Private Sub Form_Load()
-    Set dbSAVEFILES = OpenDatabase(App.Path & "\saveFiles.mdb") ' open database
+    Set dbSAVEFILES = OpenDatabase(strDATABASEPATH) ' open database
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
-    Set recsetsavefiles = Nothing ' close recordset
+    Set recsetSAVES = Nothing ' close recordset
     Set dbSAVEFILES = Nothing ' close database
 End Sub

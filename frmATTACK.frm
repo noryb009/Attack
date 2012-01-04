@@ -6,7 +6,6 @@ Begin VB.Form frmATTACK
    ClientLeft      =   825
    ClientTop       =   1365
    ClientWidth     =   4170
-   DrawWidth       =   588
    LinkTopic       =   "Form1"
    ScaleHeight     =   92
    ScaleMode       =   3  'Pixel
@@ -44,6 +43,10 @@ Dim csprFONT As New clsSPRITE ' font
 Dim cbitHEALTH As New clsBITMAP ' health bar
 
 Dim strNEWCHATMSG As String ' new chat message
+
+Dim lSTARTINGHEALTH As Long ' starting health, used for endless mode to restore health after the game
+
+Dim bENDLESSMODE As Boolean ' true if in endless mode
 
 Const keepX = 338 ' X location of flail starting point
 Const keepY = 190 ' Y location of flail starting point
@@ -87,13 +90,46 @@ Sub playGAME()
     If bFORCEEXIT = False And onlineMODE = False Then ' if program not exiting and not online
         drawEVERYTHING ' draw everything a final time
         lineAIM.Visible = False ' hide aim line
-        If lCASTLECURRENTHEALTH <= 0 Then ' if you died
+        If bENDLESSMODE = True Then ' if in endless mode
+            lMONEY = safeADDLONG(lMONEY, lLEVELMONEY) ' add your score to your money
+            lCASTLECURRENTHEALTH = lSTARTINGHEALTH ' restore starting health
+            
+            If lHIGHSCORE < lLEVELMONEY Then ' beat old high score
+                MsgBox "You died! You killed " & lMONSTERSKILLED & " monsters, and got a score of " & lLEVELMONEY & "0! You beat your old high score!" ' alert user about their stats
+                
+                lHIGHSCORE = lLEVELMONEY ' update new high score
+                
+                Dim dbSAVEFILES As Database ' database link
+                Dim recsetSAVES As Recordset ' record set
+                
+                Set dbSAVEFILES = OpenDatabase(strDATABASEPATH) ' open database
+                
+                Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(strNAME) & "'") ' get all rows with current username
+                
+                If recsetSAVES.RecordCount <> 0 Then ' if row exists
+                    ' update the highscore in the save row
+                    dbSAVEFILES.Execute "UPDATE `SaveGames` SET `Highscore`=" & lHIGHSCORE & " WHERE `Name`='" & escapeQUOTES(strNAME) & "'"
+                End If
+                
+                Set recsetSAVES = Nothing ' close the recordset
+                Set dbSAVEFILES = Nothing ' close the database link
+            Else
+                If lLEVELMONEY <> 0 Then ' if user has money
+                    MsgBox "You died! You killed " & lMONSTERSKILLED & " monsters, and got a score of " & lLEVELMONEY & "0! You did not beat your old high score." ' alert user about their stats
+                Else
+                    MsgBox "You died! You killed " & lMONSTERSKILLED & " monsters, and got a score of 0! You did not beat your old high score." ' alert user about their stats, ($0 not $00)
+                End If
+            End If
+            frmHIGHSCORES.Show ' show high scores form
+            frmHIGHSCORES.strWHEREISBACK = "levelSelect" ' go to the level select form when done
+        ElseIf lCASTLECURRENTHEALTH <= 0 Then ' if you died
             If lLEVELMONEY > 1 Then ' if you have money (1\2 rounds down to 0)
                 MsgBox "Your castle has fallen! You keep half of your money for this level, $" & lLEVELMONEY \ 2 & "0." ' alert user they keep half of their money
                 lMONEY = safeADDLONG(lMONEY, lLEVELMONEY \ 2) ' add half your money
             Else ' you don't have any money
                 MsgBox "Your castle has fallen!" ' alert user that they lost
             End If
+            frmLEVELSELECT.Show ' go to level selection menu
         Else ' you won
             If lLEVELMONEY <> 0 Then ' if you have money
                 MsgBox "You beat this level!" & vbCrLf & "You got $" & lLEVELMONEY & "0, plus a level bonus of $" & lCURRENTLEVEL * 2 & "00!" ' alert user they keep their money, plus a level bonus
@@ -105,10 +141,7 @@ Sub playGAME()
             If lLEVEL = lCURRENTLEVEL Then ' if on latest unlocked level
                 lLEVEL = lLEVEL + 1 ' unlock next level
             End If
-        End If
-        
-        If onlineMODE = False Then ' if offline
-            frmLEVELSELECT.Show ' go to menu
+            frmLEVELSELECT.Show ' go to level selection menu
         End If
     End If
     
@@ -167,13 +200,11 @@ Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As 
         
         Dim nC As Integer
         Dim nC2 As Integer
-        Dim nCMAX As Integer
         nC = 0
         nC2 = 0
-        nCMAX = UBound(arrFLAILS) '  get the size of arrFLAILS
         Do While nC2 < intFLAILAMOUNT ' for each flail amount (upgrade)
             If onlineMODE = False Then ' if not online
-                Do While nC <= nCMAX ' for each flail spot
+                Do While nC <= lFLAILARRAYSIZE ' for each flail spot
                     If arrFLAILS(nC).bACTIVE = False Then ' if flail spot isn't used
                         arrFLAILS(nC).bACTIVE = True ' use flail spot
                         arrFLAILS(nC).sngX = keepX ' starting X location
@@ -184,7 +215,7 @@ Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As 
                         arrFLAILS(nC).sngMOVINGV = arrFLAILS(nC).sngMOVINGV + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 4) ' spread flails if multiple
                         'arrFLAILS(nC).sngMOVINGH = arrFLAILS(nC).sngMOVINGH + (((intFLAILAMOUNT / 2) - 0.5 - nC2) * 2)
                         
-                        arrFLAILS(nC).lOWNER = 0 ' default flail colour
+                        arrFLAILS(nC).lOWNER = -1 ' single player flail colour
                         
                         arrFLAILS(nC).intGOTHROUGH = intFLAILGOTHROUGH ' set go through left
                         arrFLAILS(nC).clearWENTTHROUGH ' clear the list of monsters that flail went through
@@ -245,28 +276,37 @@ Sub writeONIMAGE(ByVal strTEXT As String, lDESTDC As Long, ByVal x As Long, y As
 End Sub
 
 Sub spawnMONSTER() ' spawn a monster
-    Dim nCMAX As Integer
+    Dim intMONSTERTYPE As Integer
+    If bENDLESSMODE = True Then ' if in endless mode
+        ' gradually add monsters
+        If (lCURRENTMONSTER \ 5) > numberOfMonsters Then ' if user has unlocked all monsters
+            intMONSTERTYPE = Int(Rnd() * numberOfMonsters) ' pick a random monster
+        Else ' user hasn't unlocked all the monsters yet
+            intMONSTERTYPE = Int(Rnd() * (lCURRENTMONSTER \ 5)) ' pick a random unlocked monster
+        End If
+    Else ' not in endless mode
+        intMONSTERTYPE = arrTOBEMONSTERS(lCURRENTMONSTER) ' get monster type from monster waiting list
+    End If
     nC = 0
-    nCMAX = UBound(arrMONSTERS) ' get size ofarrMONSTERS
-    Do While nC <= nCMAX ' for each monster spot
+    Do While nC < lMONSTERARRAYSIZE ' for each monster spot
         If arrMONSTERS(nC).bACTIVE = False Then ' if monster spot not used
             arrMONSTERS(nC).bACTIVE = True ' use monster spot
-            arrMONSTERS(nC).intTYPE = arrTOBEMONSTERS(intCURRENTMONSTER) ' set monster type
+            arrMONSTERS(nC).intTYPE = intMONSTERTYPE ' set monster type
             arrMONSTERS(nC).currentFRAME = 0 ' reset frame counter
             
             arrMONSTERS(nC).sngX = Int(Rnd() * 2) ' random starting side
             If arrMONSTERS(nC).sngX = 0 Then ' if on left side
-                arrMONSTERS(nC).sngX = 0 - arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width ' start at left side
-                arrMONSTERS(nC).sngMOVINGH = 1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngXSPEED ' go right
+                arrMONSTERS(nC).sngX = 0 - arrcMONSTERPICS(intMONSTERTYPE).width ' start at left side
+                arrMONSTERS(nC).sngMOVINGH = 1 * cmontypeMONSTERINFO(intMONSTERTYPE).sngXSPEED ' go right
             Else ' on right side
                 arrMONSTERS(nC).sngX = windowX ' start at right side
-                arrMONSTERS(nC).sngMOVINGH = -1 * cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngXSPEED ' go left
+                arrMONSTERS(nC).sngMOVINGH = -1 * cmontypeMONSTERINFO(intMONSTERTYPE).sngXSPEED ' go left
             End If
-            arrMONSTERS(nC).sngY = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intSTARTINGY ' set starting Y location
-            arrMONSTERS(nC).sngMOVINGV = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngYSPEED ' set vertical going down speed
-            arrMONSTERS(nC).intHEALTH = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intMAXHEALTH ' set starting health
+            arrMONSTERS(nC).sngY = cmontypeMONSTERINFO(intMONSTERTYPE).intSTARTINGY ' set starting Y location
+            arrMONSTERS(nC).sngMOVINGV = cmontypeMONSTERINFO(intMONSTERTYPE).sngYSPEED ' set vertical going down speed
+            arrMONSTERS(nC).intHEALTH = cmontypeMONSTERINFO(intMONSTERTYPE).intMAXHEALTH ' set starting health
             
-            intCURRENTMONSTER = intCURRENTMONSTER + 1 ' one more monster
+            lCURRENTMONSTER = safeADDLONG(lCURRENTMONSTER, 1) ' one more monster
             Exit Do ' found spot, exit
         End If
         nC = nC + 1 ' next monster spot
@@ -275,22 +315,29 @@ End Sub
 
 Sub moveEVERYTHING() ' move all the monsters and flails
     Dim nC As Long
-    Dim nCMAXMON As Long
-    nCMAXMON = UBound(arrMONSTERS) ' get size of arrMONSTERS
-    Dim nCMAXFLAILS As Long
-    nCMAXFLAILS = UBound(arrFLAILS) ' get size of arrFLAILS
+    
+    If bENDLESSMODE = True Then ' if endless mode
+        sngMOVESPEED = (lCURRENTMONSTER / 40) + 1 ' update moveing speed multiplier
+    End If
     
     ' spawn monsters
-    If onlineMODE = False And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' if not online (don't spawn if online) and there are monsters waiting to be spawned
+    If onlineMODE = False Then
         If lMONSTERSPAWNCOOLDOWN = 0 Then ' if it has been a while since last spawn
             Dim bSPAWN As Boolean
             bSPAWN = False ' default: don't spawn
-            If intCURRENTMONSTER <= intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) Then ' force if nobody on screen
-                bSPAWN = True ' spawn
-            ElseIf Int(Rnd() * 200) < lCURRENTLEVEL And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' randomly if some monsters are waiting
-                bSPAWN = True ' spawn
+            If bENDLESSMODE = True Then
+                If lCURRENTMONSTER <= lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE Then ' force if nobody on screen
+                    bSPAWN = True ' spawn
+                ElseIf Int(Rnd() * 200) < (lCURRENTMONSTER / 2) Then ' randomly
+                    bSPAWN = True ' spawn
+                End If
+            ElseIf lCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' normal mode, if there are monsters waiting to be spawned
+                If lCURRENTMONSTER <= lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) Then ' force if not many on screen
+                    bSPAWN = True ' spawn
+                ElseIf Int(Rnd() * 200) < lCURRENTLEVEL And lCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' randomly if some monsters are waiting
+                    bSPAWN = True ' spawn
+                End If
             End If
-            
             If bSPAWN = True Then ' if going to spawn
                 spawnMONSTER ' spawn the monster
                 lMONSTERSPAWNCOOLDOWN = 20 ' wait a bit for the next monster
@@ -302,7 +349,7 @@ Sub moveEVERYTHING() ' move all the monsters and flails
     
     ' move monsters
     nC = 0
-    Do While nC <= nCMAXMON ' for each monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster
         If arrMONSTERS(nC).bACTIVE = True Then ' if monster is active
             arrMONSTERS(nC).moveMONSTER ' move monster
         End If
@@ -315,7 +362,7 @@ Sub moveEVERYTHING() ' move all the monsters and flails
     
     ' move flails
     nC = 0
-    Do While nC <= nCMAXFLAILS ' for each flail
+    Do While nC < lFLAILARRAYSIZE ' for each flail
         If arrFLAILS(nC).bACTIVE = True Then ' if flail is active
             If onlineMODE = True Then ' if online
                 arrFLAILS(nC).moveFLAIL ' move the flail
@@ -326,14 +373,13 @@ Sub moveEVERYTHING() ' move all the monsters and flails
         nC = nC + 1 ' next flail
     Loop
     
-    If onlineMODE = False And intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then ' if offline and you have defeated all the monsters
+    If onlineMODE = False And bENDLESSMODE = False And lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then ' if offline, not endless mode, and you have defeated all the monsters
         bEXIT = True ' exit
     End If
 End Sub
 
 Sub drawEVERYTHING() ' draw everything to the screen
     Dim nC As Integer
-    Dim nCMAX As Integer
     
     ' draw background
     BitBlt cbitBUFFER.hdc, 0, 0, cbitBACKGROUND.width, cbitBACKGROUND.height, cbitBACKGROUND.hdc, 0, 0, vbSrcCopy
@@ -352,8 +398,7 @@ Sub drawEVERYTHING() ' draw everything to the screen
     If bEXIT = False Then ' if not exiting
         ' draw monsters
         nC = 0
-        nCMAX = UBound(arrMONSTERS) ' get size of arrMONSTERS
-        Do While nC <= nCMAX ' for each monster
+        Do While nC < lMONSTERARRAYSIZE ' for each monster
             If arrMONSTERS(nC).bACTIVE = True Then ' if monster is active
                 If arrMONSTERS(nC).sngMOVINGH >= 0 Then ' if moving right
                     BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERPICS(arrMONSTERS(nC).intTYPE).frameMaskhDC(arrMONSTERS(nC).currentFRAME), 0, 0, vbSrcAnd ' draw right monster mask
@@ -369,11 +414,10 @@ Sub drawEVERYTHING() ' draw everything to the screen
         
         ' draw arrows
         nC = 0
-        nCMAX = UBound(arrFLAILS) ' get size of arrFLAILS
-        Do While nC <= nCMAX ' for each flail
+        Do While nC < lFLAILARRAYSIZE ' for each flail
             If arrFLAILS(nC).bACTIVE = True Then ' if flail is active
-                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lOWNER), 0, 0, vbSrcAnd ' draw flail mask
-                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lOWNER), 0, 0, vbSrcPaint ' draw flail
+                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lOWNER + 1), 0, 0, vbSrcAnd ' draw flail mask
+                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lOWNER + 1), 0, 0, vbSrcPaint ' draw flail
             End If
             nC = nC + 1 ' next flail
         Loop
@@ -392,8 +436,10 @@ Sub drawEVERYTHING() ' draw everything to the screen
     End If
     
     ' draw monsters left
-    If onlineMODE = False Then ' if offline
-        writeONIMAGE "Monsters left: " & CStr((UBound(arrTOBEMONSTERS) + 1) - intMONSTERSKILLED - intMONSTERSATTACKEDCASTLE), cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters left: " & CStr(UBound(arrTOBEMONSTERS) - intMONSTERSKILLED - intMONSTERSATTACKEDCASTLE))) \ 2, 455 ' draw monsters left
+    If bENDLESSMODE = True Then ' if in endless mode
+        writeONIMAGE "Monsters defeated: " & CStr(lMONSTERSKILLED), cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters defeated: " & CStr(lMONSTERSKILLED))) \ 2, 455 ' draw monsters killed
+    ElseIf onlineMODE = False Then ' if offline, but not in endless mode
+        writeONIMAGE "Monsters left: " & CStr((UBound(arrTOBEMONSTERS) + 1) - lMONSTERSKILLED - lMONSTERSATTACKEDCASTLE), cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters left: " & CStr(UBound(arrTOBEMONSTERS) - lMONSTERSKILLED - lMONSTERSATTACKEDCASTLE))) \ 2, 455 ' draw monsters left
     End If
     
     ' draw score
@@ -448,12 +494,12 @@ Private Sub Form_Load()
     bLOADED = True
     
     ' load images
-    bLOADED = bLOADED And cbitBACKGROUND.loadFILE(imagePATH & "background.bmp")
-    bLOADED = bLOADED And csprCASTLE.loadFRAMES(imagePATH & "castle.bmp", 211, 226, False, True)
+    bLOADED = bLOADED And cbitBACKGROUND.loadFILE(strIMAGEPATH & "background.bmp")
+    bLOADED = bLOADED And csprCASTLE.loadFRAMES(strIMAGEPATH & "castle.bmp", 211, 226, False, True)
     
-    bLOADED = bLOADED And cbitHEALTH.loadFILE(imagePATH & "health.bmp")
+    bLOADED = bLOADED And cbitHEALTH.loadFILE(strIMAGEPATH & "health.bmp")
     
-    bLOADED = bLOADED And csprFONT.loadFRAMES(imagePATH & "font.bmp", 7, 14, False, True)
+    bLOADED = bLOADED And csprFONT.loadFRAMES(strIMAGEPATH & "font.bmp", 7, 14, False, True)
     If csprFONT.numberOfFrames <> 128 Then ' if wrong number of frames
         bLOADED = False ' error
     End If
@@ -470,11 +516,12 @@ Private Sub Form_Load()
     bEXIT = False
     bFORCEEXIT = False
     lLEVELMONEY = 0
-    intMONSTERSKILLED = 0
-    intMONSTERSATTACKEDCASTLE = 0
-    intCURRENTMONSTER = 0
+    lMONSTERSKILLED = 0
+    lMONSTERSATTACKEDCASTLE = 0
+    lCURRENTMONSTER = 0
     lMONSTERSPAWNCOOLDOWN = 0
     strNEWCHATMSG = ""
+    lSTARTINGHEALTH = lCASTLECURRENTHEALTH
     ReDim arrTOBEMONSTERS(0 To 0)
     If onlineMODE = False Then ' single player
         sngMOVESPEED = 1 + (lCURRENTLEVEL / 10)
@@ -482,50 +529,57 @@ Private Sub Form_Load()
         sngMOVESPEED = getMOVESPEED
     End If
     
-    ReDim arrMONSTERS(0 To 99)
     nC = 0
-    Do While nC <= UBound(arrMONSTERS)
-        Set arrMONSTERS(nC) = New clsMONSTER
+    Do While nC < lMONSTERARRAYSIZE
         arrMONSTERS(nC).bACTIVE = False
         nC = nC + 1
     Loop
     
-    ReDim arrFLAILS(0 To 99)
     nC = 0
-    Do While nC <= UBound(arrFLAILS)
-        Set arrFLAILS(nC) = New clsFLAIL
+    Do While nC < lFLAILARRAYSIZE
         arrFLAILS(nC).bACTIVE = False
         nC = nC + 1
     Loop
     
     If onlineMODE = False Then
-        Dim intTOTALMONSTERS As Integer
-        intTOTALMONSTERS = 0
-        nC = 0
-        Dim nC2 As Integer
-        Do While nC < numberOfMonsters
-            intTOTALMONSTERS = intTOTALMONSTERS + intMONSTERSONLEVEL(nC)
-            nC2 = 0
-            If intTOTALMONSTERS <> 0 Then ReDim Preserve arrTOBEMONSTERS(0 To intTOTALMONSTERS - 1)
-        
-            Do While nC2 < intMONSTERSONLEVEL(nC)
-                arrTOBEMONSTERS(intTOTALMONSTERS - 1 - nC2) = nC
-                nC2 = nC2 + 1
+        ' check if in endless mode
+        If lCURRENTLEVEL = 11 Then ' if on level 11 (endless level)
+            bENDLESSMODE = True ' you are in endless mode
+        Else
+            bENDLESSMODE = False ' you are not in endless mode
+            
+            ' count monsters
+            Dim intTOTALMONSTERS As Integer
+            intTOTALMONSTERS = 0
+            nC = 0
+            Dim nC2 As Integer
+            Do While nC < numberOfMonsters
+                intTOTALMONSTERS = intTOTALMONSTERS + intMONSTERSONLEVEL(nC)
+                nC2 = 0
+                If intTOTALMONSTERS <> 0 Then ReDim Preserve arrTOBEMONSTERS(0 To intTOTALMONSTERS - 1)
+            
+                Do While nC2 < intMONSTERSONLEVEL(nC)
+                    arrTOBEMONSTERS(intTOTALMONSTERS - 1 - nC2) = nC
+                    nC2 = nC2 + 1
+                Loop
+                nC = nC + 1
             Loop
-            nC = nC + 1
-        Loop
-        
-        Dim intTEMPSPOT As Integer
-        Dim intTEMP As Integer
-        nC = 0
-        Do While nC < intTOTALMONSTERS - 2 ' -2 is to get to second last monster in array, keeping last monster at last spot
-            intTEMPSPOT = Int(Rnd() * (intTOTALMONSTERS - 2)) ' get another random spot
-            ' switch the 2 spots
-            intTEMP = arrTOBEMONSTERS(nC)
-            arrTOBEMONSTERS(nC) = arrTOBEMONSTERS(intTEMPSPOT)
-            arrTOBEMONSTERS(intTEMPSPOT) = intTEMP
-            nC = nC + 1 ' next spot
-        Loop
+            
+            ' randomize monster order (but keep last monster in place)
+            Dim intTEMPSPOT As Integer
+            Dim intTEMP As Integer
+            nC = 0
+            Do While nC < intTOTALMONSTERS - 2 ' -2 is to get to second last monster in array, keeping last monster at last spot
+                intTEMPSPOT = Int(Rnd() * (intTOTALMONSTERS - 2)) ' get another random spot
+                ' switch the 2 spots
+                intTEMP = arrTOBEMONSTERS(nC)
+                arrTOBEMONSTERS(nC) = arrTOBEMONSTERS(intTEMPSPOT)
+                arrTOBEMONSTERS(intTEMPSPOT) = intTEMP
+                nC = nC + 1 ' next spot
+            Loop
+        End If
+    Else
+        bENDLESSMODE = False ' you are not in endless mode
     End If
     
     frmATTACK.width = (windowX + (frmATTACK.width / Screen.TwipsPerPixelX) - frmATTACK.ScaleWidth) * Screen.TwipsPerPixelX ' width = width + border

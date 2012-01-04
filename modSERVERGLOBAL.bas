@@ -39,10 +39,10 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
     Dim nC As Long
     
     ' spawn monsters
-    If lMONSTERSPAWNCOOLDOWN = 0 And intCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' if monster hasn't been spawned for a while and monsters still waiting
+    If lMONSTERSPAWNCOOLDOWN = 0 And lCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' if monster hasn't been spawned for a while and monsters still waiting
         Dim bSPAWN As Boolean
         bSPAWN = False ' default: don't spawn
-        If intCURRENTMONSTER <= intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) + intPLAYERS Then ' force if less then (level/3) monsters on screen
+        If lCURRENTMONSTER <= lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) + intPLAYERS Then ' force if less then (level/3) monsters on screen
             bSPAWN = True ' spawn
         ElseIf Int(Rnd() * 150) < lCURRENTLEVEL * intPLAYERS + intPLAYERS Then ' randomly
             bSPAWN = True ' spawn
@@ -61,7 +61,7 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
     lHEALTHBEFOREMOVEMON = lCASTLECURRENTHEALTH ' store health before monsters attack
     
     nC = 0
-    Do While nC <= UBound(arrMONSTERS) ' for each monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster
         If arrMONSTERS(nC).bACTIVE = True Then ' if monster is enabled
             arrMONSTERS(nC).moveMONSTER ' move the monster
             
@@ -84,7 +84,7 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
     ' move flails
     Dim lADDTOSCORE As Long ' amount to add to flail owner's score
     nC = 0
-    Do While nC <= UBound(arrFLAILS) ' for each flail
+    Do While nC < lFLAILARRAYSIZE ' for each flail
         If arrFLAILS(nC).bACTIVE = True Then ' if flail is on screen
             lADDTOSCORE = arrFLAILS(nC).moveFLAIL ' move flail and get score to add
             If lADDTOSCORE <> 0 Then ' if flail hit something
@@ -99,7 +99,7 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
         nC = nC + 1 ' next flail
     Loop
     
-    If intMONSTERSKILLED + intMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then ' if you defeated all the monsters on this level
+    If lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then ' if you defeated all the monsters on this level
         bEXIT = True ' exit
     End If
 End Sub
@@ -132,27 +132,23 @@ Public Sub startGAME() ' start the game
     ' reset level vars
     bEXIT = False
     bFORCEEXIT = False
-    intMONSTERSKILLED = 0
-    intMONSTERSATTACKEDCASTLE = 0
-    intCURRENTMONSTER = 0
+    lMONSTERSKILLED = 0
+    lMONSTERSATTACKEDCASTLE = 0
+    lCURRENTMONSTER = 0
     lMONSTERSPAWNCOOLDOWN = 0
     ReDim arrTOBEMONSTERS(0 To 0)
     sngMOVESPEED = getMOVESPEED
     
     ' clear monsters array
-    ReDim arrMONSTERS(0 To 99)
     nC = 0
-    Do While nC <= UBound(arrMONSTERS) ' for each monster spot
-        Set arrMONSTERS(nC) = New clsMONSTER ' reset monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster spot
         arrMONSTERS(nC).bACTIVE = False ' monster is not active
         nC = nC + 1 ' next monster spot
     Loop
     
     ' clear flail array
-    ReDim arrFLAILS(0 To 99)
     nC = 0
-    Do While nC <= UBound(arrFLAILS) ' for each flail spot
-        Set arrFLAILS(nC) = New clsFLAIL ' reset flail
+    Do While nC < lMONSTERARRAYSIZE ' for each flail spot
         arrFLAILS(nC).bACTIVE = False ' flail is not active
         nC = nC + 1 ' next flail spot
     Loop
@@ -309,7 +305,7 @@ Sub syncMONSTERS() ' send all of the monsters to clients
     Dim nC As Long
     nC = 0
     Dim strTOSEND As String ' string going to be sent to clients
-    Do While nC <= UBound(arrMONSTERS) ' for each monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster
         If arrMONSTERS(nC).bACTIVE = True Then ' only sync if active
             If strTOSEND <> "" Then ' if not first
                 strTOSEND = strTOSEND & "\" ' add separator
@@ -343,7 +339,7 @@ Sub syncFLAILS() ' send all flails to clients
     Dim nC As Long
     nC = 0
     Dim strTOSEND As String ' string going to be send to clients
-    Do While nC <= UBound(arrFLAILS) ' for each flail
+    Do While nC < lMONSTERARRAYSIZE ' for each flail
         If arrFLAILS(nC).bACTIVE = True Then ' only sync if active
             If strTOSEND <> "" Then ' if not first
                 strTOSEND = strTOSEND & "\" ' add separator
@@ -374,10 +370,10 @@ End Function
 Public Sub spawnMONSTER() ' spawn a monster
     Dim nC As Long
     nC = 0
-    Do While nC <= UBound(arrMONSTERS) ' for each monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster
         If arrMONSTERS(nC).bACTIVE = False Then ' if not active
             arrMONSTERS(nC).bACTIVE = True ' monster is now active
-            arrMONSTERS(nC).intTYPE = arrTOBEMONSTERS(intCURRENTMONSTER) ' next monster
+            arrMONSTERS(nC).intTYPE = arrTOBEMONSTERS(lCURRENTMONSTER) ' next monster
             
             arrMONSTERS(nC).sngX = Int(Rnd() * 2) ' randomize starting side
             If arrMONSTERS(nC).sngX = 0 Then ' if on left side
@@ -391,7 +387,7 @@ Public Sub spawnMONSTER() ' spawn a monster
             arrMONSTERS(nC).sngMOVINGV = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).sngYSPEED ' set vertical going down speed
             arrMONSTERS(nC).intHEALTH = cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intMAXHEALTH ' set to max health
             
-            intCURRENTMONSTER = intCURRENTMONSTER + 1 ' one more monster placed
+            lCURRENTMONSTER = safeADDLONG(lCURRENTMONSTER, 1) ' one more monster placed
             broadcastMONSTER nC ' broadcast new monster
             Exit Do ' found empty monster spot, continue
         End If
@@ -400,7 +396,7 @@ Public Sub spawnMONSTER() ' spawn a monster
 End Sub
 
 ' load monster info
-Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0)
+Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As Long, lIMAGEHEIGHT As Long, intPOINTCOST As Integer, intHEALTH As Integer, intATTACKPOWER As Integer, intSTARTINGY As Integer, sngXSPEED As Single, intMONEYONHIT As Integer, intMONEYONKILL As Integer, Optional sngYSPEED As Single = 0, Optional strSPECIAL As String = "")
     cmontypeMONSTERINFO(intNUMBER).intPOINTCOST = intPOINTCOST ' load point cost
     cmontypeMONSTERINFO(intNUMBER).intMAXHEALTH = intHEALTH ' load health
     cmontypeMONSTERINFO(intNUMBER).intATTACKPOWER = intATTACKPOWER ' load attack power
@@ -431,17 +427,14 @@ Sub Main() ' program init
     Loop
     
     ' reset monster array
-    ReDim arrMONSTERS(0 To 99) ' resize arrMONSTERS
     nC = 0
-    Do While nC <= UBound(arrMONSTERS) ' for each monster spot
-        Set arrMONSTERS(nC) = New clsMONSTER ' set spot as new monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster spot
         nC = nC + 1 ' next monster spot
     Loop
     
-    ReDim arrFLAILS(0 To 99) ' resize arrFLAILS
+    ' reset flail array
     nC = 0
-    Do While nC <= UBound(arrFLAILS) ' for each flail spot
-        Set arrFLAILS(nC) = New clsFLAIL ' set flail as new flail
+    Do While nC < lFLAILARRAYSIZE ' for each flail spot
         nC = nC + 1 ' next flail spot
     Loop
     

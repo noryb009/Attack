@@ -23,7 +23,7 @@ Public sngY As Single ' Y location
 Public sngMOVINGH As Single ' X moving speed
 Public sngMOVINGV As Single ' Y moving speed
 Public intGOTHROUGH As Integer ' number of go through left
-Dim longWENTTHROUGH() As Long ' array of monsters flail has gone through
+Dim longWENTTHROUGH(0 To 10) As Long ' array of monsters flail has gone through
 Dim lSIZEOFlongWENTTHROUGH As Long ' size of longWENTTHROUGH to not have to call VB functions
 
 Public Sub clearWENTTHROUGH() ' clear the go through
@@ -46,7 +46,7 @@ End Function
 Public Sub addGOTHROUGH(intNEW As Integer) ' add go through to
     lSIZEOFlongWENTTHROUGH = lSIZEOFlongWENTTHROUGH + 1 ' add to size tracker
     If UBound(longWENTTHROUGH) < lSIZEOFlongWENTTHROUGH Then ' if not big enough to hold extra flail
-        ReDim Preserve longWENTTHROUGH(0 To lSIZEOFlongWENTTHROUGH) ' resize array to hold extra flail
+        Exit Sub ' exit
     End If
     longWENTTHROUGH(lSIZEOFlongWENTTHROUGH) = intNEW ' remember new monster
 End Sub
@@ -72,7 +72,7 @@ Public Function moveFLAIL() As Long ' move the flail
     'check if hitting monster
     Dim nC As Integer
     nC = 0
-    Do While nC <= UBound(arrMONSTERS) ' for each monster
+    Do While nC < lMONSTERARRAYSIZE ' for each monster
         If arrMONSTERS(nC).bACTIVE = True Then ' if monster is active
             ' if at same elevation
             If (sngY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And intNEWY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT > arrMONSTERS(nC).sngY) Or _
@@ -94,7 +94,7 @@ Public Function moveFLAIL() As Long ' move the flail
         arrMONSTERS(lDELETEMONSTER).intHEALTH = arrMONSTERS(lDELETEMONSTER).intHEALTH - intFLAILPOWER ' take away health from monster
         If arrMONSTERS(lDELETEMONSTER).intHEALTH < 1 Then ' if monster has no health left
             arrMONSTERS(lDELETEMONSTER).bACTIVE = False ' disable monster
-            intMONSTERSKILLED = intMONSTERSKILLED + 1 ' add to number of monsters killed
+            lMONSTERSKILLED = safeADDLONG(lMONSTERSKILLED, 1) ' add to number of monsters killed
             moveFLAIL = safeADDLONG(moveFLAIL, cmontypeMONSTERINFO(arrMONSTERS(lDELETEMONSTER).intTYPE).intMONEYADDEDKILL) ' add score for killing the monster
             
             If SERVER = True Then ' if server, update clients
@@ -123,5 +123,4 @@ End Function
 
 Private Sub Class_Initialize() ' object init
     bACTIVE = False ' flail not on screen
-    ReDim longWENTTHROUGH(0 To 10) ' resize longWENTTHROUGH to hold monsters
 End Sub

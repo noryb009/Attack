@@ -1,9 +1,10 @@
+- better hit detection
+- more safe math
 - join game while playing - end game?
 - invisible monsters
 - flying monsters arc down to attack castle
 - monsters jumping
 - monsters left online
-- endless mode and high score
 - turn cannon
 - spread left/right
 - default online IP -> nothing
