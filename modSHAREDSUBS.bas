@@ -68,13 +68,13 @@ Sub loadMONSTERINFO()
     ' number in enum, image filename, image width, image height, point cost, health,
     '   attack power, Y location (-1 is ground), X speed, money given when hit,
     '   money given when killed[, Y speed]
-    loadONEMONSTERINFO greenMonster, "monster0", 9, 25, 1, 1, 2, -1, 1, 0, 2
-    loadONEMONSTERINFO blackMonster, "monster1", 9, 25, 2, 2, 5, -1, 1, 1, 2
-    loadONEMONSTERINFO bat, "monster2", 10, 11, 2, 1, 3, 150, 1.5, 0, 2, 0.4
-    loadONEMONSTERINFO tree, "monster3", 26, 50, 5, 20, 8, -1, 0.4, 1, 5
-    loadONEMONSTERINFO cloud, "monster4", 43, 28, 4, 6, 5, 10, 1, 1, 3, 0.65
-    loadONEMONSTERINFO rabbit, "monster5", 17, 34, 3, 4, 3, -1, 2, 1, 3
-    loadONEMONSTERINFO ladybug, "monster6", 13, 7, 1, 4, 2, -1, 2.5, 1, 2
+    loadONEMONSTERINFO greenMonster, "greenMonster", 9, 25, 1, 1, 2, -1, 1, 0, 2
+    loadONEMONSTERINFO blackMonster, "blackMonster", 9, 25, 2, 2, 3, -1, 1, 1, 2
+    loadONEMONSTERINFO bat, "bat", 10, 11, 2, 1, 3, 150, 1.5, 0, 2, 0.4
+    loadONEMONSTERINFO tree, "tree", 26, 50, 5, 20, 8, -1, 0.4, 1, 5
+    loadONEMONSTERINFO cloud, "cloud", 43, 28, 4, 6, 5, 10, 1, 1, 3, 0.65
+    loadONEMONSTERINFO rabbit, "rabbit", 17, 34, 3, 4, 3, -1, 2, 1, 3
+    loadONEMONSTERINFO ladybug, "ladyBug", 13, 7, 1, 4, 2, -1, 2.5, 1, 2
     loadONEMONSTERINFO knightSword, "knight", 21, 51, 5, 10, 20, -1, 0.5, 1, 4
     loadONEMONSTERINFO knightFlail, "knightFlail", 33, 51, 5, 15, 35, -1, 0.5, 1, 6
     loadONEMONSTERINFO knightHorse, "knightHorse", 92, 43, 7, 8, 20, -1, 3, 1, 8
@@ -91,6 +91,10 @@ End Sub
 
 Function getMOVESPEED() As Single ' get the movement speed (used by server and online client)
     getMOVESPEED = 1 + ((lCURRENTLEVEL * intPLAYERS) / 10) ' return formula to get move speed
+End Function
+
+Function getMONSTERSLEFT() As String ' returns the monsters left in the level
+    getMONSTERSLEFT = CStr((UBound(arrTOBEMONSTERS) + 1) - lMONSTERSKILLED - lMONSTERSATTACKEDCASTLE) ' calculate the monsters left
 End Function
 
 Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long ' add longs without overflows

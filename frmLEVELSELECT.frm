@@ -294,12 +294,12 @@ Private Sub Form_Load()
     Dim nC As Integer
     nC = 0
     Do While nC < cmdLEVEL.Count ' for each level button
-        If nC < lLEVEL Then ' if user has beaten level
+        If nC < lLEVEL Or nC = 10 Then ' if user has beeten level, is the next level, or is endless mode
             cmdLEVEL(nC).Visible = True ' show button
-            If nC = lLEVEL - 1 Then ' if not beaten yet
-                cmdLEVEL(nC).BackColor = vbRed ' red background
-            Else
+            If nC + 1 < lLEVEL Then ' if not beaten yet
                 cmdLEVEL(nC).BackColor = vbGreen ' green background
+            Else
+                cmdLEVEL(nC).BackColor = vbRed ' red background
             End If
         Else
             cmdLEVEL(nC).Visible = False ' hide level

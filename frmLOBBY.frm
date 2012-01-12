@@ -12,14 +12,14 @@ Begin VB.Form frmLOBBY
    ScaleWidth      =   409
    StartUpPosition =   2  'CenterScreen
    Begin RichTextLib.RichTextBox rtbPLAYERS 
-      Height          =   2175
+      Height          =   1935
       Left            =   4320
       TabIndex        =   6
       TabStop         =   0   'False
-      Top             =   0
+      Top             =   240
       Width           =   1815
       _ExtentX        =   3201
-      _ExtentY        =   3836
+      _ExtentY        =   3413
       _Version        =   393217
       ReadOnly        =   -1  'True
       ScrollBars      =   1
@@ -85,13 +85,21 @@ Begin VB.Form frmLOBBY
       Top             =   2280
       Width           =   5175
    End
+   Begin VB.Label lblNEXTLEVEL 
+      Caption         =   "lblNEXTLEVEL"
+      Height          =   375
+      Left            =   0
+      TabIndex        =   8
+      Top             =   2760
+      Width           =   1455
+   End
    Begin VB.Label lblWELCOME 
       Caption         =   "lblWELCOME"
       Height          =   255
       Left            =   120
       TabIndex        =   7
       Top             =   0
-      Width           =   4095
+      Width           =   5895
    End
 End
 Attribute VB_Name = "frmLOBBY"
@@ -152,6 +160,10 @@ Sub updatePLAYERLIST()
         End If
         nC = nC + 1 ' next player
     Loop
+End Sub
+
+Sub updateNEXTLEVELLBL() ' update the next level label to show the correct next level
+    lblNEXTLEVEL = "Next level: Level " & (lCURRENTLEVEL + 1)
 End Sub
 
 Sub logout()
@@ -248,6 +260,7 @@ Private Sub Form_Load()
     updatePLAYERLIST ' update player list
     cmdREADY.Enabled = True ' you can change your ready state
     lblWELCOME.Caption = "Welcome, " & strNAME & "!" ' show your name
+    updateNEXTLEVELLBL ' update the next level label to show the next level
     
     Dim nC As Integer
     nC = 0

@@ -81,29 +81,32 @@ Section "Attack"
 	
 	# Images
 	SetOutPath "$InstDir\images"
-	File /a "images\monster6.bmp"
-	File /a "images\monster5.bmp"
-	File /a "images\monster4.bmp"
-	File /a "images\monster3.bmp"
-	File /a "images\monster2.bmp"
-	File /a "images\monster1.bmp"
-	File /a "images\monster0.bmp"
-	File /a "images\knightHorse.bmp"
-	File /a "images\knightFlail.bmp"
+	
+	File /a "images\greenMonster.bmp"
+	File /a "images\blackMonster.bmp"
+	File /a "images\bat.bmp"
+	File /a "images\tree.bmp"
+	File /a "images\cloud.bmp"
+	File /a "images\rabbit.bmp"
+	File /a "images\ladyBug.bmp"
 	File /a "images\knight.bmp"
+	File /a "images\knightFlail.bmp"
+	File /a "images\knightHorse.bmp"
+	File /a "images\dragon.bmp"
+	
 	File /a "images\health.bmp"
+	File /a "images\monHealth.bmp"
 	File /a "images\flail.bmp"
 	File /a "images\font.bmp"
-	File /a "images\dragon.bmp"
 	File /a "images\castle.bmp"
 	File /a "images\background.bmp"
-
+	
 	# EXEs and empty database
 	SetOutPath "$InstDir"
 	File /a "prjATTACK.exe"
 	File /a "prjATTACKSERVER.exe"
 	File /a "Support\saveFiles.mdb" #empty database in Support folder
-
+	
 	#Registry
 	WriteRegStr HKLM "Software\Attack" Version "0.0.0.1a"
 	
@@ -115,7 +118,7 @@ Section "Attack"
 	CreateShortCut "$SMPrograms\Attack\Attack Server.lnk" "$InstDir\prjATTACKSERVER.exe"
 	CreateShortCut "$SMPrograms\Attack\Attack.lnk" "$InstDir\prjATTACK.exe"
 	CreateShortCut "$SMPrograms\Attack\Uninstall Attack.lnk" "$InstDir\uninstaller.exe"
-
+	
 	# Add uninstaller information to registry.
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Attack" "DisplayName" "Attack"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Attack" "UninstallString" '"$InstDir\uninstaller.exe"'
@@ -150,7 +153,7 @@ Section Uninstall
 	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\RICHTX32.OCX"
 	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\RICHED32.DLL"
 	!insertmacro UnInstallLib REGDLL SHARED REBOOT_PROTECTED "$SysDir\mswinsck.ocx"
-
+	
 	# Delete files
 	Delete /RebootOk "$InstDir\prjATTACK.exe"
 	Delete /RebootOk "$InstDir\prjATTACKSERVER.exe"
@@ -187,7 +190,7 @@ SectionEnd
 Section "-Install VB6 runtimes"
 	;Add code here that sets $ALREADY_INSTALLED to a non-zero value if"
 	;the application is already installed. For example:
-
+	
 	ReadRegStr $Version HKLM "Software\Attack" Version
 	IfErrors new_installation2
 	StrCpy $ALREADY_INSTALLED 1

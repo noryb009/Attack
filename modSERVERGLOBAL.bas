@@ -67,6 +67,7 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
             
             If arrMONSTERS(nC).bACTIVE = False Then ' if monster got disabled (attacked castle or out of the screen)
                 broadcastMONSTER nC ' broadcast monster state
+                broadcast "monstersLeft", getMONSTERSLEFT ' sync number of monsters left
             End If
         End If
         nC = nC + 1 ' next monster
@@ -185,8 +186,11 @@ Public Sub startGAME() ' start the game
     
     ' generate level monsters
     generateMONSTERS (lCURRENTLEVEL * 20) + 30 ' generate monsters
+    broadcast "monstersLeft", getMONSTERSLEFT ' sync number of monsters left
     
     frmSERVER.timerSYNC.Enabled = True ' sync with clients
+    
+    doEVENTSANDSLEEP 1000 ' give clients a little time to get ready
     
     Dim currSTARTTIME As Currency ' starting time
     Dim currCURRENTTIME As Currency ' current time
@@ -221,7 +225,7 @@ Public Sub startGAME() ' start the game
             lCASTLECURRENTHEALTH = 1 ' reset current health, enough to continue if round winner doesn't buy health
             sngMONEYMULTIPLYER = 0.5 ' half money
             strWINLOOSE = "Loose" ' you lost
-            If lCURRENTLEVEL > 1 Then ' if not at easiest level
+            If lCURRENTLEVEL > 0 Then ' if not at easiest level
                 lCURRENTLEVEL = lCURRENTLEVEL - 1 ' go back a level
             End If
         Else ' health left, you won
@@ -437,6 +441,8 @@ Sub Main() ' program init
     Do While nC < lFLAILARRAYSIZE ' for each flail spot
         nC = nC + 1 ' next flail spot
     Loop
+    
+    ReDim arrTOBEMONSTERS(0 To 0) ' resize array to have no current monsters
     
     frmSERVER.Show ' show the server form
 End Sub

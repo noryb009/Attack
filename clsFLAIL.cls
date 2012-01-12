@@ -54,19 +54,17 @@ End Sub
 Public Function moveFLAIL() As Long ' move the flail
     moveFLAIL = 0 ' no score added yet
     
-    Dim lMOVESPLIT As Long
-    lMOVESPLIT = Abs(sngMOVINGH \ 5) + Abs(sngMOVINGV \ 5) + 1 ' calculate number of little moves the big move should take
-    
-    Dim sngNEWX As Integer ' new X location
-    Dim sngNEWY As Integer ' new Y location
+    Dim sngMOVESPLIT As Single
+    sngMOVESPLIT = Abs(sngMOVINGH \ 14) + Abs(sngMOVINGV \ 14) + 1 ' calculate number of little moves the big move should take
+
     Dim lDELETEMONSTER As Long ' monster the flail is hitting
     
     Dim lMOVECOUNT As Long
     lMOVECOUNT = 0
     
-    Do While lMOVECOUNT < lMOVESPLIT And bACTIVE = True ' for each small move (and flail is still active)
-        sngNEWX = sngX + sngMOVINGH / lMOVESPLIT ' add X distance
-        sngNEWY = sngY + (sngMOVINGV / lMOVESPLIT) ' add Y distance
+    Do While lMOVECOUNT < sngMOVESPLIT And bACTIVE = True ' for each small move (and flail is still active)
+        sngX = sngX + (sngMOVINGH / sngMOVESPLIT) ' add X distance
+        sngY = sngY + (sngMOVINGV / sngMOVESPLIT) ' add Y distance
         
         lDELETEMONSTER = -1 ' don't delete a monster
         
@@ -76,11 +74,9 @@ Public Function moveFLAIL() As Long ' move the flail
         Do While nC < lMONSTERARRAYSIZE ' for each monster
             If arrMONSTERS(nC).bACTIVE = True Then ' if monster is active
                 ' if at same elevation
-                If (sngY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And sngNEWY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT > arrMONSTERS(nC).sngY) Or _
-                (sngNEWY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And sngY + flailSIZEPX > arrMONSTERS(nC).sngY) Then
+                If (sngY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And sngY + flailSIZEPX > arrMONSTERS(nC).sngY) Then
                     ' if same vertical spot
-                    If (sngX < arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH And sngNEWX + flailSIZEPX > arrMONSTERS(nC).sngX) Or _
-                    (sngNEWX < arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH And sngX + flailSIZEPX > arrMONSTERS(nC).sngX) Then
+                    If (sngX < arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH And sngX + flailSIZEPX > arrMONSTERS(nC).sngX) Then
                         If didGOTHROUGH(nC) = False Then ' if you haven't gone through monster yet
                             lDELETEMONSTER = nC ' attack this monster
                             Exit Do ' you found a monster, continue
@@ -100,6 +96,7 @@ Public Function moveFLAIL() As Long ' move the flail
                 
                 If SERVER = True Then ' if server, update clients
                     broadcastMONSTER lDELETEMONSTER
+                    broadcast "monstersLeft", getMONSTERSLEFT ' sync number of monsters left
                 End If
             Else
                 If intFLAILGOTHROUGH > 1 Then ' if flail can go through more monsters after this one
@@ -113,9 +110,6 @@ Public Function moveFLAIL() As Long ' move the flail
                 bACTIVE = False ' flail has gone through all the monsters
             End If
         End If
-        
-        sngX = sngNEWX ' set new X
-        sngY = sngNEWY ' set new Y
         
         If sngX + flailSIZEPX < 0 Or sngX > windowX Or sngY < -1000 Or sngY > windowY - 50 - flailSIZEPX Then ' if out of bounds (-1000 lets flail go off top of screen)
             bACTIVE = False ' disable flail

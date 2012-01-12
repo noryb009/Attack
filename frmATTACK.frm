@@ -41,6 +41,7 @@ Dim csprCASTLE As New clsSPRITE ' castle with different health ranges
 Dim cbitBUFFER As New clsBITMAP ' buffer
 Dim csprFONT As New clsSPRITE ' font
 Dim cbitHEALTH As New clsBITMAP ' health bar
+Dim cbitMONHEALTH As New clsBITMAP ' monster health bar
 
 Dim strNEWCHATMSG As String ' new chat message
 
@@ -48,8 +49,8 @@ Dim lSTARTINGHEALTH As Long ' starting health, used for endless mode to restore 
 
 Dim bENDLESSMODE As Boolean ' true if in endless mode
 
-Const keepX = 338 ' X location of flail starting point
-Const keepY = 190 ' Y location of flail starting point
+Const keepX = 343 ' X location of flail starting point
+Const keepY = 180 ' Y location of flail starting point
 
 Const castleTOPMARGIN = 150 ' space above top of castle image
 
@@ -62,23 +63,14 @@ Sub playGAME()
     QueryPerformanceFrequency currCURRENTTIME ' currFREQUENCY ' get the frequency of ticks
     dblTIMEBETWEENFRAMES = currCURRENTTIME / FPS ' currFREQUENCY / FPS ' get time between frames needed to reach FPS
     
-    Dim bDRAWN As Boolean ' true if frame has been drawn
-    bDRAWN = False ' not drawn yet
-    
     Do While bEXIT = False And bFORCEEXIT = False ' if not exiting yet
         QueryPerformanceCounter currCURRENTTIME ' get current time
         If currCURRENTTIME >= currSTARTTIME + dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
             QueryPerformanceCounter currSTARTTIME ' store current time as new start time
             moveEVERYTHING ' move everything
-            'drawEVERYTHING ' draw everything
-            bDRAWN = False ' you haven't drawn this frame yet
+            drawEVERYTHING ' draw everything
         Else
-            If bDRAWN = True Then ' if frame already drawn
-                Sleep 1 ' sleep
-            Else
-                drawEVERYTHING ' draw everything
-                bDRAWN = True ' you have drawn this frame
-            End If
+            Sleep 1 ' sleep
         End If
         DoEvents ' do any events needed to be done
     Loop
@@ -408,6 +400,11 @@ Sub drawEVERYTHING() ' draw everything to the screen
                     BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX, arrMONSTERS(nC).sngY, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).height, arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).framehDC(arrMONSTERS(nC).currentFRAME), 0, 0, vbSrcPaint ' draw left monster
                 End If
                 arrMONSTERS(nC).nextFRAME ' go to the next frame
+                
+                ' monster health
+                If arrMONSTERS(nC).intHEALTH <> cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intMAXHEALTH And arrMONSTERS(nC).intHEALTH > 0 Then ' if monster has been attacked
+                    BitBlt cbitBUFFER.hdc, arrMONSTERS(nC).sngX + ((arrcMONSTERLPICS(arrMONSTERS(nC).intTYPE).width - cbitMONHEALTH.width) \ 2), arrMONSTERS(nC).sngY - 10, cbitMONHEALTH.width / (cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).intMAXHEALTH / arrMONSTERS(nC).intHEALTH), cbitMONHEALTH.height, cbitMONHEALTH.hdc, 0, 0, vbSrcCopy ' draw health bar
+                End If
             End If
             nC = nC + 1 ' next monster
         Loop
@@ -416,8 +413,8 @@ Sub drawEVERYTHING() ' draw everything to the screen
         nC = 0
         Do While nC < lFLAILARRAYSIZE ' for each flail
             If arrFLAILS(nC).bACTIVE = True Then ' if flail is active
-                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lOWNER + 1), 0, 0, vbSrcAnd ' draw flail mask
-                BitBlt cbitBUFFER.hdc, arrFLAILS(nC).sngX, arrFLAILS(nC).sngY, csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lOWNER + 1), 0, 0, vbSrcPaint ' draw flail
+                BitBlt cbitBUFFER.hdc, Int(arrFLAILS(nC).sngX), Int(arrFLAILS(nC).sngY), csprFLAIL.width, csprFLAIL.height, csprFLAIL.frameMaskhDC(arrFLAILS(nC).lOWNER + 1), 0, 0, vbSrcAnd ' draw flail mask
+                BitBlt cbitBUFFER.hdc, Int(arrFLAILS(nC).sngX), Int(arrFLAILS(nC).sngY), csprFLAIL.width, csprFLAIL.height, csprFLAIL.framehDC(arrFLAILS(nC).lOWNER + 1), 0, 0, vbSrcPaint ' draw flail
             End If
             nC = nC + 1 ' next flail
         Loop
@@ -438,8 +435,10 @@ Sub drawEVERYTHING() ' draw everything to the screen
     ' draw monsters left
     If bENDLESSMODE = True Then ' if in endless mode
         writeONIMAGE "Monsters defeated: " & CStr(lMONSTERSKILLED), cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters defeated: " & CStr(lMONSTERSKILLED))) \ 2, 455 ' draw monsters killed
-    ElseIf onlineMODE = False Then ' if offline, but not in endless mode
-        writeONIMAGE "Monsters left: " & CStr((UBound(arrTOBEMONSTERS) + 1) - lMONSTERSKILLED - lMONSTERSATTACKEDCASTLE), cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters left: " & CStr(UBound(arrTOBEMONSTERS) - lMONSTERSKILLED - lMONSTERSATTACKEDCASTLE))) \ 2, 455 ' draw monsters left
+    ElseIf onlineMODE = True Then ' if online
+        writeONIMAGE "Monsters left: " & CStr(lMONSTERSLEFT), cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters left: " & CStr(lMONSTERSLEFT))) \ 2, 455 ' draw monsters left
+    Else ' offline, but not in endless mode
+        writeONIMAGE "Monsters left: " & getMONSTERSLEFT, cbitBUFFER.hdc, (windowX - widthOFTEXT("Monsters left: " & getMONSTERSLEFT)) \ 2, 455 ' draw monsters left
     End If
     
     ' draw score
@@ -498,6 +497,7 @@ Private Sub Form_Load()
     bLOADED = bLOADED And csprCASTLE.loadFRAMES(strIMAGEPATH & "castle.bmp", 211, 226, False, True)
     
     bLOADED = bLOADED And cbitHEALTH.loadFILE(strIMAGEPATH & "health.bmp")
+    bLOADED = bLOADED And cbitMONHEALTH.loadFILE(strIMAGEPATH & "monHealth.bmp")
     
     bLOADED = bLOADED And csprFONT.loadFRAMES(strIMAGEPATH & "font.bmp", 7, 14, False, True)
     If csprFONT.numberOfFrames <> 128 Then ' if wrong number of frames

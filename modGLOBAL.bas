@@ -23,7 +23,7 @@ Global csprFLAIL As New clsSPRITE ' flail image
 
 Global lCURRENTLEVEL As Long ' current level
 Global lHIGHSCORE As Long ' player highscore
-Global lMONSTERSLEFT As Long ' only used in online mode
+Global lMONSTERSLEFT As Long ' only used in online mode, number of monsters left in level
 
 'savefile
 Global strNAME As String ' player name
@@ -196,7 +196,6 @@ Sub Main()
     Dim bSUCCESS As Boolean
     bSUCCESS = True ' successful so far
     
-    
     loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO()
     loadPLAYERCOLOURS ' load player colour info into playerCOLOURS()
     
@@ -213,10 +212,12 @@ Sub Main()
     frmNEWGAME.Show ' show new game form
 End Sub
 
+Public Sub broadcast(strCOMMAND As String, strTOSEND As String) ' send a command to all the clients
+     ' empty sub to allow server to share subs
+End Sub
 Public Sub log(strNEWLINE As String)
     ' empty sub to allow server to share subs
 End Sub
-
 Public Sub broadcastMONSTER(lMONSTERNUMBER As Long)
     ' empty sub to allow server to share subs
 End Sub

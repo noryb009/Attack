@@ -166,6 +166,8 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             DoEvents ' after sendstring, run doevents to send to client
             cCLIENTS(lARRAYID).sendString "maxHealth", CStr(lCASTLEMAXHEALTH) ' sync max health
             DoEvents ' after sendstring, run doevents to send to client
+            cCLIENTS(lARRAYID).sendString "monstersLeft", getMONSTERSLEFT ' sync number of monsters left
+            DoEvents ' after sendstring, run doevents to send to client
             cCLIENTS(lARRAYID).sendString "nextLevel", CStr(lCURRENTLEVEL) ' sync current level
             DoEvents ' after sendstring, run doevents to send to client
             

@@ -316,22 +316,16 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "maxHealth" ' max health update
             If strDESCRIPTION <> "" Then ' if not bad command
                 lCASTLEMAXHEALTH = CLng(strDESCRIPTION) ' get new max health
-                If currentSTATE = "lobbyShop" Then ' if in the shop
-                    frmSTORE.updateLABELS ' update the shop labels
-                End If
             End If
             If currentSTATE = "lobbyShop" Then ' if in the shop
-                frmSTORE.updateLABELS ' update labels inside the store
+                frmSTORE.updateLABELS ' update labels inside the shop
             End If
         Case "health" ' health update
             If strDESCRIPTION <> "" Then ' if not bad command
                 lCASTLECURRENTHEALTH = CLng(strDESCRIPTION) ' get new health
-                If currentSTATE = "lobbyShop" Then ' if in the shop
-                    frmSTORE.updateLABELS ' update the shop labels
-                End If
             End If
             If currentSTATE = "lobbyShop" Then ' if in the shop
-                frmSTORE.updateLABELS ' update labels inside the store
+                frmSTORE.updateLABELS ' update labels inside the shop
             End If
         'Case "moneyLevel" ' level money update
         '    If strDESCRIPTION <> "" Then ' if not bad command
@@ -340,19 +334,17 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "moneyTotal" ' money update
             If strDESCRIPTION <> "" Then ' if not bad command
                 lMONEY = CLng(strDESCRIPTION) ' update money
-                If currentSTATE = "lobbyShop" Then ' if in shop
-                    frmSTORE.updateLABELS ' update shop labels
-                End If
             End If
             If currentSTATE = "lobbyShop" Then ' if in the shop
-                frmSTORE.updateLABELS ' update labels inside the store
+                frmSTORE.updateLABELS ' update labels inside the shop
+            End If
+        Case "monstersLeft" ' money update
+            If strDESCRIPTION <> "" Then ' if not bad command
+                lMONSTERSLEFT = CLng(strDESCRIPTION) ' update money
             End If
         Case "flaPower" ' flail power update
             If strDESCRIPTION <> "" Then ' if not bad command
                 intFLAILPOWER = CInt(strDESCRIPTION) ' update flail power
-                If currentSTATE = "lobbyShop" Then ' if in shop
-                    frmSTORE.updateLABELS ' update shop labels
-                End If
             End If
             If currentSTATE = "lobbyShop" Then ' if in the shop
                 frmSTORE.updateLABELS ' update labels inside the store
@@ -360,9 +352,6 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "flaGoThrough" ' flail go through update
             If strDESCRIPTION <> "" Then ' if not bad command
                 intFLAILGOTHROUGH = CInt(strDESCRIPTION) ' update flail go through
-                If currentSTATE = "lobbyShop" Then ' if in shop
-                    frmSTORE.updateLABELS ' update shop labels
-                End If
             End If
             If currentSTATE = "lobbyShop" Then ' if in the shop
                 frmSTORE.updateLABELS ' update labels inside the store
@@ -370,9 +359,6 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "flaAmount" ' flail amount update
             If strDESCRIPTION <> "" Then ' if not bad command
                 intFLAILAMOUNT = CInt(strDESCRIPTION) ' update flail amount
-                If currentSTATE = "lobbyShop" Then ' if in shop
-                    frmSTORE.updateLABELS ' update shop labels
-                End If
             End If
             If currentSTATE = "lobbyShop" Then ' if in the shop
                 frmSTORE.updateLABELS ' update labels inside the store
@@ -380,6 +366,9 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
         Case "nextLevel" ' current level update (next level user will go on)
             If strDESCRIPTION <> "" Then ' if not bad command
                 lCURRENTLEVEL = CLng(strDESCRIPTION) ' update current level
+                If currentSTATE = "lobby" Or currentSTATE = "lobbyShop" Then ' if in lobby
+                    frmLOBBY.updateNEXTLEVELLBL ' update next level label to show the correct next level
+                End If
             End If
         Case "chat" ' somebody is talking or message from server
             handleCHAT strDESCRIPTION ' handle chat message
