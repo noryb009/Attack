@@ -1,3 +1,4 @@
+- story and instructions
 - more safe math - no overflows
 - join game while playing - end game?
 - invisible monsters

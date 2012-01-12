@@ -179,10 +179,10 @@ Private Sub cmdLEVEL_Click(Index As Integer)
     If lCASTLECURRENTHEALTH <= 0 Then ' if you don't have health
         If lMONEY >= 10 Then ' if you have enough money to buy health
             ' tell user to buy health
-            MsgBox "You don't have any health! You can buy more at the store."
+            MsgBox "You don't have any health! You can buy more at the store.", vbOKOnly, programNAME
         Else
             ' tell user to buy health, and give some money for them to buy it
-            MsgBox "You don't have any health! Here's a few gold coins for you to buy some at the store."
+            MsgBox "You don't have any health! Here's a few gold coins for you to buy some at the store.", vbOKOnly, programNAME
             lMONEY = 10
         End If
         Exit Sub
@@ -245,7 +245,7 @@ End Sub
 
 Private Sub cmdLOGOUT_Click()
     If cmdSAVE.Enabled = True Then ' if user hasn't saved yet
-        If MsgBox("Do you want to save?", vbYesNo) = vbYes Then ' offer to save
+        If MsgBox("Do you want to save?", vbYesNo, programNAME) = vbYes Then ' offer to save
             saveGAME ' save game
         End If
     End If

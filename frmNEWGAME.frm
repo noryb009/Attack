@@ -16,7 +16,7 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Highscores"
       Height          =   375
       Left            =   240
-      TabIndex        =   12
+      TabIndex        =   6
       Top             =   120
       Width           =   1335
    End
@@ -24,7 +24,7 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Multi player"
       Height          =   375
       Left            =   3360
-      TabIndex        =   11
+      TabIndex        =   7
       Top             =   120
       Width           =   1335
    End
@@ -32,14 +32,14 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Single player"
       Height          =   375
       Left            =   3360
-      TabIndex        =   10
+      TabIndex        =   8
       Top             =   120
       Width           =   1335
    End
    Begin VB.TextBox txtIP 
       Height          =   375
       Left            =   120
-      TabIndex        =   8
+      TabIndex        =   4
       Text            =   "127.0.0.1"
       Top             =   1800
       Visible         =   0   'False
@@ -49,7 +49,7 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Join a multiplayer game"
       Height          =   495
       Left            =   2640
-      TabIndex        =   7
+      TabIndex        =   5
       Top             =   1440
       Visible         =   0   'False
       Width           =   1815
@@ -58,7 +58,8 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Delete"
       Height          =   255
       Left            =   3960
-      TabIndex        =   6
+      TabIndex        =   11
+      TabStop         =   0   'False
       Top             =   2640
       Width           =   615
    End
@@ -66,7 +67,7 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Load a saved game"
       Height          =   375
       Left            =   2760
-      TabIndex        =   4
+      TabIndex        =   3
       Top             =   2040
       Width           =   1815
    End
@@ -74,7 +75,7 @@ Begin VB.Form frmNEWGAME
       Height          =   375
       Left            =   120
       MaxLength       =   15
-      TabIndex        =   2
+      TabIndex        =   0
       Top             =   1080
       Width           =   2415
    End
@@ -82,14 +83,14 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Start a new game"
       Height          =   495
       Left            =   2760
-      TabIndex        =   0
+      TabIndex        =   1
       Top             =   1080
       Width           =   1815
    End
    Begin VB.ListBox lstSAVES 
       Height          =   1230
       Left            =   120
-      TabIndex        =   5
+      TabIndex        =   2
       Top             =   1680
       Width           =   2415
    End
@@ -97,7 +98,7 @@ Begin VB.Form frmNEWGAME
       Caption         =   "IP:"
       Height          =   255
       Left            =   240
-      TabIndex        =   9
+      TabIndex        =   12
       Top             =   1560
       Visible         =   0   'False
       Width           =   735
@@ -106,7 +107,7 @@ Begin VB.Form frmNEWGAME
       Caption         =   "Your name:"
       Height          =   255
       Left            =   240
-      TabIndex        =   3
+      TabIndex        =   10
       Top             =   720
       Width           =   975
    End
@@ -123,7 +124,7 @@ Begin VB.Form frmNEWGAME
       EndProperty
       Height          =   615
       Left            =   1680
-      TabIndex        =   1
+      TabIndex        =   9
       Top             =   120
       Width           =   1455
    End
@@ -219,11 +220,11 @@ End Sub
 
 Private Sub cmdDELETE_Click()
     If lstSAVES.ListIndex = -1 Then ' if you don't have a save file selected
-        MsgBox "Please select the save file to delete" ' alert the user
+        MsgBox "Please select the save file to delete", vbOKOnly, programNAME ' alert the user
         Exit Sub
     End If
     
-    If MsgBox("Are you sure you want to delete " & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "?", vbYesNo) = vbYes Then ' double check
+    If MsgBox("Are you sure you want to delete " & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "?", vbYesNo, programNAME) = vbYes Then ' double check
         dbSAVEFILES.Execute "DELETE FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "'" ' delete from database
         loadNamesToListbox ' refresh listbox
     End If
@@ -234,14 +235,14 @@ Private Sub cmdLOAD_Click()
     intPLAYERS = -1 ' not multiplayer
     
     If lstSAVES.ListIndex = -1 Then ' player hasn't selected a name
-        MsgBox "Please select your name" ' alert the user
+        MsgBox "Please select your name", vbOKOnly, programNAME ' alert the user
         Exit Sub
     End If
     
     Set recsetSAVES = dbSAVEFILES.OpenRecordset("SELECT * FROM `SaveGames` WHERE `Name`='" & escapeQUOTES(lstSAVES.List(lstSAVES.ListIndex)) & "'") ' load save file
     
     If recsetSAVES.RecordCount = 0 Then ' if couldn't find router
-        MsgBox "Error: could not find save file" ' alert the user
+        MsgBox "Error: could not find save file", vbOKOnly, programNAME ' alert the user
         loadNamesToListbox ' refresh listbox
         Exit Sub
     End If
@@ -263,7 +264,7 @@ End Sub
 
 Sub newGAME()
     If Trim(txtNAME.Text) = "" Then ' if name is empty
-        MsgBox "Please input a name." ' alert the user
+        MsgBox "Please input a name.", vbOKOnly, programNAME ' alert the user
         Exit Sub
     End If
     
@@ -273,7 +274,7 @@ Sub newGAME()
         nC = 0
         Do While nC < lstSAVES.ListCount ' for each name in listbox
             If UCase(lstSAVES.List(nC)) = UCase(Trim(txtNAME.Text)) Then ' if name already used
-                MsgBox "Name already exists in database!" ' alert user
+                MsgBox "Name already exists in database!", vbOKOnly, programNAME ' alert user
                 Exit Sub
             End If
             nC = nC + 1 ' next name
@@ -303,7 +304,7 @@ End Sub
 
 Private Sub cmdNEWMPGAME_Click()
     If Trim(txtNAME.Text) = "" Then ' if name is empty
-        MsgBox "Please input a name." ' alert user
+        MsgBox "Please input a name.", vbOKOnly, programNAME ' alert user
         Exit Sub
     End If
     

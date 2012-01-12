@@ -15,7 +15,7 @@ Sub sckDISCONNECTED(lARRAYID As Long, Optional bMESSAGE As Boolean = True) ' som
             Unload frmATTACK ' unload playing form
     End Select
     If onlineMODE = True Then ' if not already messaged
-        If bMESSAGE = True Then MsgBox "Disconnected from host!" ' message that you disconnected
+        If bMESSAGE = True Then MsgBox "Disconnected from host!", vbOKOnly, programNAME ' message that you disconnected
         onlineMODE = False ' not online anymore
     End If
     If currentSTATE <> "" Then ' if not already in new game form
@@ -204,9 +204,9 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
     Select Case strCOMMAND
         Case "DISCONNECT" ' disconnect
             If strDESCRIPTION = "" Then
-                MsgBox "Disconnected from host!" ' alert that you were disconnected
+                MsgBox "Disconnected from host!", vbOKOnly, programNAME ' alert that you were disconnected
             Else
-                MsgBox "Disconnected from host: " & strDESCRIPTION ' alert reason that you were disconnected
+                MsgBox "Disconnected from host: " & strDESCRIPTION, vbOKOnly, programNAME ' alert reason that you were disconnected
             End If
             sckDISCONNECTED 0, False ' disconnect
         Case "VERSION" ' server wants version

@@ -56,7 +56,7 @@ Function connectTOSERVER(strCONNECTTOIP As String) As Boolean
     connectTOSERVER = False ' hasn't succeeded yet
     
     If strCONNECTTOIP = "" Then ' if nothing entered
-        MsgBox "Please input a valid IP address." ' alert user
+        MsgBox "Please input a valid IP address.", vbOKOnly, programNAME ' alert user
         Exit Function
     End If
     
@@ -70,7 +70,7 @@ Function connectTOSERVER(strCONNECTTOIP As String) As Boolean
     Else ' port is included in IP (192.168.0.1:12345)
         longPORT = CLng(strPARTS(1)) ' get the port
         If longPORT < 1024 Or longPORT > 65535 Then ' if out of bounds
-            MsgBox "Please input a port between 1024 and 65535." ' alert user
+            MsgBox "Please input a port between 1024 and 65535.", vbOKOnly, programNAME ' alert user
             Exit Function
         End If
     End If

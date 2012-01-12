@@ -5,6 +5,7 @@ Attribute VB_Name = "modGLOBAL"
 ' Defend your castle!
 
 Global Const SERVER = False ' not a server
+Global Const programNAME = "Attack"
 Global onlineMODE As Boolean ' if playing singleplayer/multiplayer
 
 Global currentSTATE As String ' used for online mode to see what state the game is at (lobby, playing, buying, etc.)
@@ -165,7 +166,7 @@ Sub loadONEMONSTERINFO(intNUMBER As Integer, imageNAME As String, lIMAGEWIDTH As
     bSUCCESS = bSUCCESS And arrcMONSTERLPICS(intNUMBER).loadFRAMES(strIMAGEPATH & imageNAME & ".bmp", lIMAGEWIDTH, lIMAGEHEIGHT, True, True) ' load image looking left
     
     If bSUCCESS = False Then ' if error
-        MsgBox "Error loading images!" ' alert user
+        MsgBox "Error loading images!", vbOKOnly, programNAME ' alert user
         End ' exit program
     End If
     
@@ -205,7 +206,7 @@ Sub Main()
     End If
     
     If bSUCCESS = False Then ' if error
-        MsgBox "Error loading images!" ' alert user
+        MsgBox "Error loading images!", vbOKOnly, programNAME ' alert user
         End ' exit program
     End If
     

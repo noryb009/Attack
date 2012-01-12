@@ -5,6 +5,7 @@ Attribute VB_Name = "modGLOBAL"
 ' Defend your castle!
 
 Global Const SERVER = True ' is server
+Global Const programNAME = "Attack Server"
 Global Const onlineMODE = False ' used for being able to share subs with client
 
 Global cCLIENTS(0 To MAXCLIENTS - 1) As New clsCONNECTION ' client connections
