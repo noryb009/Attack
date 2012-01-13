@@ -258,10 +258,12 @@ Public Sub startGAME() ' start the game
         nC = 0
         
         Do While nC < MAXCLIENTS ' for each client
-            If nC = lWINNEROFROUND Then ' if client won
-                cCLIENTS(nC).sendString "game", "stop" & strWINLOOSE & "Highscore" ' alert user that they won the round
-            Else
-                cCLIENTS(nC).sendString "game", "stop" & strWINLOOSE ' alert user that the game has ended
+            If cCLIENTS(nC).connected = True Then ' if client is connected
+                If nC = lWINNEROFROUND Then ' if client won
+                    cCLIENTS(nC).sendString "game", "stop" & strWINLOOSE & "Highscore" ' alert user that they won the round
+                Else
+                    cCLIENTS(nC).sendString "game", "stop" & strWINLOOSE ' alert user that the game has ended
+                End If
             End If
             nC = nC + 1 ' next client
         Loop

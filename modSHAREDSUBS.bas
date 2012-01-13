@@ -119,10 +119,10 @@ Sub generateMONSTERS(ByRef lLEVELPOINTS As Long) ' generate monsters
     intCURRENTMON = -1 ' starts with -1 monsters, adds one, and starts at 0
     
     Do While lLEVELPOINTS > 0 ' do while you still have points
-        If numberOfMonsters < (lCURRENTLEVEL + 1) Then ' if you have unlocked all the monsters
+        If numberOfMonsters < (lCURRENTLEVEL + 2) Then ' if you have unlocked all the monsters
             intNEWMONSTER = Int(Rnd() * numberOfMonsters) ' random monster
         Else ' you haven't unlocked all the monsters yet
-            intNEWMONSTER = Int(Rnd() * (lCURRENTLEVEL + 1)) ' random monster from the monsters unlocked so far
+            intNEWMONSTER = Int(Rnd() * (lCURRENTLEVEL + 2)) ' random monster from the monsters unlocked so far
         End If
         
         intSTARTINGMONSTER = intNEWMONSTER ' record starting monster
@@ -132,12 +132,12 @@ Sub generateMONSTERS(ByRef lLEVELPOINTS As Long) ' generate monsters
             If intNEWMONSTER = intSTARTINGMONSTER Then ' if back at starting monster
                 Exit Do ' not enough points to get any monster
             End If
-            If intNEWMONSTER = numberOfMonsters Or intNEWMONSTER = (lCURRENTLEVEL + 1) Then ' reached upper bound of monsters, or reached max monster for current level
+            If intNEWMONSTER = numberOfMonsters Or intNEWMONSTER = (lCURRENTLEVEL + 2) Then ' reached upper bound of monsters, or reached max monster for current level
                 intNEWMONSTER = 0 ' set to bottom of monsters
             End If
         Loop
         intCURRENTMON = intCURRENTMON + 1 ' one more monster added
-        ReDim arrTOBEMONSTERS(0 To intCURRENTMON) ' add spot for the monster
+        ReDim Preserve arrTOBEMONSTERS(0 To intCURRENTMON) ' add spot for the monster
         arrTOBEMONSTERS(intCURRENTMON) = intNEWMONSTER ' set new monster
         lLEVELPOINTS = lLEVELPOINTS - cmontypeMONSTERINFO(intNEWMONSTER).intPOINTCOST ' take away points
     Loop

@@ -21,6 +21,7 @@ Begin VB.Form frmLOBBY
       _ExtentX        =   3201
       _ExtentY        =   3413
       _Version        =   393217
+      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   1
       TextRTF         =   $"frmLOBBY.frx":0000
@@ -35,7 +36,6 @@ Begin VB.Form frmLOBBY
       _ExtentX        =   7646
       _ExtentY        =   3413
       _Version        =   393217
-      Enabled         =   -1  'True
       ReadOnly        =   -1  'True
       ScrollBars      =   2
       TextRTF         =   $"frmLOBBY.frx":0082
@@ -211,7 +211,7 @@ Private Sub cmdTOSTORE_Click()
 End Sub
 
 Private Sub Form_Resize()
-    If frmLOBBY.ScaleWidth > 200 And frmLOBBY.ScaleHeight > 120 Then ' if form can fit all the controls
+    If frmLOBBY.ScaleWidth > 250 And frmLOBBY.ScaleHeight > 120 Then ' if form can fit all the controls
         ' chat log textbox
         rtbCHATLOG.width = frmLOBBY.ScaleWidth - rtbPLAYERS.width
         rtbCHATLOG.height = frmLOBBY.ScaleHeight - rtbCHATLOG.Top - 71 ' alloww room for bottom controls
@@ -233,6 +233,8 @@ Private Sub Form_Resize()
         ' open store button
         cmdTOSTORE.Top = cmdREADY.Top
         cmdTOSTORE.Left = cmdLOGOUT.Left - cmdTOSTORE.width - 3
+        ' next level label
+        lblNEXTLEVEL.Top = cmdREADY.Top
     End If
 End Sub
 

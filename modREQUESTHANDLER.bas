@@ -285,7 +285,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                     nC = nC + 1 ' next chat log spot
                 Loop
             Else ' if stopping game
-                If strDESCRIPTION = "stopLoose" Or strDESCRIPTION = "stopLooseShop" Then ' lost game
+                If strDESCRIPTION = "stopLoose" Or strDESCRIPTION = "stopLooseHighscore" Then ' lost game
                     bEXIT = True ' stop playing game
                     If strDESCRIPTION = "stopLoose" Then ' didn't have highest score in round
                         frmLOBBY.Show ' show lobby

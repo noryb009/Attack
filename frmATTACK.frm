@@ -474,7 +474,7 @@ Sub drawEVERYTHING() ' draw everything to the screen
                 If ccinfoPLAYERINFO(nC).lLEVELSCORE = 0 Then ' if no score
                     writeONIMAGE "0", cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 19, 0, -1 ' draw player score
                 Else
-                    writeONIMAGE CStr(ccinfoPLAYERINFO(nC).lLEVELSCORE) & "0", cbitBUFFER.hdc, windowX \ (intPLAYERS + 1) * (intCURRENTPLAYER + 1), 19, 0, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player score
+                    writeONIMAGE CStr(ccinfoPLAYERINFO(nC).lLEVELSCORE) & "0", cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 19, 0, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player score
                 End If
                 intCURRENTPLAYER = intCURRENTPLAYER + 1 ' found one more player
             End If

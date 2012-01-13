@@ -1,8 +1,8 @@
+- update after hit a monster, but not killed it
+- invisible monsters and online not syncing right
 - story and instructions
 - more safe math - no overflows
-- join game while playing - end game?
-- invisible monsters
-- monsters jumping
 - turn cannon
 - spread left/right
 - default online IP -> nothing
+- icons?
