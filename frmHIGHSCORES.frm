@@ -1,7 +1,7 @@
 VERSION 5.00
 Begin VB.Form frmHIGHSCORES 
    BorderStyle     =   1  'Fixed Single
-   Caption         =   "Form1"
+   Caption         =   "Highscores"
    ClientHeight    =   3225
    ClientLeft      =   45
    ClientTop       =   435

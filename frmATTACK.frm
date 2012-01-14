@@ -36,14 +36,6 @@ Attribute VB_Exposed = False
 ' 21 November, 2011
 ' Defend your castle!
 
-' images
-Dim cbitBACKGROUND As New clsBITMAP ' static background
-Dim csprCASTLE As New clsSPRITE ' castle with different health ranges
-Dim cbitBUFFER As New clsBITMAP ' buffer
-Dim csprFONT As New clsSPRITE ' font
-Dim cbitHEALTH As New clsBITMAP ' health bar
-Dim cbitMONHEALTH As New clsBITMAP ' monster health bar
-
 Dim strNEWCHATMSG As String ' new chat message
 
 Dim lSTARTINGHEALTH As Long ' starting health, used for endless mode to restore health after the game
@@ -54,6 +46,9 @@ Const keepX = 343 ' X location of flail starting point
 Const keepY = 180 ' Y location of flail starting point
 
 Const castleTOPMARGIN = 150 ' space above top of castle image
+
+Dim bPAUSED As Boolean ' if true, game is paused
+Dim bAIMING As Boolean ' if true, user is aiming
 
 Sub playGAME()
     Dim currSTARTTIME As Currency ' starting time
@@ -68,8 +63,10 @@ Sub playGAME()
         QueryPerformanceCounter currCURRENTTIME ' get current time
         If currCURRENTTIME >= currSTARTTIME + dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
             QueryPerformanceCounter currSTARTTIME ' store current time as new start time
-            moveEVERYTHING ' move everything
-            drawEVERYTHING ' draw everything
+            If bPAUSED = False Then ' if not paused
+                moveEVERYTHING ' move everything
+                drawEVERYTHING ' draw everything
+            End If
         Else
             Sleep 1 ' sleep
         End If
@@ -107,11 +104,7 @@ Sub playGAME()
                 Set recsetSAVES = Nothing ' close the recordset
                 Set dbSAVEFILES = Nothing ' close the database link
             Else
-                If lLEVELMONEY <> 0 Then ' if user has money
-                    MsgBox "You died! You killed " & lMONSTERSKILLED & " monsters, and got a score of " & lLEVELMONEY & "0! You did not beat your old high score.", vbOKOnly, programNAME ' alert user about their stats
-                Else
-                    MsgBox "You died! You killed " & lMONSTERSKILLED & " monsters, and got a score of 0! You did not beat your old high score.", vbOKOnly, programNAME ' alert user about their stats, ($0 not $00)
-                End If
+                MsgBox "You died! You killed " & lMONSTERSKILLED & " monsters, and got a score of " & addZEROIFNOTZERO(lLEVELMONEY) & "! You did not beat your old high score.", vbOKOnly, programNAME ' alert user about their stats
             End If
             frmHIGHSCORES.Show ' show high scores form
             frmHIGHSCORES.strWHEREISBACK = "levelSelect" ' go to the level select form when done
@@ -138,14 +131,6 @@ Sub playGAME()
         End If
     End If
     
-    ' delete image handles
-    Set cbitBACKGROUND = Nothing
-    Set csprCASTLE = Nothing
-    Set cbitHEALTH = Nothing
-    Set cbitMONHEALTH = Nothing
-    Set csprFONT = Nothing
-    Set cbitBUFFER = Nothing
-    
     Unload frmATTACK ' hide this form
 End Sub
 
@@ -169,11 +154,26 @@ Private Sub Form_KeyPress(KeyAscii As Integer)
                 strNEWCHATMSG = "" ' clear message
             End If
         End If
+    Else ' offline
+        If KeyAscii = vbKeyEscape Then ' pause/unpause the game
+            If bPAUSED = True Then ' if game is currently paused
+                bPAUSED = False ' unpause the game
+            Else
+                bPAUSED = True ' pause the game
+                bAIMING = False
+                lineAIM.Visible = False
+                drawEVERYTHING ' draw everything to show the pause game message
+            End If
+        ElseIf KeyAscii = vbKeyReturn And bPAUSED = True Then ' if exiting
+            bFORCEEXIT = True ' exit loop
+            frmLEVELSELECT.Show ' show level select
+        End If
     End If
 End Sub
 
 Private Sub Form_MouseDown(Button As Integer, Shift As Integer, x As Single, y As Single)
-    If Button = 1 Then ' if left click
+    If Button = 1 And bPAUSED = False Then ' if left click and not paused
+        bAIMING = True ' currently aiming
         lineAIM.Visible = True ' show the aim line
         lineAIM.X1 = x ' set the starting x
         lineAIM.Y1 = y ' set the starting y
@@ -184,12 +184,17 @@ End Sub
 
 Private Sub Form_MouseMove(Button As Integer, Shift As Integer, x As Single, y As Single) ' user moved mouse
     If Button = 1 Or Button = 3 Or Button = 5 Or Button = 7 Then ' if left mouse button down
-        lineAIM.X2 = x ' set line second point's X as mouse's current X location
-        lineAIM.Y2 = y ' set line second point's Y as mouse's current Y location
+        If bAIMING = True Then ' if currently aiming
+            lineAIM.X2 = x ' set line second point's X as mouse's current X location
+            lineAIM.Y2 = y ' set line second point's Y as mouse's current Y location
+        End If
     End If
 End Sub
 
 Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As Single) ' user lifted mouse button
+    If bAIMING = False Then ' if not aiming
+        Exit Sub ' exit
+    End If
     Const divideSPEED = 10 ' pixels mouse has to move for flail to move 1 pixel each tick
     
     If Button = 1 Then ' mouse released
@@ -443,10 +448,8 @@ Sub drawEVERYTHING() ' draw everything to the screen
     writeONIMAGE "Health", cbitBUFFER.hdc, 10, 470
     If lCASTLECURRENTHEALTH > 0 Then ' if you still have health
         BitBlt cbitBUFFER.hdc, 60, 470, cbitHEALTH.width * (lCASTLECURRENTHEALTH / lCASTLEMAXHEALTH), cbitHEALTH.height, cbitHEALTH.hdc, 0, 0, vbSrcCopy ' display health
-        writeONIMAGE lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX \ 2, 485, 0 ' write numbers in center of screen
-    Else
-        writeONIMAGE "0/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX \ 2, 485, 0 ' write numbers in center of screen
     End If
+    writeONIMAGE addZEROIFNOTZERO(lCASTLECURRENTHEALTH) & "/" & lCASTLEMAXHEALTH & "0", cbitBUFFER.hdc, windowX \ 2, 485, 0 ' write numbers in center of screen
     
     ' draw monsters left
     If bENDLESSMODE = True Then ' if in endless mode
@@ -459,11 +462,7 @@ Sub drawEVERYTHING() ' draw everything to the screen
     
     ' draw score
     If onlineMODE = False Then ' if offline
-        If lLEVELMONEY = 0 Then ' if no score
-            writeONIMAGE "Score: 0", cbitBUFFER.hdc, windowX - 10, 455, 1 ' display your score (0, not 00) on right side
-        Else
-            writeONIMAGE "Score: " & lLEVELMONEY & "0", cbitBUFFER.hdc, windowX - 10, 455, 1 ' display score on right side
-        End If
+        writeONIMAGE "Score: " & addZEROIFNOTZERO(lLEVELMONEY), cbitBUFFER.hdc, windowX - 10, 455, 1 ' display score on right side
     Else ' online
         Dim intCURRENTPLAYER As Integer
         intCURRENTPLAYER = 0
@@ -471,11 +470,7 @@ Sub drawEVERYTHING() ' draw everything to the screen
         Do While nC < MAXCLIENTS ' for each clients
             If ccinfoPLAYERINFO(nC).strNAME <> "" Then ' if player spot is being used
                 writeONIMAGE ccinfoPLAYERINFO(nC).strNAME, cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 5, 0, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player name
-                If ccinfoPLAYERINFO(nC).lLEVELSCORE = 0 Then ' if no score
-                    writeONIMAGE "0", cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 19, 0, -1 ' draw player score
-                Else
-                    writeONIMAGE CStr(ccinfoPLAYERINFO(nC).lLEVELSCORE) & "0", cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 19, 0, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player score
-                End If
+                writeONIMAGE addZEROIFNOTZERO(ccinfoPLAYERINFO(nC).lLEVELSCORE), cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 19, 0, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player score
                 intCURRENTPLAYER = intCURRENTPLAYER + 1 ' found one more player
             End If
             nC = nC + 1 ' next client
@@ -501,36 +496,21 @@ Sub drawEVERYTHING() ' draw everything to the screen
         End If
     End If
     
+    If onlineMODE = False And bPAUSED = True Then ' if paused
+        writeONIMAGE "Game paused.", cbitBUFFER.hdc, windowX \ 2, 0, 0, -1
+        writeONIMAGE "Press enter to exit, or escape to resume.", cbitBUFFER.hdc, windowX \ 2, csprFONT.height, 0, -1
+    End If
+    
     drawBUFFER ' draw buffer to the screen
 End Sub
 
 Private Sub Form_Load()
-    Dim bLOADED As Boolean
-    bLOADED = True
-    
-    ' load images
-    bLOADED = bLOADED And cbitBACKGROUND.loadFILE(strIMAGEPATH & "background.bmp")
-    bLOADED = bLOADED And csprCASTLE.loadFRAMES(strIMAGEPATH & "castle.bmp", 211, 226, False, True)
-    
-    bLOADED = bLOADED And cbitHEALTH.loadFILE(strIMAGEPATH & "health.bmp")
-    bLOADED = bLOADED And cbitMONHEALTH.loadFILE(strIMAGEPATH & "monHealth.bmp")
-    
-    bLOADED = bLOADED And csprFONT.loadFRAMES(strIMAGEPATH & "font.bmp", 7, 14, False, True)
-    If csprFONT.numberOfFrames <> 128 Then ' if wrong number of frames
-        bLOADED = False ' error
-    End If
-    
-    bLOADED = bLOADED And cbitBUFFER.createNewImage(windowX, windowY)
-    
-    If bLOADED = False Then
-        MsgBox "Error loading images!", vbOKOnly, programNAME
-        End
-    End If
-    
     ' set vars
     Dim nC As Integer
     bEXIT = False
     bFORCEEXIT = False
+    bPAUSED = False
+    bAIMING = False
     lLEVELMONEY = 0
     lMONSTERSKILLED = 0
     lMONSTERSATTACKEDCASTLE = 0

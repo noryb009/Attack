@@ -20,7 +20,14 @@ Global strDATABASEPATH As String ' path to data base
 Global arrcMONSTERPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going right
 Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going left
 
+' images
 Global csprFLAIL As New clsSPRITE ' flail image
+Global cbitBACKGROUND As New clsBITMAP ' static background
+Global csprCASTLE As New clsSPRITE ' castle with different health ranges
+Global cbitBUFFER As New clsBITMAP ' buffer
+Global csprFONT As New clsSPRITE ' font
+Global cbitHEALTH As New clsBITMAP ' health bar
+Global cbitMONHEALTH As New clsBITMAP ' monster health bar
 
 Global lCURRENTLEVEL As Long ' current level
 Global lHIGHSCORE As Long ' player highscore
@@ -200,10 +207,24 @@ Sub Main()
     loadMONSTERINFO ' load monster info into cmontypeMONSTERINFO()
     loadPLAYERCOLOURS ' load player colour info into playerCOLOURS()
     
+    ' load images
+    bSUCCESS = bSUCCESS And cbitBACKGROUND.loadFILE(strIMAGEPATH & "background.bmp")
+    bSUCCESS = bSUCCESS And csprCASTLE.loadFRAMES(strIMAGEPATH & "castle.bmp", 211, 226, False, True)
+    
+    bSUCCESS = bSUCCESS And cbitHEALTH.loadFILE(strIMAGEPATH & "health.bmp")
+    bSUCCESS = bSUCCESS And cbitMONHEALTH.loadFILE(strIMAGEPATH & "monHealth.bmp")
+    
+    bSUCCESS = bSUCCESS And csprFONT.loadFRAMES(strIMAGEPATH & "font.bmp", 7, 14, False, True)
+    If csprFONT.numberOfFrames <> 128 Then ' if wrong number of frames
+        bSUCCESS = False ' error
+    End If
+    
     bSUCCESS = bSUCCESS And csprFLAIL.loadFRAMES(strIMAGEPATH & "flail.bmp", 14, 14, False, True) ' load flail image
     If csprFLAIL.numberOfFrames < MAXCLIENTS + 1 Then ' if not enough frames
         bSUCCESS = False ' error
     End If
+    
+    bSUCCESS = bSUCCESS And cbitBUFFER.createNewImage(windowX, windowY)
     
     If bSUCCESS = False Then ' if error
         MsgBox "Error loading images!", vbOKOnly, programNAME ' alert user

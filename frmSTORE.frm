@@ -192,16 +192,8 @@ Function moreHEALTHCOST(intINDEX As Integer) As Long ' get cost of buying more m
 End Function
 
 Sub updateLABELS()
-    If lCASTLECURRENTHEALTH <> 0 Then ' if you have health
-        lblCURRENTHEALTH.Caption = "Current health: " & lCASTLECURRENTHEALTH & "0/" & lCASTLEMAXHEALTH & "0" ' display current health
-    Else
-        lblCURRENTHEALTH.Caption = "Current health: 0/" & lCASTLEMAXHEALTH & "0" ' display current health as 0, not 00
-    End If
-    If lMONEY <> 0 Then ' if you have money
-        lblMONEY = "$" & lMONEY & "0" ' display money *10
-    Else
-        lblMONEY = "$0" ' display 0, not 00
-    End If
+    lblCURRENTHEALTH.Caption = "Current health: " & addZEROIFNOTZERO(CStr(lCASTLECURRENTHEALTH)) & "/" & lCASTLEMAXHEALTH & "0" ' display current health
+    lblMONEY = "$" & addZEROIFNOTZERO(lMONEY) ' display money *10
     Dim nC As Integer
     nC = 0
     Do While nC < cmdHEAL.Count ' for each heal and morehealth button

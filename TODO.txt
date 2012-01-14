@@ -1,8 +1,14 @@
-- update after hit a monster, but not killed it
+- bug: player's score not updating after hit a monster, but not killed it
 - invisible monsters and online not syncing right
 - story and instructions
 - more safe math - no overflows
 - turn cannon
 - spread left/right
 - default online IP -> nothing
-- icons?
+- flail icon
+
+- fix crashing bug where game quits and images start to disappear
+- highscore form name
+- function to add 0 to number
+- pause/exit game while playing
+- green monster icon

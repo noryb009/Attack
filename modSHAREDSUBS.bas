@@ -97,6 +97,14 @@ Function getMONSTERSLEFT() As String ' returns the monsters left in the level
     getMONSTERSLEFT = CStr((UBound(arrTOBEMONSTERS) + 1) - lMONSTERSKILLED - lMONSTERSATTACKEDCASTLE) ' calculate the monsters left
 End Function
 
+Function addZEROIFNOTZERO(lVALUE As Long) As String
+    If lVALUE = 0 Then
+        addZEROIFNOTZERO = CStr(lVALUE)
+    Else
+        addZEROIFNOTZERO = CStr(lVALUE) & "0"
+    End If
+End Function
+
 Function safeADDLONG(lNUMBER1 As Long, lNUMBER2 As Long) As Long ' add longs without overflows
     If lNUMBER2 = 0 Then ' if not adding anything
         safeADDLONG = lNUMBER1 ' return first number
