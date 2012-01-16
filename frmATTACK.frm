@@ -21,9 +21,9 @@ Begin VB.Form frmATTACK
    Begin VB.Line lineAIM 
       Visible         =   0   'False
       X1              =   8
-      X2              =   88
+      X2              =   8
       Y1              =   32
-      Y2              =   32
+      Y2              =   64
    End
 End
 Attribute VB_Name = "frmATTACK"
@@ -37,18 +37,17 @@ Attribute VB_Exposed = False
 ' Defend your castle!
 
 Dim strNEWCHATMSG As String ' new chat message
-
 Dim lSTARTINGHEALTH As Long ' starting health, used for endless mode to restore health after the game
-
 Dim bENDLESSMODE As Boolean ' true if in endless mode
-
-Const keepX = 343 ' X location of flail starting point
-Const keepY = 180 ' Y location of flail starting point
-
-Const castleTOPMARGIN = 150 ' space above top of castle image
+Dim intCANNONDIRECTION As Integer ' direction of cannon
 
 Dim bPAUSED As Boolean ' if true, game is paused
 Dim bAIMING As Boolean ' if true, user is aiming
+
+Const castleTOPMARGIN = 150 ' space above top of castle image
+
+Const keepX = 343 ' X location of flail starting point
+Const keepY = 180 ' Y location of flail starting point
 
 Sub playGAME()
     Dim currSTARTTIME As Currency ' starting time
@@ -408,6 +407,51 @@ Sub drawEVERYTHING() ' draw everything to the screen
     BitBlt cbitBUFFER.hdc, (windowX - csprCASTLE.width) \ 2, castleTOPMARGIN, csprCASTLE.width, csprCASTLE.height, csprCASTLE.frameMaskhDC(nC), 0, 0, vbSrcAnd ' draw castle mask
     BitBlt cbitBUFFER.hdc, (windowX - csprCASTLE.width) \ 2, castleTOPMARGIN, csprCASTLE.width, csprCASTLE.height, csprCASTLE.framehDC(nC), 0, 0, vbSrcPaint ' draw castle
     
+    ' draw cannon
+    Dim lXDIFF As Long
+    lXDIFF = Abs(lineAIM.X2 - lineAIM.X1)
+    Dim lYDIFF As Long
+    lYDIFF = Abs(lineAIM.Y2 - lineAIM.Y1)
+    
+    If bAIMING = True And lXDIFF <> 0 And lYDIFF <> 0 Then ' if aiming and you have moved the mouse
+        If lineAIM.X1 >= lineAIM.X2 And lineAIM.Y1 < lineAIM.Y2 Then ' top right
+            If lXDIFF * 2 < lYDIFF Then
+                intCANNONDIRECTION = 0 ' North
+            ElseIf lXDIFF < lYDIFF * 2 Then
+                intCANNONDIRECTION = 1 ' North-East
+            Else
+                intCANNONDIRECTION = 2 ' East
+            End If
+        ElseIf lineAIM.X1 > lineAIM.X2 And lineAIM.Y1 >= lineAIM.Y2 Then ' bottom right
+            If lXDIFF > lYDIFF * 2 Then
+                intCANNONDIRECTION = 2 ' East
+            ElseIf lXDIFF * 2 > lYDIFF Then
+                intCANNONDIRECTION = 3 ' South-East
+            Else
+                intCANNONDIRECTION = 4 ' South
+            End If
+        ElseIf lineAIM.X1 <= lineAIM.X2 And lineAIM.Y1 > lineAIM.Y2 Then ' bottom left
+            If lXDIFF * 2 < lYDIFF Then
+                intCANNONDIRECTION = 4 ' South
+            ElseIf lXDIFF < lYDIFF * 2 Then
+                intCANNONDIRECTION = 5 ' South-West
+            Else
+                intCANNONDIRECTION = 6 ' West
+            End If
+        Else ' top left
+           If lXDIFF > lYDIFF * 2 Then
+                intCANNONDIRECTION = 6 ' West
+            ElseIf lXDIFF * 2 > lYDIFF Then
+                intCANNONDIRECTION = 7 ' North-West
+            Else
+                intCANNONDIRECTION = 0 ' North
+            End If
+        End If
+    End If
+    
+    BitBlt cbitBUFFER.hdc, (windowX - csprCANNON.width) \ 2, castleTOPMARGIN + 25, csprCANNON.width, csprCANNON.height, csprCANNON.frameMaskhDC(intCANNONDIRECTION), 0, 0, vbSrcAnd ' draw cannon mask
+    BitBlt cbitBUFFER.hdc, (windowX - csprCANNON.width) \ 2, castleTOPMARGIN + 25, csprCANNON.width, csprCANNON.height, csprCANNON.framehDC(intCANNONDIRECTION), 0, 0, vbSrcPaint ' draw cannon
+    
     If bEXIT = False Then ' if not exiting
         ' draw monsters
         nC = 0
@@ -518,6 +562,7 @@ Private Sub Form_Load()
     lMONSTERSPAWNCOOLDOWN = 0
     strNEWCHATMSG = ""
     lSTARTINGHEALTH = lCASTLECURRENTHEALTH
+    intCANNONDIRECTION = 0 ' default cannon direction: North
     ReDim arrTOBEMONSTERS(0 To 0)
     If onlineMODE = False Then ' single player
         sngMOVESPEED = 1 + (lCURRENTLEVEL / 10)

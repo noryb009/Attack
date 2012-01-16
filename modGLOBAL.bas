@@ -24,6 +24,7 @@ Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of 
 Global csprFLAIL As New clsSPRITE ' flail image
 Global cbitBACKGROUND As New clsBITMAP ' static background
 Global csprCASTLE As New clsSPRITE ' castle with different health ranges
+Global csprCANNON As New clsSPRITE ' cannon pointing different directions
 Global cbitBUFFER As New clsBITMAP ' buffer
 Global csprFONT As New clsSPRITE ' font
 Global cbitHEALTH As New clsBITMAP ' health bar
@@ -210,6 +211,10 @@ Sub Main()
     ' load images
     bSUCCESS = bSUCCESS And cbitBACKGROUND.loadFILE(strIMAGEPATH & "background.bmp")
     bSUCCESS = bSUCCESS And csprCASTLE.loadFRAMES(strIMAGEPATH & "castle.bmp", 211, 226, False, True)
+    bSUCCESS = bSUCCESS And csprCANNON.loadFRAMES(strIMAGEPATH & "cannon.bmp", 27, 27, False, True)
+    If csprCANNON.numberOfFrames <> 8 Then ' if wrong number of frames
+        bSUCCESS = False ' error
+    End If
     
     bSUCCESS = bSUCCESS And cbitHEALTH.loadFILE(strIMAGEPATH & "health.bmp")
     bSUCCESS = bSUCCESS And cbitMONHEALTH.loadFILE(strIMAGEPATH & "monHealth.bmp")
@@ -228,10 +233,9 @@ Sub Main()
     
     If bSUCCESS = False Then ' if error
         MsgBox "Error loading images!", vbOKOnly, programNAME ' alert user
-        End ' exit program
+    Else
+        frmNEWGAME.Show ' show new game form
     End If
-    
-    frmNEWGAME.Show ' show new game form
 End Sub
 
 Public Sub broadcast(strCOMMAND As String, strTOSEND As String) ' send a command to all the clients
