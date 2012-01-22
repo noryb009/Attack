@@ -20,6 +20,7 @@ Dim lARRAYID As Long ' this object's number in array of clsCONNECTIONs
 Dim bCONNECTED As Boolean ' connected to server
 Dim WithEvents sockCONNECTION As Winsock ' connection winsock
 Attribute sockCONNECTION.VB_VarHelpID = -1
+Dim strBUFFER As String ' stores incomplete received string parts
 
 Public Property Get connected() As Boolean ' get if sockCONNECTION is connected
     connected = bCONNECTED ' return if connected
@@ -55,6 +56,8 @@ End Sub
 Function connectTOSERVER(strCONNECTTOIP As String) As Boolean
     connectTOSERVER = False ' hasn't succeeded yet
     
+    strBUFFER = "" ' clear buffer
+    
     If strCONNECTTOIP = "" Then ' if nothing entered
         MsgBox "Please input a valid IP address.", vbOKOnly, programNAME ' alert user
         Exit Function
@@ -83,6 +86,7 @@ End Function
 Sub acceptCONNECTION(requestID As Long)
     sockCONNECTION.Accept requestID ' accept the request
     bCONNECTED = True ' connected
+    strBUFFER = "" ' clear buffer
 End Sub
 
 Sub disconnect()
@@ -105,6 +109,7 @@ End Sub
 Private Sub sockCONNECTION_DataArrival(ByVal bytesTotal As Long)
     Dim strRECIEVED As String ' recieved data
     sockCONNECTION.GetData strRECIEVED, vbString ' get the string
+    strRECIEVED = strBUFFER & strRECIEVED ' add any text left over from the last message
     
     Dim strCOMMANDS() As String
     strCOMMANDS = Split(strRECIEVED, "|") ' winsock combines commands, so separate at |
@@ -132,6 +137,7 @@ Private Sub sockCONNECTION_DataArrival(ByVal bytesTotal As Long)
         End If
         nC = nC + 1 ' next command
     Loop
+    strBUFFER = strCOMMANDS(UBound(strCOMMANDS)) ' store any extra text for the next command
 End Sub
 
 Private Sub sockCONNECTION_Error(ByVal Number As Integer, Description As String, ByVal Scode As Long, ByVal Source As String, ByVal HelpFile As String, ByVal HelpContext As Long, CancelDisplay As Boolean)

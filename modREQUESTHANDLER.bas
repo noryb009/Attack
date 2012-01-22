@@ -45,6 +45,7 @@ Sub updateMONSTER(strSTATS As String) ' monster update from server
     arrMONSTERS(lSPOT).sngX = CSng(arrstrSTATS(3))
     arrMONSTERS(lSPOT).sngY = CSng(arrstrSTATS(4))
     arrMONSTERS(lSPOT).sngMOVINGH = CSng(arrstrSTATS(5))
+    arrMONSTERS(lSPOT).sngMOVINGV = cmontypeMONSTERINFO(arrMONSTERS(lSPOT).intTYPE).sngYSPEED
     arrMONSTERS(lSPOT).intHEALTH = CLng(arrstrSTATS(6))
 End Sub
 

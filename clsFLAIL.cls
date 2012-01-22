@@ -66,48 +66,55 @@ Public Function moveFLAIL() As Long ' move the flail
         sngX = sngX + (sngMOVINGH / sngMOVESPLIT) ' add X distance
         sngY = sngY + (sngMOVINGV / sngMOVESPLIT) ' add Y distance
         
-        lDELETEMONSTER = -1 ' don't delete a monster
-        
-        'check if hitting monster
-        Dim nC As Integer
-        nC = 0
-        Do While nC < lMONSTERARRAYSIZE ' for each monster
-            If arrMONSTERS(nC).bACTIVE = True Then ' if monster is active
-                ' if at same elevation
-                If (sngY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And sngY + flailSIZEPX > arrMONSTERS(nC).sngY) Then
-                    ' if same vertical spot
-                    If (sngX < arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH And sngX + flailSIZEPX > arrMONSTERS(nC).sngX) Then
-                        If didGOTHROUGH(nC) = False Then ' if you haven't gone through monster yet
-                            lDELETEMONSTER = nC ' attack this monster
-                            Exit Do ' you found a monster, continue
+        If onlineMODE = False Then
+            lDELETEMONSTER = -1 ' don't delete a monster
+            
+            'check if hitting monster
+            Dim nC As Integer
+            nC = 0
+            Do While nC < lMONSTERARRAYSIZE ' for each monster
+                If arrMONSTERS(nC).bACTIVE = True Then ' if monster is active
+                    ' if at same elevation
+                    If (sngY < arrMONSTERS(nC).sngY + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lHEIGHT And sngY + flailSIZEPX > arrMONSTERS(nC).sngY) Then
+                        ' if same vertical spot
+                        If (sngX < arrMONSTERS(nC).sngX + cmontypeMONSTERINFO(arrMONSTERS(nC).intTYPE).lWIDTH And sngX + flailSIZEPX > arrMONSTERS(nC).sngX) Then
+                            If didGOTHROUGH(nC) = False Then ' if you haven't gone through monster yet
+                                lDELETEMONSTER = nC ' attack this monster
+                                Exit Do ' you found a monster, continue
+                            End If
                         End If
                     End If
                 End If
-            End If
-            nC = nC + 1 ' next monster
-        Loop
-        
-        If lDELETEMONSTER <> -1 Then ' if you found a monster to attack, then attack monster
-            arrMONSTERS(lDELETEMONSTER).intHEALTH = arrMONSTERS(lDELETEMONSTER).intHEALTH - intFLAILPOWER ' take away health from monster
-            If arrMONSTERS(lDELETEMONSTER).intHEALTH < 1 Then ' if monster has no health left
-                arrMONSTERS(lDELETEMONSTER).bACTIVE = False ' disable monster
-                lMONSTERSKILLED = safeADDLONG(lMONSTERSKILLED, 1) ' add to number of monsters killed
-                moveFLAIL = safeADDLONG(moveFLAIL, cmontypeMONSTERINFO(arrMONSTERS(lDELETEMONSTER).intTYPE).intMONEYADDEDKILL) ' add score for killing the monster
+                nC = nC + 1 ' next monster
+            Loop
+            
+            If lDELETEMONSTER <> -1 Then ' if you found a monster to attack, then attack monster
+                arrMONSTERS(lDELETEMONSTER).intHEALTH = arrMONSTERS(lDELETEMONSTER).intHEALTH - intFLAILPOWER ' take away health from monster
                 
-                If SERVER = True Then ' if server, update clients
-                    broadcastMONSTER lDELETEMONSTER
-                    broadcast "monstersLeft", getMONSTERSLEFT ' sync number of monsters left
+                If arrMONSTERS(lDELETEMONSTER).intHEALTH < 1 Then ' if monster has no health left
+                    arrMONSTERS(lDELETEMONSTER).bACTIVE = False ' disable monster
+                    lMONSTERSKILLED = safeADDLONG(lMONSTERSKILLED, 1) ' add to number of monsters killed
+                    moveFLAIL = safeADDLONG(moveFLAIL, cmontypeMONSTERINFO(arrMONSTERS(lDELETEMONSTER).intTYPE).intMONEYADDEDKILL) ' add score for killing the monster
+                    
+                    If SERVER = True Then ' if server, update clients
+                        broadcast "monstersLeft", getMONSTERSLEFT ' sync number of monsters left
+                    End If
+                Else
+                    If intFLAILGOTHROUGH > 1 Then ' if flail can go through more monsters after this one
+                        addGOTHROUGH CInt(lDELETEMONSTER) ' don't attack this monster again
+                    End If
+                    moveFLAIL = safeADDLONG(moveFLAIL, cmontypeMONSTERINFO(arrMONSTERS(lDELETEMONSTER).intTYPE).intMONEYADDEDHIT) ' add score for hitting, but not killing the monster
                 End If
-            Else
-                If intFLAILGOTHROUGH > 1 Then ' if flail can go through more monsters after this one
-                    addGOTHROUGH CInt(lDELETEMONSTER) ' don't attack this monster again
+                
+                If SERVER = True Then ' if server
+                    broadcastMONSTER lDELETEMONSTER ' update clients
                 End If
-                moveFLAIL = safeADDLONG(moveFLAIL, cmontypeMONSTERINFO(arrMONSTERS(lDELETEMONSTER).intTYPE).intMONEYADDEDHIT) ' add score for hitting, but not killing the monster
-            End If
-            If intGOTHROUGH > 1 Then ' if go through left
-                intGOTHROUGH = intGOTHROUGH - 1 ' one less monster to go through
-            Else ' no more go through left
-                bACTIVE = False ' flail has gone through all the monsters
+                
+                If intGOTHROUGH > 1 Then ' if go through left
+                    intGOTHROUGH = intGOTHROUGH - 1 ' one less monster to go through
+                Else ' no more go through left
+                    bACTIVE = False ' flail has gone through all the monsters
+                End If
             End If
         End If
         

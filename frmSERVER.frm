@@ -10,7 +10,8 @@ Begin VB.Form frmSERVER
    ScaleWidth      =   4680
    StartUpPosition =   2  'CenterScreen
    Begin VB.Timer timerSYNC 
-      Interval        =   10000
+      Enabled         =   0   'False
+      Interval        =   1000
       Left            =   3000
       Top             =   120
    End
@@ -181,12 +182,12 @@ End Sub
 
 Private Sub timerSYNC_Timer()
     If bPLAYING = True Then ' if playing
-        If timerSYNC.Interval Mod 2 = 0 Then ' every other tick
+        'If timerSYNC.Interval Mod 2 = 0 Then ' every other tick
             syncMONSTERS ' sync monsters with clients
-            timerSYNC.Interval = timerSYNC.Interval + 1 ' set interval to odd number
-        Else ' every other tick
-            syncFLAILS ' sync flails with clients
-            timerSYNC.Interval = timerSYNC.Interval - 1 ' set interval to even number
-        End If
+        '    timerSYNC.Interval = timerSYNC.Interval + 1 ' set interval to odd number
+        'Else ' every other tick
+        '    syncFLAILS ' sync flails with clients
+        '    timerSYNC.Interval = timerSYNC.Interval - 1 ' set interval to even number
+        'End If
     End If
 End Sub

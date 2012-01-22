@@ -7,18 +7,19 @@ Attribute VB_Name = "modSHAREDSUBS"
 Global Const VERSION = "0.0.0.1a" ' version of the game
 Global Const MAXCLIENTS = 4 ' max number of clients
 
-Global Const numberOfMonsters = 11 ' number of types of monsters
+Global Const numberOfMonsters = 12 ' number of types of monsters
 Public Enum monsterNames ' names of monsters
     greenMonster
     blackMonster
     bat
     tree
     cloud
-    rabbit
+    goo
     ladybug
     knightSword
     knightFlail
     knightHorse
+    motherBat
     dragon
 End Enum
 
@@ -65,20 +66,21 @@ Global lCASTLEMAXHEALTH As Long ' castle max health
 
 Sub loadMONSTERINFO()
     ' monster info
-    ' number in enum, image filename, image width, image height, point cost, health,
+    ' number in enum, image filename, image width, image height, spawn point cost, health,
     '   attack power, Y location (-1 is ground), X speed, money given when hit,
     '   money given when killed[, Y speed]
     loadONEMONSTERINFO greenMonster, "greenMonster", 9, 25, 1, 1, 2, -1, 1, 0, 2
     loadONEMONSTERINFO blackMonster, "blackMonster", 9, 25, 2, 2, 3, -1, 1, 1, 2
     loadONEMONSTERINFO bat, "bat", 10, 11, 2, 1, 3, 150, 1.5, 0, 2, 0.4
+    loadONEMONSTERINFO motherBat, "motherBat", 61, 39, 20, 30, 100, 150, 1, 0, 8, 0.2
     loadONEMONSTERINFO tree, "tree", 26, 50, 5, 20, 8, -1, 0.4, 1, 5
-    loadONEMONSTERINFO cloud, "cloud", 43, 70, 4, 6, 5, 10, 1, 1, 3, 0.65
-    loadONEMONSTERINFO rabbit, "rabbit", 17, 34, 3, 4, 3, -1, 2, 1, 3
+    loadONEMONSTERINFO cloud, "cloud", 42, 31, 4, 6, 5, 10, 1, 1, 3, 0.65
+    loadONEMONSTERINFO goo, "goo", 24, 11, 5, 6, 5, -1, 2, 1, 3
     loadONEMONSTERINFO ladybug, "ladyBug", 13, 7, 1, 4, 2, -1, 2.5, 1, 2
-    loadONEMONSTERINFO knightSword, "knight", 21, 51, 5, 10, 20, -1, 0.5, 1, 4
-    loadONEMONSTERINFO knightFlail, "knightFlail", 33, 51, 5, 15, 35, -1, 0.5, 1, 6
-    loadONEMONSTERINFO knightHorse, "knightHorse", 92, 43, 7, 8, 20, -1, 3, 1, 8
-    loadONEMONSTERINFO dragon, "dragon", 91, 53, 50, 50, 200, 200, 1, 0, 10
+    loadONEMONSTERINFO knightSword, "knight", 49, 54, 5, 10, 20, -1, 0.5, 1, 4
+    loadONEMONSTERINFO knightFlail, "knightFlail", 47, 54, 5, 15, 35, -1, 0.5, 1, 6
+    loadONEMONSTERINFO knightHorse, "knightHorse", 77, 64, 7, 8, 20, -1, 3, 1, 8
+    loadONEMONSTERINFO dragon, "dragon", 90, 57, 50, 50, 200, 200, 1, 0, 10
     ' note to self: when adding monsters, change numberOfMonsters
 End Sub
 

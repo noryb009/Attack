@@ -154,7 +154,7 @@ Private Sub Form_KeyPress(KeyAscii As Integer)
             End If
         End If
     Else ' offline
-        If KeyAscii = vbKeyEscape Then ' pause/unpause the game
+        If KeyAscii = vbKeyP Or KeyAscii = vbKeySpace Or KeyAscii = 112 Then ' pause/unpause the game (p, P, or space)
             If bPAUSED = True Then ' if game is currently paused
                 bPAUSED = False ' unpause the game
             Else
@@ -163,7 +163,7 @@ Private Sub Form_KeyPress(KeyAscii As Integer)
                 lineAIM.Visible = False
                 drawEVERYTHING ' draw everything to show the pause game message
             End If
-        ElseIf KeyAscii = vbKeyReturn And bPAUSED = True Then ' if exiting
+        ElseIf KeyAscii = vbKeyEscape And bPAUSED = True Then ' if exiting
             bFORCEEXIT = True ' exit loop
             frmLEVELSELECT.Show ' show level select
         End If
@@ -234,6 +234,7 @@ Private Sub Form_MouseUp(Button As Integer, Shift As Integer, x As Single, y As 
                 (lineAIM.X1 - lineAIM.X2) \ divideSPEED & "~" & _
                 intFLAILGOTHROUGH & "~" & _
                 True ' tell server to make new flail
+                DoEvents
             End If
             nC2 = nC2 + 1 ' next flail in flail amount
         Loop
@@ -337,8 +338,8 @@ Sub moveEVERYTHING() ' move all the monsters and flails
         If lMONSTERSPAWNCOOLDOWN = 0 Then ' if it has been a while since last spawn
             Dim bSPAWN As Boolean
             bSPAWN = False ' default: don't spawn
-            If bENDLESSMODE = True Then
-                If lCURRENTMONSTER <= lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE Then ' force if nobody on screen
+            If bENDLESSMODE = True Then ' TODO: + part of monsters
+                If lCURRENTMONSTER <= lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE + (lCURRENTMONSTER \ 5) Then ' force if nobody on screen
                     bSPAWN = True ' spawn
                 ElseIf Int(Rnd() * 200) < (lCURRENTMONSTER / 2) Then ' randomly
                     bSPAWN = True ' spawn
@@ -352,7 +353,15 @@ Sub moveEVERYTHING() ' move all the monsters and flails
             End If
             If bSPAWN = True Then ' if going to spawn
                 spawnMONSTER ' spawn the monster
-                lMONSTERSPAWNCOOLDOWN = 20 ' wait a bit for the next monster
+                If bENDLESSMODE = True Then
+                    If (lCURRENTMONSTER \ 20) >= 20 Then
+                        lMONSTERSPAWNCOOLDOWN = 1 ' wait a bit for the next monster
+                    Else
+                        lMONSTERSPAWNCOOLDOWN = 20 - (lCURRENTMONSTER \ 20) ' wait a bit for the next monster
+                    End If
+                Else
+                    lMONSTERSPAWNCOOLDOWN = 20
+                End If
             End If
         Else
             lMONSTERSPAWNCOOLDOWN = lMONSTERSPAWNCOOLDOWN - 1 ' count down cooldown time
@@ -398,9 +407,17 @@ Sub drawEVERYTHING() ' draw everything to the screen
     
     ' draw castle
     If lCASTLECURRENTHEALTH > 0 Then ' if you still have health
-        nC = (csprCASTLE.numberOfFrames - 1) \ (lCASTLEMAXHEALTH / lCASTLECURRENTHEALTH) ' use castle image that is closest to your health level
+        'nC = csprCASTLE.numberOfFrames - ((csprCASTLE.numberOfFrames - 1) \ (lCASTLEMAXHEALTH / lCASTLECURRENTHEALTH)) ' use castle image that is closest to your health level
+        nC = csprCASTLE.numberOfFrames - (lCASTLECURRENTHEALTH / (lCASTLEMAXHEALTH / csprCASTLE.numberOfFrames))
     Else ' if you are dead
-        nC = 0 ' use dead castle image
+        nC = csprCASTLE.numberOfFrames - 1 ' use dead castle image
+    End If
+    
+    ' above code isn't perfect
+    If nC < 0 Then ' if less then 0
+        nC = 0 ' show castle at lowest health
+    ElseIf nC >= csprCASTLE.numberOfFrames Then ' if above last frame
+        nC = csprCASTLE.numberOfFrames - 1 ' show castle at full health
     End If
     
     ' draw castle
@@ -474,7 +491,7 @@ Sub drawEVERYTHING() ' draw everything to the screen
             nC = nC + 1 ' next monster
         Loop
         
-        ' draw arrows
+        ' draw flails
         nC = 0
         Do While nC < lFLAILARRAYSIZE ' for each flail
             If arrFLAILS(nC).bACTIVE = True Then ' if flail is active
@@ -542,7 +559,7 @@ Sub drawEVERYTHING() ' draw everything to the screen
     
     If onlineMODE = False And bPAUSED = True Then ' if paused
         writeONIMAGE "Game paused.", cbitBUFFER.hdc, windowX \ 2, 0, 0, -1
-        writeONIMAGE "Press enter to exit, or escape to resume.", cbitBUFFER.hdc, windowX \ 2, csprFONT.height, 0, -1
+        writeONIMAGE "Press space to resume, or escape to exit.", cbitBUFFER.hdc, windowX \ 2, csprFONT.height, 0, -1
     End If
     
     drawBUFFER ' draw buffer to the screen

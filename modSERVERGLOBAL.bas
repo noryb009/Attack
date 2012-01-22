@@ -39,28 +39,9 @@ End Sub
 Public Sub moveEVERYTHING() ' move all the monsters and flails
     Dim nC As Long
     
-    ' spawn monsters
-    If lMONSTERSPAWNCOOLDOWN = 0 And lCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' if monster hasn't been spawned for a while and monsters still waiting
-        Dim bSPAWN As Boolean
-        bSPAWN = False ' default: don't spawn
-        If lCURRENTMONSTER <= lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) + intPLAYERS Then ' force if less then (level/3) monsters on screen
-            bSPAWN = True ' spawn
-        ElseIf Int(Rnd() * 150) < lCURRENTLEVEL * intPLAYERS + intPLAYERS Then ' randomly
-            bSPAWN = True ' spawn
-        End If
-    
-        If bSPAWN = True Then ' if monster going to be spawned
-            spawnMONSTER ' spawn the monster
-            lMONSTERSPAWNCOOLDOWN = 20 ' set cool down time
-        End If
-    Else ' needs to cool down more
-        lMONSTERSPAWNCOOLDOWN = lMONSTERSPAWNCOOLDOWN - 1 ' count down cooldown time
-    End If
-    
     ' move monsters
     Dim lHEALTHBEFOREMOVEMON As Long
     lHEALTHBEFOREMOVEMON = lCASTLECURRENTHEALTH ' store health before monsters attack
-    
     nC = 0
     Do While nC < lMONSTERARRAYSIZE ' for each monster
         If arrMONSTERS(nC).bACTIVE = True Then ' if monster is enabled
@@ -100,6 +81,24 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
         End If
         nC = nC + 1 ' next flail
     Loop
+    
+    ' spawn monsters
+    If lMONSTERSPAWNCOOLDOWN = 0 And lCURRENTMONSTER <= UBound(arrTOBEMONSTERS) Then ' if monster hasn't been spawned for a while and monsters still waiting
+        Dim bSPAWN As Boolean
+        bSPAWN = False ' default: don't spawn
+        If lCURRENTMONSTER <= lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE + (lCURRENTLEVEL \ 3) + intPLAYERS Then ' force if less then (level/3) monsters on screen
+            bSPAWN = True ' spawn
+        ElseIf Int(Rnd() * 150) < lCURRENTLEVEL * intPLAYERS + intPLAYERS Then ' randomly
+            bSPAWN = True ' spawn
+        End If
+    
+        If bSPAWN = True Then ' if monster going to be spawned
+            spawnMONSTER ' spawn the monster
+            lMONSTERSPAWNCOOLDOWN = 20 ' set cool down time
+        End If
+    Else ' needs to cool down more
+        lMONSTERSPAWNCOOLDOWN = lMONSTERSPAWNCOOLDOWN - 1 ' count down cooldown time
+    End If
     
     If lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then ' if you defeated all the monsters on this level
         bEXIT = True ' exit
@@ -291,7 +290,7 @@ Sub broadcast(strCOMMAND As String, strTOSEND As String) ' send a command to all
     Do While nC < MAXCLIENTS ' for each client
         If cCLIENTS(nC).connected = True Then ' if connected
             cCLIENTS(nC).sendString strCOMMAND, strTOSEND ' send string to client
-            DoEvents ' do events (including sending this request)
+            'DoEvents ' do events (including sending this request)
         End If
         nC = nC + 1 ' next client
     Loop

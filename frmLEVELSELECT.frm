@@ -210,9 +210,10 @@ Private Sub cmdLEVEL_Click(Index As Integer)
             intMONSTERSONLEVEL(bat) = 5
         Case 4
             intMONSTERSONLEVEL(bat) = 25
-            intMONSTERSONLEVEL(cloud) = 1
+            intMONSTERSONLEVEL(motherBat) = 1
         Case 5
-            intMONSTERSONLEVEL(tree) = 25
+            intMONSTERSONLEVEL(tree) = 15
+            intMONSTERSONLEVEL(goo) = 15
         Case 6
             intMONSTERSONLEVEL(knightSword) = 15
             intMONSTERSONLEVEL(knightFlail) = 5
@@ -222,19 +223,21 @@ Private Sub cmdLEVEL_Click(Index As Integer)
             intMONSTERSONLEVEL(knightFlail) = 20
             intMONSTERSONLEVEL(knightHorse) = 10
         Case 8
-            intMONSTERSONLEVEL(greenMonster) = 20
-            intMONSTERSONLEVEL(blackMonster) = 20
-            intMONSTERSONLEVEL(bat) = 20
-            intMONSTERSONLEVEL(cloud) = 20
-            intMONSTERSONLEVEL(knightSword) = 20
-            intMONSTERSONLEVEL(knightFlail) = 20
-            intMONSTERSONLEVEL(knightHorse) = 15
+            intMONSTERSONLEVEL(greenMonster) = 15
+            intMONSTERSONLEVEL(blackMonster) = 15
+            intMONSTERSONLEVEL(bat) = 15
+            intMONSTERSONLEVEL(cloud) = 15
+            intMONSTERSONLEVEL(goo) = 10
+            intMONSTERSONLEVEL(knightSword) = 10
+            intMONSTERSONLEVEL(knightFlail) = 10
+            intMONSTERSONLEVEL(knightHorse) = 5
         Case 9
             intMONSTERSONLEVEL(knightSword) = 20
             intMONSTERSONLEVEL(knightFlail) = 20
             intMONSTERSONLEVEL(knightHorse) = 15
             intMONSTERSONLEVEL(dragon) = 1
         Case 10
+            intMONSTERSONLEVEL(motherBat) = 10
             intMONSTERSONLEVEL(dragon) = 15
         Case Else ' not defined above
             generateMONSTERS 10 + (lCURRENTLEVEL * 20) ' generate monsters
@@ -307,3 +310,4 @@ Private Sub Form_Load()
         nC = nC + 1 ' next level button
     Loop
 End Sub
+

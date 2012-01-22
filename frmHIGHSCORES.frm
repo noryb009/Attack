@@ -11,7 +11,7 @@ Begin VB.Form frmHIGHSCORES
    MinButton       =   0   'False
    ScaleHeight     =   3225
    ScaleWidth      =   4680
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton cmdBACK 
       Caption         =   "Back"
       Height          =   375
