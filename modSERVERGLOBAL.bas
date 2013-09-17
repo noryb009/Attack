@@ -32,6 +32,15 @@ Public Declare Sub Sleep Lib "kernel32" ( _
     ByVal dwMilliseconds As Long _
 )
 
+' set option of a winsock control
+Public Declare Function setsockopt Lib "wsock32.dll" ( _
+    ByVal s As Long, _
+    ByVal Level As Long, _
+    ByVal optname As Long, _
+    optval As Any, _
+    ByVal optlen As Long _
+) As Long
+
 Public Sub log(strNEWLINE As String) ' add to log
     frmSERVER.txtLOG.Text = strNEWLINE & vbCrLf & frmSERVER.txtLOG.Text ' add the new text, a new line, then the old text
 End Sub
@@ -103,17 +112,6 @@ Public Sub moveEVERYTHING() ' move all the monsters and flails
     If lMONSTERSKILLED + lMONSTERSATTACKEDCASTLE > UBound(arrTOBEMONSTERS) Then ' if you defeated all the monsters on this level
         bEXIT = True ' exit
     End If
-End Sub
-
-Sub doEVENTSANDSLEEP(lMILLISECONDS As Long)
-    Dim nC As Long
-    nC = 0
-    Do While (nC < lMILLISECONDS \ 100) ' for each 10th of a second in lMILLISECONDS
-        DoEvents ' do any events that need to be done
-        Sleep 100 ' save CPU and sleep
-        nC = nC + 1 ' next 10th of a second
-    Loop
-    Sleep lMILLISECONDS Mod 100 ' sleep for rest of time
 End Sub
 
 Public Sub startGAME() ' start the game
@@ -200,10 +198,12 @@ Public Sub startGAME() ' start the game
     QueryPerformanceFrequency currCURRENTTIME ' currFREQUENCY ' get the frequency of ticks
     dblTIMEBETWEENFRAMES = currCURRENTTIME / FPS ' currFREQUENCY / FPS ' get time between frames needed to reach FPS
     
+    QueryPerformanceCounter currSTARTTIME
+    
     Do While bEXIT = False And bFORCEEXIT = False ' if not exiting yet
         QueryPerformanceCounter currCURRENTTIME ' get current time
-        If currCURRENTTIME >= currSTARTTIME + dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
-            QueryPerformanceCounter currSTARTTIME ' store current time as new start time
+        If currCURRENTTIME - currSTARTTIME >= currFRAMECOUNT * dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
+            currSTARTTIME = currSTARTTIME + dblTIMEBETWEENFRAMES
             moveEVERYTHING ' move everything
         Else
             Sleep 1
@@ -290,7 +290,7 @@ Sub broadcast(strCOMMAND As String, strTOSEND As String) ' send a command to all
     Do While nC < MAXCLIENTS ' for each client
         If cCLIENTS(nC).connected = True Then ' if connected
             cCLIENTS(nC).sendString strCOMMAND, strTOSEND ' send string to client
-            'DoEvents ' do events (including sending this request)
+            DoEvents ' do events (including sending this request)
         End If
         nC = nC + 1 ' next client
     Loop

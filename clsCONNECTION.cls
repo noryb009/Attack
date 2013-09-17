@@ -23,7 +23,13 @@ Attribute sockCONNECTION.VB_VarHelpID = -1
 Dim strBUFFER As String ' stores incomplete received string parts
 
 Public Property Get connected() As Boolean ' get if sockCONNECTION is connected
-    connected = bCONNECTED ' return if connected
+    If bCONNECTED = True Then ' if supposed to be connected
+        connected = True ' return connected
+    ElseIf sockCONNECTION.State = sckConnected Then ' if still connected
+        connected = True ' return connected
+    Else
+        connected = False ' return not connected
+    End If
 End Property
 
 Public Property Let connected(bNEWCONNECTED As Boolean) ' set connected to true/false
@@ -37,6 +43,12 @@ End Property
 Public Property Let arrayID(newID As Long) ' set the array id
     lARRAYID = newID ' set lARRAYID to the new value
 End Property
+
+Private Sub dontBUFFERREQ()
+    ' don't buffer requests
+    '            handle to connection,    TCP, no delay, value, 4 bytes (long)
+    setsockopt sockCONNECTION.SocketHandle, 6, &H1&, 1, 4
+End Sub
 
 Sub sendString(strCOMMAND As String, Optional ByVal strTOSEND As String = "") ' send string to sockCONNECTION's connection
     ' replace special chars in command
@@ -80,11 +92,16 @@ Function connectTOSERVER(strCONNECTTOIP As String) As Boolean
     
     sockCONNECTION.Connect strPARTS(0), longPORT ' connect to client
     
+    dontBUFFERREQ ' don't buffer requests
+    
     connectTOSERVER = True ' success
 End Function
 
 Sub acceptCONNECTION(requestID As Long)
     sockCONNECTION.Accept requestID ' accept the request
+    
+    dontBUFFERREQ ' don't buffer requests
+    
     bCONNECTED = True ' connected
     strBUFFER = "" ' clear buffer
 End Sub
@@ -155,9 +172,12 @@ End Sub
 
 Private Sub sockCONNECTION_SendComplete() ' when done sending a command
     If bCONNECTED = False Then ' if not connected anymore (disconnected)
-        If sockCONNECTION.State = sckConnected Then ' if still connected
-            sockCONNECTION.Close ' close connection
-            log "Connection closed: " & sockCONNECTION.RemoteHostIP ' log closing
+        If sockCONNECTION.State = sckConnected Or sockCONNECTION.State = sckError Then ' if still connected
+            doEVENTSANDSLEEP 500 ' wait a bit
+            If sockCONNECTION.State = sckConnected Or sockCONNECTION.State = sckError Then  ' if still connected
+                sockCONNECTION.Close ' close connection
+                log "Connection closed: " & sockCONNECTION.RemoteHostIP ' log closing
+            End If
         End If
     End If
 End Sub

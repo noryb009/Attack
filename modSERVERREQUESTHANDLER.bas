@@ -4,16 +4,17 @@ Attribute VB_Name = "modREQUESTHANDLER"
 ' 21 November, 2011
 ' Defend your castle!
 
-Sub sckDISCONNECTED(lARRAYID As Long) ' handle client disconnection
+Sub sckDISCONNECTED(lARRAYID As Long, Optional bDISABLEQUIET As Boolean = False) ' handle client disconnection
     log cCLIENTS(lARRAYID).ip & " (" & cCLIENTINFO(lARRAYID).strNAME & ") disconnected." ' log that the client disconnected
-    
-    If cCLIENTINFO(lARRAYID).strNAME <> "" Then ' if had name
-        broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" logged out]") ' alert users about logging out
-    End If
     
     cCLIENTINFO(lARRAYID).reset ' reset client info for next client
     intPLAYERS = intPLAYERS - 1
     broadcastPLAYERLIST ' give clients updated player list
+    
+    If bDISABLEQUIET = False And cCLIENTINFO(lARRAYID).strNAME <> "" Then ' if had name
+        broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" logged out]") ' alert users about logging out
+    End If
+    
     checkIFEVERYONEREADY ' see if everyone is ready
     
     If intPLAYERS = 0 Then ' nobody playing
@@ -26,6 +27,7 @@ End Sub
 
 Sub handleError(lARRAYID As Long, strDESCRIPTION As String) ' handle an error from clsCONNECTION
     log "Error from " & lARRAYID & ": " & strDESCRIPTION ' log error
+    cCLIENTS(lARRAYID).disconnect
 End Sub
 
 Sub broadcastPLAYERLIST() ' turn the player list into a sendable string, then broadcast it
@@ -141,7 +143,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
             nC = 0
             Do While nC < MAXCLIENTS ' for each client
                 If cCLIENTS(nC).connected = True And nC <> lARRAYID Then ' if user if connected and not the current client
-                    If cCLIENTINFO(nC).strNAME = strDESCRIPTION Then ' if the name is the same
+                    If UCase(cCLIENTINFO(nC).strNAME) = UCase(strDESCRIPTION) Then ' if the name is the same
                         cCLIENTS(lARRAYID).sendString "DISCONNECT", "name already in use" ' disconnect user
                         cCLIENTS(lARRAYID).connected = False ' not connected anymore
                         Exit Sub ' exit
@@ -204,6 +206,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                 End If
                 broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
                 broadcast "health", CLng(lCASTLECURRENTHEALTH) ' update other clients with new health
+                broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" bought more health. You now have " & addZEROIFNOTZERO(lCASTLECURRENTHEALTH) & "/" & lCASTLEMAXHEALTH & "0 health.]")
             Else ' bad command
                 log "Bad 'heal' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log the bad command
             End If
@@ -219,6 +222,7 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                 broadcast "moneyTotal", CStr(lMONEY) ' broadcast new money
                 broadcast "maxHealth", CLng(lCASTLEMAXHEALTH) ' broadcast new max health
                 broadcast "health", CLng(lCASTLECURRENTHEALTH) ' broadcast new health
+                broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" bought more max health. You now have " & lCASTLEMAXHEALTH & "0 health.]")
             Else ' bad command
                 log "Bad 'addHealth' command from " & cCLIENTS(lARRAYID).ip & ": " & strDESCRIPTION ' log bad command
             End If
@@ -230,12 +234,15 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
                     If strBUYPARTS(0) = "power" Then ' if buying power
                         intFLAILPOWER = intFLAILPOWER + 1 ' increase power
                         broadcast "flaPower", CStr(intFLAILPOWER) ' broadcast new power
+                        broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" bought more flail power. You now have " & intFLAILPOWER & " flail power.]")
                     ElseIf strBUYPARTS(0) = "goThrough" Then ' if buying go through
                         intFLAILGOTHROUGH = intFLAILGOTHROUGH + 1 ' increase go through
                         broadcast "flaGoThrough", CStr(intFLAILGOTHROUGH) ' broadcast go through
+                        broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" bought more flail piercing power. You now have " & intFLAILGOTHROUGH & " flail piercing power.]")
                     Else 'If strBUYPARTS(0) = "amount" Then ' if buying amount
                         intFLAILAMOUNT = intFLAILAMOUNT + 1 ' increase amount
                         broadcast "flaAmount", CStr(intFLAILAMOUNT) ' broadcast amount
+                        broadcast "chat", formatCHATMSG("[") & formatCHATMSG(cCLIENTINFO(lARRAYID).strNAME, lPLAYERCOLOURS(lARRAYID)) & formatCHATMSG(" bought more another flail. You now have " & intFLAILAMOUNT & " flails.]")
                     End If
                     lMONEY = lMONEY - CLng(strBUYPARTS(1)) ' money spent
                 Else

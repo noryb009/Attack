@@ -1,4 +1,7 @@
-- add troll
+online:
 - story and instructions
-- spread left/right
-- default online IP -> nothing
+
+- ready: hold enter
+- beep on pressing enter in lobby
+- 2nd player score in wrong spot
+- default online IP

@@ -54,7 +54,11 @@ Public Sub moveMONSTER() ' move monster
     
     If (sngMOVINGH > 0 And sngX + cmontypeMONSTERINFO(intTYPE).lWIDTH > castleWALLLEFT) Or (sngMOVINGH < 0 And sngX < castleWALLRIGHT) Then ' if attacking castle
         If onlineMODE = False Then
-            lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH - cmontypeMONSTERINFO(intTYPE).intATTACKPOWER ' take away health
+            If lCASTLECURRENTHEALTH - cmontypeMONSTERINFO(intTYPE).intATTACKPOWER < 0 Then
+                lCASTLECURRENTHEALTH = 0
+            Else
+                lCASTLECURRENTHEALTH = lCASTLECURRENTHEALTH - cmontypeMONSTERINFO(intTYPE).intATTACKPOWER ' take away health
+            End If
             lMONSTERSATTACKEDCASTLE = safeADDLONG(lMONSTERSATTACKEDCASTLE, 1) ' add to the number of monsters which attacked castle
             bACTIVE = False ' disable monster
         End If

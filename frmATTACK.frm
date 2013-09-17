@@ -6,6 +6,7 @@ Begin VB.Form frmATTACK
    ClientLeft      =   825
    ClientTop       =   1365
    ClientWidth     =   4170
+   Icon            =   "frmATTACK.frx":0000
    LinkTopic       =   "Form1"
    ScaleHeight     =   92
    ScaleMode       =   3  'Pixel
@@ -58,19 +59,47 @@ Sub playGAME()
     QueryPerformanceFrequency currCURRENTTIME ' currFREQUENCY ' get the frequency of ticks
     dblTIMEBETWEENFRAMES = currCURRENTTIME / FPS ' currFREQUENCY / FPS ' get time between frames needed to reach FPS
     
-    Do While bEXIT = False And bFORCEEXIT = False ' if not exiting yet
-        QueryPerformanceCounter currCURRENTTIME ' get current time
-        If currCURRENTTIME >= currSTARTTIME + dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
-            QueryPerformanceCounter currSTARTTIME ' store current time as new start time
-            If bPAUSED = False Then ' if not paused
-                moveEVERYTHING ' move everything
-                drawEVERYTHING ' draw everything
+    QueryPerformanceCounter currSTARTTIME
+    
+    If onlineMODE = False Then
+        Do While bEXIT = False And bFORCEEXIT = False ' if not exiting yet
+            QueryPerformanceCounter currCURRENTTIME ' get current time
+            If currCURRENTTIME >= currSTARTTIME + dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
+                QueryPerformanceCounter currSTARTTIME ' store current time as new start time
+                If bPAUSED = False Then ' if not paused
+                    moveEVERYTHING ' move everything
+                    drawEVERYTHING ' draw everything
+                End If
+            Else
+                Sleep 1 ' sleep
             End If
-        Else
-            Sleep 1 ' sleep
-        End If
-        DoEvents ' do any events needed to be done
-    Loop
+            DoEvents ' do any events needed to be done
+        Loop
+    Else
+        Dim intDRAW As Integer
+        Do While bEXIT = False And bFORCEEXIT = False ' if not exiting yet
+            QueryPerformanceCounter currCURRENTTIME ' get current time
+            If currCURRENTTIME - currSTARTTIME >= currFRAMECOUNT * dblTIMEBETWEENFRAMES Then ' if start time + time between frame = current time, then time for the next frame
+                'QueryPerformanceCounter currSTARTTIME ' store current time as new start time
+                currSTARTTIME = currSTARTTIME + dblTIMEBETWEENFRAMES
+                moveEVERYTHING ' move everything
+                'drawEVERYTHING ' draw everything
+                intDRAW = intDRAW + 1
+                If intDRAW = 5 Then
+                    drawEVERYTHING ' draw everything
+                    intDRAW = 0
+                End If
+            Else
+                If intDRAW > 0 Then
+                    drawEVERYTHING ' draw everything
+                    intDRAW = 0
+                Else
+                    Sleep 1 ' sleep
+                End If
+            End If
+            DoEvents ' do any events needed to be done
+        Loop
+    End If
     
     If lCASTLECURRENTHEALTH <= 0 Then ' if you died
         lCASTLECURRENTHEALTH = 0 ' reset health
@@ -245,6 +274,7 @@ Sub drawBUFFER() ' draw buffer to screen
     frmATTACK.Cls ' clear screen
     
     'BitBlt frmATTACK.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, cbitBUFFER.hdc, 0, 0, vbSrcCopy
+    SetStretchBltMode frmATTACK.hdc, vbPaletteModeNone
     StretchBlt frmATTACK.hdc, 0, 0, frmATTACK.ScaleWidth, frmATTACK.ScaleHeight, cbitBUFFER.hdc, 0, 0, cbitBUFFER.width, cbitBUFFER.height, vbSrcCopy ' copy buffer to screen
     
     frmATTACK.Refresh ' refresh screen
@@ -530,6 +560,8 @@ Sub drawEVERYTHING() ' draw everything to the screen
         nC = 0
         Do While nC < MAXCLIENTS ' for each clients
             If ccinfoPLAYERINFO(nC).strNAME <> "" Then ' if player spot is being used
+                BitBlt cbitBUFFER.hdc, ((windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1)) - (widthOFTEXT(ccinfoPLAYERINFO(nC).strNAME) \ 2) - flailSIZEPX, 5, flailSIZEPX, flailSIZEPX, csprFLAIL.frameMaskhDC(nC + 1), 0, 0, vbSrcAnd
+                BitBlt cbitBUFFER.hdc, ((windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1)) - (widthOFTEXT(ccinfoPLAYERINFO(nC).strNAME) \ 2) - flailSIZEPX, 5, flailSIZEPX, flailSIZEPX, csprFLAIL.framehDC(nC + 1), 0, 0, vbSrcPaint
                 writeONIMAGE ccinfoPLAYERINFO(nC).strNAME, cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 5, 0, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player name
                 writeONIMAGE addZEROIFNOTZERO(ccinfoPLAYERINFO(nC).lLEVELSCORE), cbitBUFFER.hdc, (windowX \ (intPLAYERS + 1)) * (intCURRENTPLAYER + 1), 19, 0, (windowX \ intPLAYERS + 1 \ csprFONT.width) ' draw player score
                 intCURRENTPLAYER = intCURRENTPLAYER + 1 ' found one more player

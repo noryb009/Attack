@@ -4,8 +4,8 @@ Attribute VB_Name = "modSHAREDSUBS"
 ' 21 November, 2011
 ' Defend your castle!
 
-Global Const VERSION = "0.0.0.1a" ' version of the game
-Global Const MAXCLIENTS = 4 ' max number of clients
+Global Const VERSION = "0.0.0.1e" ' version of the game
+Global Const MAXCLIENTS = 19 ' max number of clients
 
 Global Const numberOfMonsters = 12 ' number of types of monsters
 Public Enum monsterNames ' names of monsters
@@ -86,9 +86,24 @@ End Sub
 
 Sub loadPLAYERCOLOURS()
     lPLAYERCOLOURS(0) = RGB(96, 0, 0) ' red
-    lPLAYERCOLOURS(1) = RGB(0, 0, 255) ' blue
-    lPLAYERCOLOURS(2) = RGB(0, 96, 0) ' green
-    lPLAYERCOLOURS(3) = RGB(216, 127, 0) ' orange
+    lPLAYERCOLOURS(1) = RGB(174, 174, 174) ' grey
+    lPLAYERCOLOURS(2) = RGB(255, 128, 128) ' dark pink
+    lPLAYERCOLOURS(3) = RGB(0, 0, 128) ' dark blue
+    lPLAYERCOLOURS(4) = RGB(30, 255, 30) ' light green
+    lPLAYERCOLOURS(5) = RGB(128, 0, 255) ' dark purple
+    lPLAYERCOLOURS(6) = RGB(216, 127, 0) ' yellow
+    lPLAYERCOLOURS(7) = RGB(216, 127, 0) ' orange
+    lPLAYERCOLOURS(8) = RGB(128, 64, 0) ' brown
+    lPLAYERCOLOURS(9) = RGB(255, 0, 128) ' pink
+    lPLAYERCOLOURS(10) = RGB(109, 109, 109) ' dark grey
+    lPLAYERCOLOURS(11) = RGB(191, 191, 0) ' dark yellow
+    lPLAYERCOLOURS(12) = RGB(128, 0, 128) ' dark purple
+    lPLAYERCOLOURS(13) = RGB(2, 2, 2) ' black
+    lPLAYERCOLOURS(14) = RGB(255, 0, 255) ' light purple
+    lPLAYERCOLOURS(15) = RGB(0, 255, 255) ' cyan
+    lPLAYERCOLOURS(16) = RGB(0, 128, 0) ' dark green
+    lPLAYERCOLOURS(17) = RGB(0, 255, 128) ' teal
+    lPLAYERCOLOURS(18) = RGB(0, 64, 64) ' dark blue
 End Sub
 
 Function getMOVESPEED() As Single ' get the movement speed (used by server and online client)
@@ -98,6 +113,17 @@ End Function
 Function getMONSTERSLEFT() As String ' returns the monsters left in the level
     getMONSTERSLEFT = CStr((UBound(arrTOBEMONSTERS) + 1) - lMONSTERSKILLED - lMONSTERSATTACKEDCASTLE) ' calculate the monsters left
 End Function
+
+Sub doEVENTSANDSLEEP(lMILLISECONDS As Long)
+    Dim nC As Long
+    nC = 0
+    Do While (nC < lMILLISECONDS \ 100) ' for each 10th of a second in lMILLISECONDS
+        DoEvents ' do any events that need to be done
+        Sleep 100 ' save CPU and sleep
+        nC = nC + 1 ' next 10th of a second
+    Loop
+    Sleep lMILLISECONDS Mod 100 ' sleep for rest of time
+End Sub
 
 Function addZEROIFNOTZERO(lVALUE As Long) As String
     If lVALUE = 0 Then

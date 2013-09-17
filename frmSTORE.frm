@@ -6,6 +6,7 @@ Begin VB.Form frmSTORE
    ClientLeft      =   -15
    ClientTop       =   285
    ClientWidth     =   6945
+   Icon            =   "frmSTORE.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False

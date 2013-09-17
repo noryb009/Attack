@@ -20,6 +20,8 @@ Global strDATABASEPATH As String ' path to data base
 Global arrcMONSTERPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going right
 Global arrcMONSTERLPICS(0 To numberOfMonsters - 1) As New clsSPRITE ' images of monsters going left
 
+Global strLASTIP As String ' last IP you used
+
 ' images
 Global csprFLAIL As New clsSPRITE ' flail image
 Global cbitBACKGROUND As New clsBITMAP ' static background
@@ -73,6 +75,13 @@ Public Declare Function StretchBlt Lib "gdi32.dll" ( _
     ByVal nSrcHeight As Long, _
     ByVal dwRop As Long _
 ) As Long
+
+' set StretchBlt mode
+Public Declare Function SetStretchBltMode Lib "gdi32" ( _
+    ByVal hdc As Long, _
+    ByVal hStretchMode As Long _
+) As Long
+
 
 ' load image from a file
 Public Declare Function LoadImage Lib "user32" Alias "LoadImageA" ( _
@@ -159,6 +168,15 @@ Public Declare Function QueryPerformanceFrequency Lib "kernel32" ( _
 Public Declare Sub Sleep Lib "kernel32" ( _
     ByVal dwMilliseconds As Long _
 )
+
+' set option of a winsock control
+Public Declare Function setsockopt Lib "wsock32.dll" ( _
+    ByVal s As Long, _
+    ByVal Level As Long, _
+    ByVal optname As Long, _
+    optval As Any, _
+    ByVal optlen As Long _
+) As Long
 
 ' escape ' to use in SQL queries
 Public Function escapeQUOTES(strINPUT As String) As String

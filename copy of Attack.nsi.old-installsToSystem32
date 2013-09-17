@@ -41,7 +41,6 @@ Section "Attack"
 	
 	new_installation:
 	# VB DLLs
-	SetOverwrite off
 	# http://activex.microsoft.com/controls/vb6/mswinsck.cab
 	!insertmacro InstallLib REGDLL $ALREADY_INSTALLED REBOOT_PROTECTED \
 		"Support\mswinsck.ocx" "$SysDir\mswinsck.ocx" "$SysDir"
@@ -68,7 +67,6 @@ Section "Attack"
 		"Support\MSJET35.DLL" "$SysDir\MSJET35.DLL" "$SysDir"
 	!insertmacro InstallLib REGDLL $ALREADY_INSTALLED REBOOT_PROTECTED \
 		"Support\DAO350.DLL" "$CommonFiles\Microsoft Shared\DAO\DAO350.DLL" "$CommonFiles\Microsoft Shared\DAO"
-	SetOverwrite on
 	
 	# Register Winsock
 	StrCmp $ALREADY_INSTALLED 1 AfterRegWinsock # skip if Attack already installed
@@ -109,9 +107,7 @@ Section "Attack"
 	SetOutPath "$InstDir"
 	File /a "prjATTACK.exe"
 	File /a "prjATTACKSERVER.exe"
-	SetOverwrite off
 	File /a "Support\saveFiles.mdb" #empty database in Support folder
-	SetOverwrite on
 	
 	#Registry
 	WriteRegStr HKLM "Software\Attack" Version "0.0.0.1a"
@@ -208,7 +204,6 @@ Section "-Install VB6 runtimes"
 	
 	new_installation2:
 	
-	SetOverwrite off
 	!insertmacro InstallLib REGDLL $ALREADY_INSTALLED REBOOT_NOTPROTECTED \
 		"Support\msvbvm60.dll" "$SYSDIR\msvbvm60.dll" "$SYSDIR"
 	!insertmacro InstallLib REGDLL $ALREADY_INSTALLED REBOOT_PROTECTED \
@@ -221,7 +216,6 @@ Section "-Install VB6 runtimes"
 		"Support\asycfilt.dll" "$SYSDIR\asycfilt.dll" "$SYSDIR"
 	!insertmacro InstallLib TLB    $ALREADY_INSTALLED REBOOT_PROTECTED \
 		"Support\stdole2.tlb"  "$SYSDIR\stdole2.tlb"  "$SYSDIR"
-	SetOverwrite on
 SectionEnd
 
 Section "-un.Uninstall VB6 runtimes"

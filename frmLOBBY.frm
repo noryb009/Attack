@@ -6,6 +6,7 @@ Begin VB.Form frmLOBBY
    ClientLeft      =   60
    ClientTop       =   450
    ClientWidth     =   6135
+   Icon            =   "frmLOBBY.frx":0000
    LinkTopic       =   "Form1"
    ScaleHeight     =   216
    ScaleMode       =   3  'Pixel
@@ -23,8 +24,8 @@ Begin VB.Form frmLOBBY
       _Version        =   393217
       Enabled         =   -1  'True
       ReadOnly        =   -1  'True
-      ScrollBars      =   1
-      TextRTF         =   $"frmLOBBY.frx":0000
+      ScrollBars      =   2
+      TextRTF         =   $"frmLOBBY.frx":1042
    End
    Begin RichTextLib.RichTextBox rtbCHATLOG 
       Height          =   1935
@@ -38,7 +39,7 @@ Begin VB.Form frmLOBBY
       _Version        =   393217
       ReadOnly        =   -1  'True
       ScrollBars      =   2
-      TextRTF         =   $"frmLOBBY.frx":0082
+      TextRTF         =   $"frmLOBBY.frx":10C4
    End
    Begin VB.CommandButton cmdREADY 
       Caption         =   "cmdREADY"
@@ -200,6 +201,7 @@ Private Sub cmdREADY_Click()
         cmdREADY.BackColor = vbGreen ' change back colour of ready button
     End If
     cSERVER(0).sendString "ready", CStr(bREADY) ' send to server that you are ready/not ready
+    txtMESSAGE.SetFocus ' set focus to chat text box
 End Sub
 
 Private Sub cmdSEND_Click()
@@ -246,6 +248,7 @@ End Sub
 Private Sub txtMESSAGE_KeyPress(KeyAscii As Integer)
     If KeyAscii = vbKeyReturn Then ' pressed enter
         sendMESSAGE ' send the message to the server
+        KeyAscii = 0
     End If
 End Sub
 

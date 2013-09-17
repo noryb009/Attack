@@ -6,6 +6,7 @@ Begin VB.Form frmLEVELSELECT
    ClientLeft      =   -15
    ClientTop       =   285
    ClientWidth     =   4545
+   Icon            =   "frmLEVELSELECT.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False

@@ -6,6 +6,7 @@ Begin VB.Form frmNEWGAME
    ClientLeft      =   -15
    ClientTop       =   375
    ClientWidth     =   4800
+   Icon            =   "frmNEWGAME.frx":0000
    LinkTopic       =   "Form1"
    MaxButton       =   0   'False
    MinButton       =   0   'False
@@ -40,7 +41,6 @@ Begin VB.Form frmNEWGAME
       Height          =   375
       Left            =   120
       TabIndex        =   4
-      Text            =   "127.0.0.1"
       Top             =   1800
       Visible         =   0   'False
       Width           =   2415
@@ -298,15 +298,13 @@ Sub newGAME()
     Unload frmNEWGAME ' hide this form
 End Sub
 
-Private Sub cmdNEWSPGAME_Click()
-    newGAME ' start a new game
-End Sub
-
-Private Sub cmdNEWMPGAME_Click()
+Sub newMPGAME()
     If Trim(txtNAME.Text) = "" Then ' if name is empty
         MsgBox "Please input a name.", vbOKOnly, programNAME ' alert user
         Exit Sub
     End If
+    
+    strLASTIP = txtIP.Text ' save IP for next time
     
     onlineMODE = True ' online
     strNAME = Trim(txtNAME.Text) ' save name
@@ -329,11 +327,23 @@ Private Sub cmdNEWMPGAME_Click()
     'cmdNEWMPGAME.Enabled = False
 End Sub
 
+Private Sub cmdNEWSPGAME_Click()
+    newGAME ' start a new game
+End Sub
+
+Private Sub cmdNEWMPGAME_Click()
+    newMPGAME ' start a new multiplayer game
+End Sub
+
 Private Sub txtNAME_KeyPress(KeyAscii As Integer)
     If onlineMODE = False Then ' if not playing online
         Select Case KeyAscii
             Case 13 ' enter
-                newGAME ' start a new game
+                If txtIP.Visible = False Then ' single player
+                    newGAME ' start a new game
+                Else ' multiplayer
+                    newMPGAME
+                End If
         End Select
     End If
 End Sub
@@ -344,6 +354,12 @@ End Sub
 
 Private Sub Form_Load()
     Set dbSAVEFILES = OpenDatabase(strDATABASEPATH) ' open database
+    If strLASTIP <> "" Then ' if you have used an IP before
+        txtIP.Text = strLASTIP ' get last IP used
+    Else ' use default IP
+        'txtIP.Text = "127.0.0.1" ' local host
+        txtIP.Text = "10.13.126.117" ' my computer IP in ICS3U
+    End If
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)

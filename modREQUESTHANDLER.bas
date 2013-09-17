@@ -204,12 +204,14 @@ Public Sub handleREQUEST(lARRAYID As Long, strCOMMAND As String, strDESCRIPTION 
     
     Select Case strCOMMAND
         Case "DISCONNECT" ' disconnect
-            If strDESCRIPTION = "" Then
+            cSERVER(0).connected = False ' not connected anymore
+            cSERVER(0).disconnect ' disconnect from server
+            sckDISCONNECTED 0, False ' disconnect event
+            If strDESCRIPTION = "" Then ' unknown reason
                 MsgBox "Disconnected from host!", vbOKOnly, programNAME ' alert that you were disconnected
-            Else
+            Else ' reason given
                 MsgBox "Disconnected from host: " & strDESCRIPTION, vbOKOnly, programNAME ' alert reason that you were disconnected
             End If
-            sckDISCONNECTED 0, False ' disconnect
         Case "VERSION" ' server wants version
             cSERVER(0).connected = True ' set as connected
             cSERVER(0).sendString "VERSION", VERSION ' send version
